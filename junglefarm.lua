@@ -1,497 +1,251 @@
-local menuRoot = Menu.Create("Scripts", "User Scripts", "AutoFarmer")
-local optionsRoot = menuRoot:Create("Options")
-local optionsMain = optionsRoot:Create("Main")
+-- ============================================================================
+-- Auto Farmer for Jungle Camps
+-- Automatically sends selected units to farm jungle camps in sequence
+-- ============================================================================
 
-local toggleKey = optionsMain:Bind(
-    "Ativar Fazendeiro de Selva",
-    Enum.ButtonCode.KEY_0,
-    "panorama/images/spellicons/rattletrap_power_cogs_png.vtex_c"
-)
-local unitsPerCamp = optionsMain:Slider("Unidades por acampamento", 1, 5, 1)
-local queuedCamps = optionsMain:Slider("Acampamentos na fila", 1, 10, 3)
-local searchRadius = optionsMain:Slider("Raio máximo de busca", 1000, 20000, 12000, function(v)
-    return string.format("%.0f", v)
-end)
-local avoidAllies = optionsMain:Switch("Evitar acampamentos com aliados próximos", true)
-local allyRadius = optionsMain:Slider("Raio para detectar aliados", 300, 2000, 800, function(v)
-    return string.format("%.0f", v)
-end)
-local autoHeal = optionsMain:Switch("Voltar para curar se estiver morrendo", true)
-local healPercent = optionsMain:Slider("HP% para curar", 5, 80, 30, function(v)
-    return string.format("%d%%", v)
-end)
-local enemyAlert = optionsMain:Switch("Fugir se houver inimigo por perto", true)
-local enemyRadius = optionsMain:Slider("Raio para detectar inimigos", 600, 2000, 1200, function(v)
-    return string.format("%.0f", v)
-end)
+-- UI Setup
+local menu = Menu.Create("Scripts", "User Scripts", "AutoFarmer")
+local options = menu:Create("Options"):Create("Main")
+local toggleKey = options:Bind("Активировать Авто-фармер леса", Enum.ButtonCode.KEY_0, "panorama/images/spellicons/rattletrap_power_cogs_png.vtex_c")
+local unitsPerCamp = options:Slider("Юнитов на 1 кемп", 1, 5, 1)
+local campsInQueue = options:Slider("Кемпов в очередь", 1, 10, 3)
 
-local toggleState = false
+-- State Variables
+local botEnabled = false
 local lastKeyState = false
+local commandsQueued = false
 local visitedCamps = {}
-local activeGroups = {}
-local retreatingUnits = {}
-local groupDanger = {}
 
-local fountainPositions = {
-    [Enum.TeamNum.TEAM_RADIANT] = Vector(-7019, -6534, 384),
-    [Enum.TeamNum.TEAM_DIRE] = Vector(6846, 6251, 384)
-}
-
-local function getPlayerTeam()
-    local player = Players.GetLocal()
-    if not player then
+-- ============================================================================
+-- Get Center Position of a Camp
+-- ============================================================================
+local function GetCampCenter(camp)
+    if not camp then 
         return nil
     end
-
-    local slot = Player.GetPlayerSlot(player)
-    return ((slot < 5) and Enum.TeamNum.TEAM_RADIANT) or Enum.TeamNum.TEAM_DIRE
+    
+    local box = Camp.GetCampBox(camp)
+    if not box or not box.min or not box.max then 
+        return nil
+    end
+    
+    local centerX = (box.min:GetX() + box.max:GetX()) / 2
+    local centerY = (box.min:GetY() + box.max:GetY()) / 2
+    local centerZ = (box.min:GetZ() + box.max:GetZ()) / 2
+    
+    return Vector(centerX, centerY, centerZ)
 end
 
-local function getCampCenter(camp)
-    if not camp then
-        return nil
-    end
-
-    local campBox = Camp.GetCampBox(camp)
-    if not campBox or not campBox.min or not campBox.max then
-        return nil
-    end
-
-    local cx = (campBox.min:GetX() + campBox.max:GetX()) / 2
-    local cy = (campBox.min:GetY() + campBox.max:GetY()) / 2
-    local cz = (campBox.min:GetZ() + campBox.max:GetZ()) / 2
-
-    return Vector(cx, cy, cz)
-end
-
-local function getAllCamps()
-    local camps = Camps.GetAll()
-    if not camps or (#camps == 0) then
+-- ============================================================================
+-- Get All Camps with Centers
+-- ============================================================================
+local function GetAllCampsWithCenters()
+    local allCamps = Camps.GetAll()
+    if not allCamps or #allCamps == 0 then 
         return {}
     end
-
-    local data = {}
-    for index, camp in ipairs(camps) do
-        local center = getCampCenter(camp)
+    
+    local campsData = {}
+    for index, camp in ipairs(allCamps) do
+        local center = GetCampCenter(camp)
         if center then
-            table.insert(data, { camp = camp, center = center, index = index })
+            table.insert(campsData, {
+                camp = camp,
+                center = center,
+                index = index
+            })
         end
     end
-
-    return data
+    
+    return campsData
 end
 
-local function isAllyNearby(position)
-    if not avoidAllies:Get() then
-        return false
-    end
-
-    local player = Players.GetLocal()
-    if not player then
-        return false
-    end
-
-    local slot = Player.GetPlayerSlot(player)
-    local team = ((slot < 5) and Enum.TeamNum.TEAM_RADIANT) or Enum.TeamNum.TEAM_DIRE
-    local allies = Heroes.InRadius(position, allyRadius:Get(), team, Enum.TeamType.TEAM_FRIEND) or {}
-
-    for _, ally in ipairs(allies) do
-        if Entity.IsAlive(ally) and ally ~= Heroes.GetLocal() then
-            return true
-        end
-    end
-
-    return false
-end
-
-local function findNearestCamps(origin, count, blacklist, maxRadius, allowReuse)
-    local campData = getAllCamps()
-    if (#campData == 0) then
+-- ============================================================================
+-- Find Nearest Camps to Position
+-- ============================================================================
+local function FindNearestCamps(position, count, excludedIndices)
+    local allCamps = GetAllCampsWithCenters()
+    if #allCamps == 0 then 
         return {}
     end
-
-    local radius = maxRadius or searchRadius:Get()
-
-    table.sort(campData, function(a, b)
-        local distA = (a.center - origin):Length2D()
-        local distB = (b.center - origin):Length2D()
+    
+    -- Sort by distance
+    table.sort(allCamps, function(a, b)
+        local distA = (a.center - position):Length2D()
+        local distB = (b.center - position):Length2D()
         return distA < distB
     end)
-
+    
+    -- Select nearest camps that aren't excluded
     local selected = {}
-    for _, campInfo in ipairs(campData) do
-        if (#selected >= count) then
+    for _, campData in ipairs(allCamps) do
+        if #selected >= count then 
             break
         end
-
-        local distance = (campInfo.center - origin):Length2D()
-        if radius and distance > radius then
-            break
-        end
-
-        local alreadyVisited = false
-        if blacklist and (not allowReuse) then
-            for _, idx in ipairs(blacklist) do
-                if campInfo.index == idx then
-                    alreadyVisited = true
+        
+        local isExcluded = false
+        if excludedIndices then
+            for _, excludedIndex in ipairs(excludedIndices) do
+                if campData.index == excludedIndex then
+                    isExcluded = true
                     break
                 end
             end
         end
-
-        if not alreadyVisited then
-            if isAllyNearby(campInfo.center) then
-                print(string.format(
-                    "[AutoFarmer] Ignorando acampamento #%d: aliado próximo.",
-                    campInfo.index
-                ))
-            else
-                table.insert(selected, campInfo)
-            end
+        
+        if not isExcluded then
+            table.insert(selected, campData)
         end
     end
-
+    
     return selected
 end
 
-local function queueGroupToCamps(units, startPos, maxCamps, blacklist)
+-- ============================================================================
+-- Queue Camp Orders for Unit Group
+-- ============================================================================
+local function QueueCampOrders(units, startPosition, maxCamps, excludedCamps)
     local player = Players.GetLocal()
-    local selection = {}
-    local remaining = math.min(queuedCamps:Get(), maxCamps or 3)
-    local currentOrigin = startPos
-
-    for _ = 1, remaining do
-        local nearest = findNearestCamps(currentOrigin, 1, blacklist)
-        if (#nearest == 0) then
+    local campSequence = {}
+    local numCamps = math.min(campsInQueue:Get(), maxCamps or 3)
+    local currentPos = startPosition
+    
+    -- Find sequence of nearest camps
+    for i = 1, numCamps do
+        local nearest = FindNearestCamps(currentPos, 1, excludedCamps)
+        if #nearest == 0 then 
             break
         end
-
-        local camp = nearest[1]
-        table.insert(blacklist, camp.index)
-        table.insert(selection, { campIndex = camp.index, campCenter = camp.center })
-        currentOrigin = camp.center
-
-        print(string.format(
-            "[AutoFarmer] Acampamento detectado #%d (%.0f, %.0f)",
-            camp.index,
-            camp.center:GetX(),
-            camp.center:GetY()
-        ))
+        
+        local campData = nearest[1]
+        table.insert(excludedCamps, campData.index)
+        table.insert(campSequence, {
+            campIndex = campData.index,
+            campCenter = campData.center
+        })
+        currentPos = campData.center
+        
+        print(string.format("[AutoFarmer] Засечен кемп #%d (%.0f, %.0f)", 
+            campData.index, 
+            campData.center:GetX(), 
+            campData.center:GetY()))
     end
-
-    local orderList = {}
-    for i = #selection, 1, -1 do
-        table.insert(orderList, selection[i])
+    
+    -- Reverse order for queue (last camp first in queue)
+    local reversed = {}
+    for i = #campSequence, 1, -1 do
+        table.insert(reversed, campSequence[i])
     end
-
-    for _, campOrder in ipairs(orderList) do
+    
+    -- Issue attack-move orders
+    for _, camp in ipairs(reversed) do
         Player.PrepareUnitOrders(
             player,
             Enum.UnitOrder.DOTA_UNIT_ORDER_ATTACK_MOVE,
             nil,
-            campOrder.campCenter,
+            camp.campCenter,
             nil,
             Enum.PlayerOrderIssuer.DOTA_ORDER_ISSUER_SELECTED_UNITS,
             units,
-            true,
+            true,  -- queue
             false,
             false,
             true,
             nil,
             true
         )
-
-        print(string.format(
-            "[AutoFarmer] Grupo enviado para o acampamento #%d (%.0f, %.0f)",
-            campOrder.campIndex,
-            campOrder.campCenter:GetX(),
-            campOrder.campCenter:GetY()
-        ))
+        
+        print(string.format("[AutoFarmer] Группа юнитов отправлена на кемп #%d (%.0f, %.0f)", 
+            camp.campIndex, 
+            camp.campCenter:GetX(), 
+            camp.campCenter:GetY()))
     end
-
-    local indexes = {}
-    for _, campOrder in ipairs(selection) do
-        table.insert(indexes, campOrder.campIndex)
+    
+    -- Return camp indices that were queued
+    local queuedIndices = {}
+    for _, camp in ipairs(campSequence) do
+        table.insert(queuedIndices, camp.campIndex)
     end
-
-    return indexes
+    
+    return queuedIndices
 end
 
-local function sendUnitsToFountain(units)
-    local team = getPlayerTeam()
-    local fountain = team and fountainPositions[team]
-    if not fountain then
-        return
-    end
-
-    local player = Players.GetLocal()
-    if not player then
-        return
-    end
-    for _, unit in ipairs(units) do
-        if Entity.IsAlive(unit) then
-            Player.HoldPosition(player, unit)
-            NPC.MoveTo(unit, fountain)
-        end
-    end
-end
-
-local function checkRetreatState(unit)
-    if not Entity.IsAlive(unit) then
-        retreatingUnits[Entity.GetIndex(unit)] = nil
-        return false
-    end
-
-    local currentHP = Entity.GetHealth(unit)
-    local maxHP = Entity.GetMaxHealth(unit)
-    if not maxHP or maxHP == 0 then
-        return false
-    end
-
-    local hpPct = currentHP / maxHP
-    local retreatThreshold = healPercent:Get() / 100
-    local returnThreshold = math.min(0.95, retreatThreshold + 0.1)
-    local idx = Entity.GetIndex(unit)
-
-    if autoHeal:Get() and hpPct < retreatThreshold then
-        retreatingUnits[idx] = true
-        return true
-    end
-
-    if retreatingUnits[idx] then
-        if hpPct >= returnThreshold then
-            retreatingUnits[idx] = nil
-            return false
-        end
-        return true
-    end
-
-    return false
-end
-
-local function enemyNearby(unit)
-    if not enemyAlert:Get() then
-        return false
-    end
-
-    local team = getPlayerTeam()
-    if not team then
-        return false
-    end
-
-    local origin = Entity.GetAbsOrigin(unit)
-    local enemies = Heroes.InRadius(origin, enemyRadius:Get(), team, Enum.TeamType.TEAM_ENEMY) or {}
-    for _, enemy in ipairs(enemies) do
-        if Entity.IsAlive(enemy) then
-            return true
-        end
-    end
-
-    return false
-end
-
-local function groupIsBusy(units)
-    for _, unit in ipairs(units) do
-        if Entity.IsAlive(unit) then
-            if NPC.IsAttacking(unit) or NPC.IsAttackingNPC(unit) or NPC.IsAttackingPlayer(unit) then
-                return true
-            end
-            if NPC.IsRunning(unit) or Entity.IsMoving(unit) then
-                return true
-            end
-            if NPC.IsChannelingAbility(unit) then
-                return true
-            end
-        end
-    end
-
-    return false
-end
-
-local function campHasNeutrals(campCenter)
-    for _, npc in ipairs(NPCs.GetAll()) do
-        if npc and Entity.IsAlive(npc) and Entity.GetTeamNum(npc) == Enum.TeamNum.TEAM_NEUTRAL then
-            local distance = (Entity.GetAbsOrigin(npc) - campCenter):Length2D()
-            if distance <= 800 then
-                return true
-            end
-        end
-    end
-
-    return false
-end
-
-local function assignCamp(group)
-    local firstUnit = group.units[1]
-    if not firstUnit or not Entity.IsAlive(firstUnit) then
-        return false
-    end
-
-    local origin = Entity.GetAbsOrigin(firstUnit)
-    local campList = findNearestCamps(origin, 1, group.blacklist)
-
-    if (#campList == 0) then
-        campList = findNearestCamps(origin, 1, {}, nil, true)
-    end
-
-    if (#campList == 0) then
-        campList = findNearestCamps(Vector(0, 0, 0), 1, {}, nil, true)
-    end
-
-    if (#campList == 0) then
-        return false
-    end
-
-    local camp = campList[1]
-    table.insert(group.blacklist, camp.index)
-
-    while (#group.blacklist > 16) do
-        table.remove(group.blacklist, 1)
-    end
-
-    group.currentCamp = camp
-    group.lastCampOrderTime = GameRules.GetGameTime()
-    Player.PrepareUnitOrders(
-        Players.GetLocal(),
-        Enum.UnitOrder.DOTA_UNIT_ORDER_ATTACK_MOVE,
-        nil,
-        camp.center,
-        nil,
-        Enum.PlayerOrderIssuer.DOTA_ORDER_ISSUER_SELECTED_UNITS,
-        group.units,
-        true,
-        false,
-        false,
-        true,
-        nil,
-        true
-    )
-
-    print(string.format(
-        "[AutoFarmer] Grupo enviando para o acampamento #%d (%.0f, %.0f)",
-        camp.index,
-        camp.center:GetX(),
-        camp.center:GetY()
-    ))
-
-    return true
-end
-
-local function updateGroup(group)
-    local aliveUnits = {}
-    for _, unit in ipairs(group.units) do
-        if Entity.IsAlive(unit) then
-            table.insert(aliveUnits, unit)
-        end
-    end
-
-    group.units = aliveUnits
-    if (#group.units == 0) then
-        return
-    end
-
-    if enemyAlert:Get() then
-        for _, unit in ipairs(group.units) do
-            if enemyNearby(unit) then
-                groupDanger[group] = GameRules.GetGameTime() + 4
-                sendUnitsToFountain(group.units)
-                print("[AutoFarmer] Grupo recuando: inimigo detectado.")
-                return
-            end
-        end
-    end
-
-    if groupDanger[group] and GameRules.GetGameTime() < groupDanger[group] then
-        sendUnitsToFountain(group.units)
-        return
-    end
-
-    groupDanger[group] = nil
-
-    local anyRetreating = false
-    for _, unit in ipairs(group.units) do
-        if checkRetreatState(unit) then
-            anyRetreating = true
-            sendUnitsToFountain({ unit })
-        end
-    end
-
-    if anyRetreating then
-        return
-    end
-
-    if group.currentCamp then
-        local distance = (Entity.GetAbsOrigin(group.units[1]) - group.currentCamp.center):Length2D()
-        local busy = groupIsBusy(group.units)
-
-        if (distance < 500 and not campHasNeutrals(group.currentCamp.center)) or (not busy and distance < 200) then
-            group.currentCamp = nil
-        elseif busy then
-            return
-        end
-    end
-
-    if group.currentCamp and group.lastCampOrderTime then
-        local elapsed = GameRules.GetGameTime() - group.lastCampOrderTime
-        if elapsed > 10 then
-            group.currentCamp = nil
-        end
-    end
-
-    if not group.currentCamp then
-        assignCamp(group)
-    end
-end
-
-local function startFarming()
+-- ============================================================================
+-- Execute Farming Orders
+-- ============================================================================
+local function ExecuteFarmingOrders()
     local player = Players.GetLocal()
     local selectedUnits = Player.GetSelectedUnits(player) or {}
-    if (#selectedUnits == 0) then
-        print("[AutoFarmer] Nenhuma unidade selecionada.")
+    
+    if #selectedUnits == 0 then
+        print("[AutoFarmer] Нет выбранных юнитов.")
         return false
     end
-
+    
     visitedCamps = {}
-    activeGroups = {}
-    local groupSize = unitsPerCamp:Get()
-
-    for i = 1, #selectedUnits, groupSize do
-        local group = { units = {}, blacklist = {} }
-        for j = i, math.min((i + groupSize) - 1, #selectedUnits) do
-            table.insert(group.units, selectedUnits[j])
+    local unitsPerGroup = unitsPerCamp:Get()
+    local groups = {}
+    
+    -- Split selected units into groups
+    for i = 1, #selectedUnits, unitsPerGroup do
+        local group = {}
+        for j = i, math.min(i + unitsPerGroup - 1, #selectedUnits) do
+            table.insert(group, selectedUnits[j])
         end
-
-        table.insert(activeGroups, group)
-        assignCamp(group)
+        table.insert(groups, group)
     end
-
+    
+    -- Queue orders for each group
+    for _, group in ipairs(groups) do
+        local startPos = Entity.GetAbsOrigin(group[1])
+        local queuedCamps = QueueCampOrders(group, startPos, campsInQueue:Get(), visitedCamps)
+        
+        for _, campIndex in ipairs(queuedCamps) do
+            table.insert(visitedCamps, campIndex)
+        end
+    end
+    
+    commandsQueued = true
+    print("[AutoFarmer] Команды поставлены в очередь, скрипт деактивирован.")
     return true
 end
 
+-- ============================================================================
+-- Main Update Loop
+-- ============================================================================
 function OnUpdate()
+    local player = Players.GetLocal()
     local keyPressed = toggleKey:IsPressed()
+    
+    -- Toggle bot on key press
     if keyPressed and not lastKeyState then
-        toggleState = not toggleState
-        print("[AutoFarmer] Bot alternado:", toggleState)
-
-        if toggleState then
-            startFarming()
-        else
-            activeGroups = {}
-            retreatingUnits = {}
-            groupDanger = {}
+        botEnabled = not botEnabled
+        print("[AutoFarmer] Bot toggled:", botEnabled)
+        
+        if botEnabled then
+            commandsQueued = false
         end
     end
-
+    
     lastKeyState = keyPressed
-
-    if not toggleState then
+    
+    if not botEnabled then 
         return
     end
-
-    for _, group in ipairs(activeGroups) do
-        updateGroup(group)
+    
+    if commandsQueued then
+        botEnabled = false
+        return
+    end
+    
+    if ExecuteFarmingOrders() then
+        botEnabled = false
+    else
+        print("[AutoFarmer] Не удалось поставить команды в очередь, выключаем бот.")
+        botEnabled = false
     end
 end
 
-return { OnUpdate = OnUpdate }
+return {
+    OnUpdate = OnUpdate
+}
