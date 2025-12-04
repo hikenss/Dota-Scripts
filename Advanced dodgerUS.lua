@@ -1,5 +1,20 @@
 -- Advanced Dodger Script
 -- Menu: General -> Main -> Dodger
+-- Overview (English):
+--   * Enable Dodger: master switch for all logic.
+--   * Use even when invisible: bypasses protection checks when already hidden.
+--   * Dodge Death Ward / Anti-Blink / Anti-Start: defensive reactions to enemy channels, blinks, or initiations.
+--   * Enemy Skills to Escape: list of enemy mobility spells that should trigger your escape response.
+--   * Defensive Items / Abilities: prioritized escapes (Ghost Scepter, Wind Waker, Blinks, etc.).
+--   * Escape Settings sliders:
+--       - Detection Range: how far to scan for allies/enemies to judge threat.
+--       - Activation Range: distance that counts as “too close”, allowing abilities to fire.
+--       - Ally Disadvantage: minimum enemy-ally difference before escaping (also influenced by HP checks).
+--   * Allies section: enables saving teammates with configured items/abilities and HP/range thresholds.
+-- Functions:
+--   - HasNearbyThreat: combines distance, approach direction, ally numbers, and HP ratios to decide if escape is needed.
+--   - UpdateEnemyTracking: keeps per-enemy positions to know whether they are closing in or fleeing.
+--   - UseDefensiveItems: consumes enabled defensive options in priority order when a real threat is present.
 
 local Dodger = {}
 -- Prefer shared logger to absolute file; fallback if require fails
@@ -65,6 +80,7 @@ ui.enemy_skills_dodge = menuMain:MultiSelect("", {
     { "modifier_zuus_heavenly_jump", "panorama/images/spellicons/zuus_heavenly_jump_png.vtex_c", true },
     { "modifier_snapfire_gobble_up", "panorama/images/spellicons/snapfire_gobble_up_png.vtex_c", true },
     { "modifier_ember_spirit_fire_remnant", "panorama/images/spellicons/ember_spirit_fire_remnant_png.vtex_c", true },
+    { "modifier_storm_spirit_ball_lightning", "panorama/images/spellicons/storm_spirit_ball_lightning_png.vtex_c", true },
 }, true)
 
 
@@ -133,11 +149,11 @@ ui.defensive_abilities = menuAbilities:MultiSelect("Defensive Abilities", {
 
 menuAbilities:Label("Escape Settings")
 ui.escape_detection_range = menuAbilities:Slider("Detection Range", 400, 1500, 1000, 50, "\u{f192}")
-ui.escape_detection_range:ToolTip("Range to count enemies/allies and check disadvantage")
+ui.escape_detection_range:ToolTip("Range to count enemies/allies and check disadvantage/HP safety")
 ui.escape_activation_range = menuAbilities:Slider("Activation Range", 200, 800, 500, 50, "\u{f05b}")
 ui.escape_activation_range:ToolTip("When an enemy enters this range, trigger escape if disadvantaged")
 ui.escape_ally_disadvantage = menuAbilities:Slider("Ally Disadvantage", 0, 5, 1, 1, "\u{f0c0}")
-ui.escape_ally_disadvantage:ToolTip("Minimum difference (enemies - allies) to use escape")
+ui.escape_ally_disadvantage:ToolTip("Minimum difference (enemies - allies) to use escape; HP gap also considered")
 
 -- Allies Section - Support settings
 ui.allies_support = menuAllies:Switch("Use Items/Spells on Allies", false, "\u{f0c0}")
@@ -190,6 +206,38 @@ local enemyPositions = {}
 local blinkCooldowns = {}
 local lastEscapeTime = 0
 local invokerInvokeTime = 0
+
+-- Determina se um inimigo está se aproximando (e não fugindo)
+local function IsEnemyClosing(enemyID, currentDist)
+    local last = enemyPositions[enemyID]
+    if not last or not last.distToMe then
+        return true
+    end
+
+    -- Considera aproximação apenas se reduziu pelo menos 80 unidades desde o último tick
+    return (last.distToMe - currentDist) > 80
+end
+
+-- Atualiza cache de posição/direção dos inimigos para leituras posteriores
+local function UpdateEnemyTracking(myHero)
+    local enemies = Heroes.GetAll()
+    local now = GameRules.GetGameTime()
+    local myPos = Entity.GetAbsOrigin(myHero)
+
+    for _, enemy in pairs(enemies) do
+        if enemy and Entity.IsAlive(enemy) and not Entity.IsSameTeam(myHero, enemy) then
+            local enemyID = Entity.GetIndex(enemy)
+            local enemyPos = Entity.GetAbsOrigin(enemy)
+            local distanceToMe = (enemyPos - myPos):Length()
+
+            enemyPositions[enemyID] = {
+                pos = enemyPos,
+                time = now,
+                distToMe = distanceToMe,
+            }
+        end
+    end
+end
 
 -- Tabela para rastrear animações detectadas
 local animationDetected = {}
@@ -264,9 +312,67 @@ local function IsAlreadyProtected(hero)
 end
 
 -- Função unificada para usar itens/feitiços defensivos
+local function HasNearbyThreat(myHero)
+    local detectionRange = ui.escape_detection_range:Get()
+    local activationRange = ui.escape_activation_range:Get()
+    local disadvantageThreshold = ui.escape_ally_disadvantage:Get()
+
+    local enemies = Entity.GetHeroesInRadius(myHero, detectionRange, Enum.TeamType.TEAM_ENEMY, false)
+    local allies = Entity.GetHeroesInRadius(myHero, detectionRange, Enum.TeamType.TEAM_FRIEND, false)
+
+    local enemyCount, allyCount = 0, 0
+    local closeEnemy, closingEnemy = false, false
+    local closestEnemyHpPct, myHpPct = 0, 100
+    local closestDist = 99999
+
+    if enemies then
+        for _, enemy in pairs(enemies) do
+            if enemy and Entity.IsAlive(enemy) and not NPC.IsIllusion(enemy) then
+                enemyCount = enemyCount + 1
+                local enemyPos = Entity.GetAbsOrigin(enemy)
+                local dist = (enemyPos - Entity.GetAbsOrigin(myHero)):Length()
+
+                if dist <= activationRange then
+                    closeEnemy = true
+                    local enemyID = Entity.GetIndex(enemy)
+                    closingEnemy = closingEnemy or IsEnemyClosing(enemyID, dist)
+
+                    if dist < closestDist then
+                        closestDist = dist
+                        local enemyMaxHp = Entity.GetMaxHealth(enemy)
+                        if enemyMaxHp > 0 then
+                            closestEnemyHpPct = (Entity.GetHealth(enemy) / enemyMaxHp) * 100
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    if allies then
+        for _, ally in pairs(allies) do
+            if ally and Entity.IsAlive(ally) and ally ~= myHero and not NPC.IsIllusion(ally) then
+                allyCount = allyCount + 1
+            end
+        end
+    end
+
+    local disadvantage = enemyCount - allyCount
+    local maxhp = Entity.GetMaxHealth(myHero)
+    if maxhp > 0 then
+        myHpPct = (Entity.GetHealth(myHero) / maxhp) * 100
+    end
+
+    local badlyOutmatched = disadvantage >= disadvantageThreshold
+    local losingHpTrade = closestEnemyHpPct > 0 and (myHpPct + 10) < closestEnemyHpPct
+
+    -- Trigger escape only when someone is actually closing in OR when numbers/HP make staying unsafe.
+    return closeEnemy and (closingEnemy or badlyOutmatched or losingHpTrade or myHpPct < 55)
+end
+
 local function UseDefensiveItems(myHero)
     local heroName = NPC.GetUnitName(myHero)
-    
+
     -- Verifica proteção apenas se o bypass não estiver ativado
     if not ui.bypass_protection:Get() and IsAlreadyProtected(myHero) then
         return false
@@ -382,7 +488,7 @@ local function UseDefensiveItems(myHero)
     end
     
     -- Invoker - Ghost Walk
-    if heroName == "npc_dota_hero_invoker" and IsAbilityEnabled("invoker_ghost_walk") then
+    if heroName == "npc_dota_hero_invoker" and IsAbilityEnabled("invoker_ghost_walk") and HasNearbyThreat(myHero) then
         local ghostWalk = IsAbilityAvailable("invoker_ghost_walk", myHero)
         if ghostWalk then
             Ability.CastNoTarget(ghostWalk)
@@ -587,7 +693,7 @@ local function DetectEnemyBlink(myHero)
                 -- Detecta blink: movimento rápido em curto tempo e aproximou
                 if distance > 280 and timeDiff < 0.20 and timeDiff > 0 then
                     -- Se o inimigo blinkou para perto (< 900 units) e ficou mais próximo que antes
-                    if distanceToMe < 900 and distanceToMe < lastDistToMe then
+                    if distanceToMe < 900 and distanceToMe < lastDistToMe and IsEnemyClosing(enemyID, distanceToMe) then
                         if not blinkCooldowns[enemyID] or (currentTime - blinkCooldowns[enemyID]) > 1.0 then
                             blinkCooldowns[enemyID] = currentTime
                             return true
@@ -597,7 +703,7 @@ local function DetectEnemyBlink(myHero)
 
                 -- Aggressive blink detection (AM/Queen/Blink Dagger)
                 if distance > 500 and timeDiff < 0.25 then
-                    if distanceToMe < 1200 then
+                    if distanceToMe < 1200 and IsEnemyClosing(enemyID, distanceToMe) then
                         if not blinkCooldowns[enemyID] or (currentTime - blinkCooldowns[enemyID]) > 0.8 then
                             blinkCooldowns[enemyID] = currentTime
                             return true
@@ -635,8 +741,8 @@ local function DetectBlinkAbilities(myHero)
                 -- Verifica se o inimigo acabou de aparecer perto (teleporte/blink)
                 if enemyPositions[enemyID] then
                     local lastDist = enemyPositions[enemyID].distToMe or 9999
-                    -- Se estava longe e agora está perto = blink
-                    if lastDist > 900 and distanceToMe < 900 then
+                    -- Se estava longe e agora está perto = blink (apenas se estiver vindo na nossa direção)
+                    if lastDist > 900 and distanceToMe < 900 and IsEnemyClosing(enemyID, distanceToMe) then
                         if not blinkCooldowns[enemyID] or (currentTime - blinkCooldowns[enemyID]) > 1.0 then
                             blinkCooldowns[enemyID] = currentTime
                             return true
@@ -747,7 +853,7 @@ local function DetectStartAbilities(myHero)
                         if IsEnemySkillEnabled(modName) then
                             local enemyID = Entity.GetIndex(enemy)
                             local cooldown = (modName == "modifier_magnataur_skewer_movement" or modName == "modifier_slark_pounce") and 0.5 or 1.5
-                            if not blinkCooldowns[enemyID] or (currentTime - blinkCooldowns[enemyID]) > cooldown then
+                            if IsEnemyClosing(enemyID, distanceToMe) and (not blinkCooldowns[enemyID] or (currentTime - blinkCooldowns[enemyID]) > cooldown) then
                                 blinkCooldowns[enemyID] = currentTime
                                 return true
                             end
@@ -822,8 +928,10 @@ local function UseEscapeAbilities(myHero)
     local heroName = NPC.GetUnitName(myHero)
     local detectionRange = ui.escape_detection_range:Get()
     local disadvantageThreshold = ui.escape_ally_disadvantage:Get()
+    local activationRange = ui.escape_activation_range:Get()
     
     local enemyCount = 0
+    local closeEnemy = false
     local allyCount = 0
     
     local enemies = Entity.GetHeroesInRadius(myHero, detectionRange, Enum.TeamType.TEAM_ENEMY, false)
@@ -831,6 +939,10 @@ local function UseEscapeAbilities(myHero)
         for _, enemy in pairs(enemies) do
             if enemy and Entity.IsAlive(enemy) and not NPC.IsIllusion(enemy) then
                 enemyCount = enemyCount + 1
+                if not closeEnemy then
+                    local enemyPos = Entity.GetAbsOrigin(enemy)
+                    closeEnemy = (enemyPos - myPos):Length() <= activationRange
+                end
             end
         end
     end
@@ -858,6 +970,11 @@ local function UseEscapeAbilities(myHero)
     end
 
     if not bypassDisadvantage and disadvantage < disadvantageThreshold then
+        return false
+    end
+
+    -- Não ativa escape se não há ameaça real próxima (evita gastar skills enquanto perseguindo)
+    if not closeEnemy and not DetectEnemyApproach(myHero) then
         return false
     end
     
@@ -1973,6 +2090,7 @@ function Dodger.OnUpdate()
     if not myHero or not Entity.IsAlive(myHero) or not ui.enabled:Get() then
         return
     end
+
     
     -- Verifica se a opção Anti-Blink está ativada e detecta blinks
     if ui.blink_dodge:Get() and (DetectEnemyBlink(myHero) or DetectBlinkAbilities(myHero)) then
@@ -2003,6 +2121,7 @@ function Dodger.OnUpdate()
     if ui.allies_support:Get() then
         local currentTime = GameRules.GetGameTime()
         if currentTime < lastAllyCheckTime + 0.1 then
+            UpdateEnemyTracking(myHero)
             return
         end
         lastAllyCheckTime = currentTime
@@ -2223,6 +2342,9 @@ function Dodger.OnUpdate()
             end
         end
     end
+
+    -- Atualiza cache de posição/distância dos inimigos ao final do ciclo para usar no próximo tick
+    UpdateEnemyTracking(myHero)
 end
 
 -- Callback para detecção de animações
