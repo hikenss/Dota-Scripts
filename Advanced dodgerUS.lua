@@ -191,6 +191,36 @@ local blinkCooldowns = {}
 local lastEscapeTime = 0
 local invokerInvokeTime = 0
 
+-- Helper to understand if the enemy is fleeing instead of engaging
+local function IsEnemyFleeing(myHero, enemy)
+    local enemyID = Entity.GetIndex(enemy)
+    local record = enemyPositions[enemyID]
+    if not record then
+        return false
+    end
+
+    local myPos = Entity.GetAbsOrigin(myHero)
+    local currentDist = (Entity.GetAbsOrigin(enemy) - myPos):Length()
+    local lastDist = record.distToMe or currentDist
+
+    -- Positive delta means the enemy increased the distance to us
+    local distanceDelta = currentDist - lastDist
+    if distanceDelta > 80 then
+        return true
+    end
+
+    -- When the enemy is low HP and still increasing the gap, treat as flee
+    local maxHealth = NPC.GetMaxHealth(enemy)
+    if maxHealth and maxHealth > 0 then
+        local hpPct = Entity.GetHealth(enemy) / maxHealth
+        if distanceDelta > 50 and hpPct < 0.35 then
+            return true
+        end
+    end
+
+    return false
+end
+
 -- Tabela para rastrear animações detectadas
 local animationDetected = {}
 
@@ -597,7 +627,7 @@ local function DetectEnemyBlink(myHero)
 
                 -- Aggressive blink detection (AM/Queen/Blink Dagger)
                 if distance > 500 and timeDiff < 0.25 then
-                    if distanceToMe < 1200 then
+                    if distanceToMe < 1200 and not IsEnemyFleeing(myHero, enemy) then
                         if not blinkCooldowns[enemyID] or (currentTime - blinkCooldowns[enemyID]) > 0.8 then
                             blinkCooldowns[enemyID] = currentTime
                             return true
@@ -711,9 +741,11 @@ local function DetectBlinkAbilities(myHero)
                            modName == "modifier_sandking_burrowstrike" or
                            -- Centaur Stampede
                            modName == "modifier_centaur_stampede" then
-                            if not blinkCooldowns[enemyID] or (currentTime - blinkCooldowns[enemyID]) > 1.0 then
-                                blinkCooldowns[enemyID] = currentTime
-                                return true
+                            if not IsEnemyFleeing(myHero, enemy) then
+                                if not blinkCooldowns[enemyID] or (currentTime - blinkCooldowns[enemyID]) > 1.0 then
+                                    blinkCooldowns[enemyID] = currentTime
+                                    return true
+                                end
                             end
                         end
                     end
@@ -740,19 +772,19 @@ local function DetectStartAbilities(myHero)
         if enemy and Entity.IsAlive(enemy) and not Entity.IsSameTeam(myHero, enemy) then
             local distanceToMe = (Entity.GetAbsOrigin(enemy) - Entity.GetAbsOrigin(myHero)):Length()
             if distanceToMe < 1000 then
-                local modifiers = NPC.GetModifiers(enemy)
-                if modifiers then
-                    for _, mod in pairs(modifiers) do
-                        local modName = Modifier.GetName(mod)
-                        if IsEnemySkillEnabled(modName) then
-                            local enemyID = Entity.GetIndex(enemy)
-                            local cooldown = (modName == "modifier_magnataur_skewer_movement" or modName == "modifier_slark_pounce") and 0.5 or 1.5
-                            if not blinkCooldowns[enemyID] or (currentTime - blinkCooldowns[enemyID]) > cooldown then
-                                blinkCooldowns[enemyID] = currentTime
-                                return true
+                        local modifiers = NPC.GetModifiers(enemy)
+                        if modifiers then
+                            for _, mod in pairs(modifiers) do
+                                local modName = Modifier.GetName(mod)
+                                if IsEnemySkillEnabled(modName) then
+                                    local enemyID = Entity.GetIndex(enemy)
+                                    local cooldown = (modName == "modifier_magnataur_skewer_movement" or modName == "modifier_slark_pounce") and 0.5 or 1.5
+                                    if (not IsEnemyFleeing(myHero, enemy)) and (not blinkCooldowns[enemyID] or (currentTime - blinkCooldowns[enemyID]) > cooldown) then
+                                        blinkCooldowns[enemyID] = currentTime
+                                        return true
+                                    end
+                                end
                             end
-                        end
-                    end
                 end
             end
         end
