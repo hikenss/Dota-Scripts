@@ -2,22 +2,7 @@
 -- Menu: General -> Main -> Dodger
 
 local Dodger = {}
--- Prefer shared logger to absolute file; fallback if require fails
-local WriteLog
-do
-    local ok, mod = pcall(require, "escape_log")
-    if ok and type(mod) == "function" then
-        WriteLog = mod
-    else
-        function WriteLog(msg)
-            local f = io.open("c:\\UB\\scripts\\escape_debug.txt", "a")
-            if f then
-                f:write(os.date("[%d/%m/%Y %H:%M:%S] ") .. msg .. "\n")
-                f:close()
-            end
-        end
-    end
-end
+local WriteLog = function(...) end
 
 -- Menu configuration
 local menudodger = Menu.Find("General", "Main", "Dodger")
@@ -190,36 +175,6 @@ local enemyPositions = {}
 local blinkCooldowns = {}
 local lastEscapeTime = 0
 local invokerInvokeTime = 0
-
--- Helper to understand if the enemy is fleeing instead of engaging
-local function IsEnemyFleeing(myHero, enemy)
-    local enemyID = Entity.GetIndex(enemy)
-    local record = enemyPositions[enemyID]
-    if not record then
-        return false
-    end
-
-    local myPos = Entity.GetAbsOrigin(myHero)
-    local currentDist = (Entity.GetAbsOrigin(enemy) - myPos):Length()
-    local lastDist = record.distToMe or currentDist
-
-    -- Positive delta means the enemy increased the distance to us
-    local distanceDelta = currentDist - lastDist
-    if distanceDelta > 80 then
-        return true
-    end
-
-    -- When the enemy is low HP and still increasing the gap, treat as flee
-    local maxHealth = NPC.GetMaxHealth(enemy)
-    if maxHealth and maxHealth > 0 then
-        local hpPct = Entity.GetHealth(enemy) / maxHealth
-        if distanceDelta > 50 and hpPct < 0.35 then
-            return true
-        end
-    end
-
-    return false
-end
 
 -- Tabela para rastrear animações detectadas
 local animationDetected = {}
@@ -627,7 +582,7 @@ local function DetectEnemyBlink(myHero)
 
                 -- Aggressive blink detection (AM/Queen/Blink Dagger)
                 if distance > 500 and timeDiff < 0.25 then
-                    if distanceToMe < 1200 and not IsEnemyFleeing(myHero, enemy) then
+                    if distanceToMe < 1200 then
                         if not blinkCooldowns[enemyID] or (currentTime - blinkCooldowns[enemyID]) > 0.8 then
                             blinkCooldowns[enemyID] = currentTime
                             return true
@@ -741,11 +696,9 @@ local function DetectBlinkAbilities(myHero)
                            modName == "modifier_sandking_burrowstrike" or
                            -- Centaur Stampede
                            modName == "modifier_centaur_stampede" then
-                            if not IsEnemyFleeing(myHero, enemy) then
-                                if not blinkCooldowns[enemyID] or (currentTime - blinkCooldowns[enemyID]) > 1.0 then
-                                    blinkCooldowns[enemyID] = currentTime
-                                    return true
-                                end
+                            if not blinkCooldowns[enemyID] or (currentTime - blinkCooldowns[enemyID]) > 1.0 then
+                                blinkCooldowns[enemyID] = currentTime
+                                return true
                             end
                         end
                     end
@@ -772,19 +725,19 @@ local function DetectStartAbilities(myHero)
         if enemy and Entity.IsAlive(enemy) and not Entity.IsSameTeam(myHero, enemy) then
             local distanceToMe = (Entity.GetAbsOrigin(enemy) - Entity.GetAbsOrigin(myHero)):Length()
             if distanceToMe < 1000 then
-                        local modifiers = NPC.GetModifiers(enemy)
-                        if modifiers then
-                            for _, mod in pairs(modifiers) do
-                                local modName = Modifier.GetName(mod)
-                                if IsEnemySkillEnabled(modName) then
-                                    local enemyID = Entity.GetIndex(enemy)
-                                    local cooldown = (modName == "modifier_magnataur_skewer_movement" or modName == "modifier_slark_pounce") and 0.5 or 1.5
-                                    if (not IsEnemyFleeing(myHero, enemy)) and (not blinkCooldowns[enemyID] or (currentTime - blinkCooldowns[enemyID]) > cooldown) then
-                                        blinkCooldowns[enemyID] = currentTime
-                                        return true
-                                    end
-                                end
+                local modifiers = NPC.GetModifiers(enemy)
+                if modifiers then
+                    for _, mod in pairs(modifiers) do
+                        local modName = Modifier.GetName(mod)
+                        if IsEnemySkillEnabled(modName) then
+                            local enemyID = Entity.GetIndex(enemy)
+                            local cooldown = (modName == "modifier_magnataur_skewer_movement" or modName == "modifier_slark_pounce") and 0.5 or 1.5
+                            if not blinkCooldowns[enemyID] or (currentTime - blinkCooldowns[enemyID]) > cooldown then
+                                blinkCooldowns[enemyID] = currentTime
+                                return true
                             end
+                        end
+                    end
                 end
             end
         end
@@ -839,10 +792,7 @@ end
 -- Função para usar skills de escape
 local function UseEscapeAbilities(myHero)
     local currentTime = GameRules.GetGameTime()
-    -- Debounce padrão 0.8s; para CM usa 1.2s
-    local heroNameDebounce = Heroes.GetLocal() and NPC.GetUnitName(Heroes.GetLocal()) or ""
-    local debounce = (heroNameDebounce == "npc_dota_hero_crystal_maiden") and 1.2 or 0.8
-    if currentTime - lastEscapeTime < debounce then
+    if currentTime - lastEscapeTime < 0.5 then
         return false
     end
     
@@ -851,7 +801,6 @@ local function UseEscapeAbilities(myHero)
     end
     
     local myPos = Entity.GetAbsOrigin(myHero)
-    local heroName = NPC.GetUnitName(myHero)
     local detectionRange = ui.escape_detection_range:Get()
     local disadvantageThreshold = ui.escape_ally_disadvantage:Get()
     
@@ -878,22 +827,11 @@ local function UseEscapeAbilities(myHero)
     
     local disadvantage = enemyCount - allyCount
     
-    -- Para CM, se HP% < 60 e há inimigo no range de ativação, ignora desvantagem
-    local bypassDisadvantage = false
-    if heroName == "npc_dota_hero_crystal_maiden" then
-        local hp = Entity.GetHealth(myHero)
-        local maxhp = Entity.GetMaxHealth(myHero)
-        local hpPct = (maxhp > 0) and (hp / maxhp * 100) or 100
-        if hpPct < 60 and DetectEnemyApproach(myHero) then
-            bypassDisadvantage = true
-        end
-    end
-
-    if not bypassDisadvantage and disadvantage < disadvantageThreshold then
+    if disadvantage < disadvantageThreshold then
         return false
     end
     
-    -- heroName já definido acima
+    local heroName = NPC.GetUnitName(myHero)
     
     local enabledSkills = ui.defensive_abilities:ListEnabled()
     local function IsSkillEnabled(skillName)
@@ -1444,12 +1382,9 @@ local function UseEscapeAbilities(myHero)
     if heroName == "npc_dota_hero_crystal_maiden" and IsSkillEnabled("crystal_maiden_crystal_clone") then
         local clone = NPC.GetAbility(myHero, "crystal_maiden_crystal_clone")
         if clone and Ability.IsCastable(clone, NPC.GetMana(myHero)) then
-            local escapePos = GetEscapePosition(700)
-            if escapePos then
-                Ability.CastPosition(clone, escapePos)
-                lastEscapeTime = currentTime
-                return true
-            end
+            Ability.CastNoTarget(clone)
+            lastEscapeTime = currentTime
+            return true
         end
     end
     
