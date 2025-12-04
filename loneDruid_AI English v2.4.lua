@@ -263,6 +263,7 @@ function CourierPanelModule:Init(courier_group)
     self.ui.pos_y = courier_group:Slider("Panel Position Y", 0, Render.ScreenSize().y, Render.ScreenSize().y * 0.85, "%.0f")
 end
 
+
 function CourierPanelModule:OnDraw()
     local local_hero_on_draw = Heroes.GetLocal()
     if not local_hero_on_draw then return end
@@ -293,7 +294,11 @@ function CourierPanelModule:OnDraw()
              panel_end_pos = panel_pos + self.panel_size
         end
     else
-        self.dragging = false
+        -- Reset dragging state when mouse is released
+        if self.dragging then
+            self.dragging = false
+            -- Don't reset drag_start_pos here, wait for next frame
+        end
     end
     
     Render.FilledRect(panel_pos, panel_end_pos, Color(30, 35, 40, 240), rounding)
@@ -321,19 +326,26 @@ function CourierPanelModule:OnDraw()
     Render.Text(self.font, 11, "HERO", switch_rect_start + Vec2((switch_width/2 - hero_text_size.x)/2, 3), is_hero_pref and Color(255,255,255,255) or Color(100,100,100,255))
     Render.Text(self.font, 11, "BEAR", switch_rect_start + Vec2(switch_width/2 + (switch_width/2 - bear_text_size.x)/2, 3), not is_hero_pref and Color(255,255,255,255) or Color(100,100,100,255))
     
-    -- Only allow switch toggle if we're not dragging and didn't just finish dragging
+    -- Handle switch toggle
     if Input.IsCursorInRect(switch_rect_start.x, switch_rect_start.y, switch_width, switch_height) and Input.IsKeyDownOnce(Enum.ButtonCode.KEY_MOUSE1) then
-        -- Check if mouse moved significantly (means it was a drag, not a click)
+        -- Check if this was a drag or a click
+        local was_dragging = false
         if self.drag_start_pos then
             local drag_distance = (mousePos - self.drag_start_pos):Length()
-            if drag_distance < 5 then  -- Less than 5 pixels = click, not drag
-                courier_target_preference = (courier_target_preference == 1) and 2 or 1
-            end
-            self.drag_start_pos = nil
-        else
+            was_dragging = drag_distance >= 5  -- 5 pixels threshold
+        end
+        
+        -- Only toggle if it wasn't a drag
+        if not was_dragging then
             courier_target_preference = (courier_target_preference == 1) and 2 or 1
         end
     end
+    
+    -- Reset drag_start_pos after processing click
+    if not Input.IsKeyDown(Enum.ButtonCode.KEY_MOUSE1) then
+        self.drag_start_pos = nil
+    end
+end
 end
 
 function CourierPanelModule:OnGameEnd()
