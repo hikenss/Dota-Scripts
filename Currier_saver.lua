@@ -489,6 +489,8 @@ function OnUpdate()
         courierState.pathCheckpoints = {}
         courierState.currentCheckpoint = 1
         courierState.lastUnstuckTime = currentTime
+        courierState.destination = nil
+        courierState.hidingFromVision = false
         printAlert("⚠️ Travamento detectado! Liberando controle", "#ff8800")
         return
     end
@@ -651,6 +653,8 @@ function OnUpdate()
                 courierState.escaping = false
                 courierState.pathCheckpoints = {}
                 courierState.currentCheckpoint = 1
+                courierState.destination = nil
+                courierState.hidingFromVision = false
                 printAlert("⚠️ Timeout na fuga, liberando controle", "#ffaa44")
                 return
             end
@@ -940,8 +944,31 @@ function OnPrepareUnitOrders(order)
         return true
     end
     
-    -- PREVENIR VOLTA DO COURIER SE JÁ PERCORREU 40% DO CAMINHO
-    if preventReturn:Get() and Entity.GetIndex(order.npc) == Entity.GetIndex(courier) then
+    -- Se jogador deu ordem manual ao courier, cancelar fuga IMEDIATAMENTE (antes de qualquer verificação)
+    if Entity.GetIndex(order.npc) == Entity.GetIndex(courier) then
+        if order.order == Enum.UnitOrder.DOTA_UNIT_ORDER_MOVE_TO_POSITION or 
+           order.order == Enum.UnitOrder.DOTA_UNIT_ORDER_MOVE_TO_TARGET then
+            
+            local wasEscaping = courierState.escaping
+            
+            -- LIMPAR TODOS OS ESTADOS DE FUGA
+            courierState.escaping = false
+            courierState.destination = nil
+            courierState.pathCheckpoints = {}
+            courierState.currentCheckpoint = 1
+            courierState.hidingFromVision = false
+            courierState.stuckCounter = 0
+            courierState.manualControl = true
+            courierState.lastManualTime = GlobalVars.GetCurTime()
+            
+            if wasEscaping then
+                printAlert("✋ Controle manual - fuga cancelada", "#4488ff")
+            end
+        end
+    end
+    
+    -- PREVENIR VOLTA DO COURIER SE JÁ PERCORREU 40% DO CAMINHO (apenas se não estiver em escape automático)
+    if preventReturn:Get() and not courierState.escaping and Entity.GetIndex(order.npc) == Entity.GetIndex(courier) then
         local courierStateEnum = Courier.GetCourierState(courier)
         
         -- Se courier está em entrega e já percorreu 40% do caminho
@@ -966,40 +993,13 @@ function OnPrepareUnitOrders(order)
         end
     end
     
-    -- Se jogador deu ordem manual ao courier, cancelar fuga automática
-    if Entity.GetIndex(order.npc) == Entity.GetIndex(courier) then
-        if order.order == Enum.UnitOrder.DOTA_UNIT_ORDER_MOVE_TO_POSITION or 
-           order.order == Enum.UnitOrder.DOTA_UNIT_ORDER_MOVE_TO_TARGET then
-            
-            -- Só processar se não estava em controle manual
-            local wasManual = courierState.manualControl
-            
-            -- Verificar se está movendo para loja secreta
-            local targetPos = order.position
-            if targetPos then
-                for _, shopPos in ipairs(SECRET_SHOPS) do
-                    if (targetPos - shopPos):Length() < 400 then
-                        courierState.manuallyInShop = true
-                    end
-                end
-            end
-            
-            courierState.escaping = false
-            courierState.destination = nil
-            courierState.pathCheckpoints = {}
-            courierState.currentCheckpoint = 1
-            courierState.manualControl = true
-            courierState.lastManualTime = GlobalVars.GetCurTime()
-            courierState.stuckCounter = 0
-            
-            -- Só resetar hidingInShop se não estiver indo para loja
-            if not courierState.manuallyInShop then
+    -- Verificar se está movendo para loja secreta
+    local targetPos = order.position
+    if targetPos and Entity.GetIndex(order.npc) == Entity.GetIndex(courier) then
+        for _, shopPos in ipairs(SECRET_SHOPS) do
+            if (targetPos - shopPos):Length() < 400 then
+                courierState.manuallyInShop = true
                 courierState.hidingInShop = false
-            end
-            
-            -- Só mostrar alerta se não estava em controle manual
-            if not wasManual then
-                printAlert("✋ Controle manual ativado", "#4488ff")
             end
         end
     end

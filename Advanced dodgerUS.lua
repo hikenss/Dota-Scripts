@@ -2,7 +2,22 @@
 -- Menu: General -> Main -> Dodger
 
 local Dodger = {}
-local WriteLog = function(...) end
+-- Prefer shared logger to absolute file; fallback if require fails
+local WriteLog
+do
+    local ok, mod = pcall(require, "escape_log")
+    if ok and type(mod) == "function" then
+        WriteLog = mod
+    else
+        function WriteLog(msg)
+            local f = io.open("c:\\UB\\scripts\\escape_debug.txt", "a")
+            if f then
+                f:write(os.date("[%d/%m/%Y %H:%M:%S] ") .. msg .. "\n")
+                f:close()
+            end
+        end
+    end
+end
 
 -- Menu configuration
 local menudodger = Menu.Find("General", "Main", "Dodger")
@@ -792,7 +807,10 @@ end
 -- Função para usar skills de escape
 local function UseEscapeAbilities(myHero)
     local currentTime = GameRules.GetGameTime()
-    if currentTime - lastEscapeTime < 0.5 then
+    -- Debounce padrão 0.8s; para CM usa 1.2s
+    local heroNameDebounce = Heroes.GetLocal() and NPC.GetUnitName(Heroes.GetLocal()) or ""
+    local debounce = (heroNameDebounce == "npc_dota_hero_crystal_maiden") and 1.2 or 0.8
+    if currentTime - lastEscapeTime < debounce then
         return false
     end
     
@@ -801,6 +819,7 @@ local function UseEscapeAbilities(myHero)
     end
     
     local myPos = Entity.GetAbsOrigin(myHero)
+    local heroName = NPC.GetUnitName(myHero)
     local detectionRange = ui.escape_detection_range:Get()
     local disadvantageThreshold = ui.escape_ally_disadvantage:Get()
     
@@ -827,11 +846,22 @@ local function UseEscapeAbilities(myHero)
     
     local disadvantage = enemyCount - allyCount
     
-    if disadvantage < disadvantageThreshold then
+    -- Para CM, se HP% < 60 e há inimigo no range de ativação, ignora desvantagem
+    local bypassDisadvantage = false
+    if heroName == "npc_dota_hero_crystal_maiden" then
+        local hp = Entity.GetHealth(myHero)
+        local maxhp = Entity.GetMaxHealth(myHero)
+        local hpPct = (maxhp > 0) and (hp / maxhp * 100) or 100
+        if hpPct < 60 and DetectEnemyApproach(myHero) then
+            bypassDisadvantage = true
+        end
+    end
+
+    if not bypassDisadvantage and disadvantage < disadvantageThreshold then
         return false
     end
     
-    local heroName = NPC.GetUnitName(myHero)
+    -- heroName já definido acima
     
     local enabledSkills = ui.defensive_abilities:ListEnabled()
     local function IsSkillEnabled(skillName)
@@ -1382,9 +1412,12 @@ local function UseEscapeAbilities(myHero)
     if heroName == "npc_dota_hero_crystal_maiden" and IsSkillEnabled("crystal_maiden_crystal_clone") then
         local clone = NPC.GetAbility(myHero, "crystal_maiden_crystal_clone")
         if clone and Ability.IsCastable(clone, NPC.GetMana(myHero)) then
-            Ability.CastNoTarget(clone)
-            lastEscapeTime = currentTime
-            return true
+            local escapePos = GetEscapePosition(700)
+            if escapePos then
+                Ability.CastPosition(clone, escapePos)
+                lastEscapeTime = currentTime
+                return true
+            end
         end
     end
     
