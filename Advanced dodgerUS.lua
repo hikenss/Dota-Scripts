@@ -179,42 +179,6 @@ local invokerInvokeTime = 0
 -- Tabela para rastrear animações detectadas
 local animationDetected = {}
 
-local function GetEnemyMovementSnapshot(enemy, myPos)
-    local enemyID = Entity.GetIndex(enemy)
-    local currentPos = Entity.GetAbsOrigin(enemy)
-    local distanceToMe = (currentPos - myPos):Length()
-    local lastData = enemyPositions[enemyID]
-
-    return {
-        id = enemyID,
-        pos = currentPos,
-        distanceToMe = distanceToMe,
-        lastPos = lastData and lastData.pos,
-        lastTime = lastData and lastData.time,
-        lastDistanceToMe = lastData and lastData.distToMe
-    }
-end
-
-local function SaveEnemyMovementSnapshot(snapshot, currentTime)
-    enemyPositions[snapshot.id] = {
-        pos = snapshot.pos,
-        time = currentTime,
-        distToMe = snapshot.distanceToMe
-    }
-end
-
-local function IsMovingTowardsHero(snapshot, myPos)
-    if snapshot.lastPos then
-        local moveVector = snapshot.pos - snapshot.lastPos
-        if moveVector:Length2D() > 10 then
-            local moveDir = moveVector:Normalized()
-            local toHeroDir = (myPos - snapshot.pos):Normalized()
-            return moveDir:Dot(toHeroDir) > 0.35
-        end
-    end
-    return nil
-end
-
 -- Mapeamento de animações para modifiers
 local animationToModifier = {
     ["leap"] = "modifier_mirana_leap",
@@ -587,45 +551,55 @@ local function DetectEnemyBlink(myHero)
     local enemies = Heroes.GetAll()
     local currentTime = GameRules.GetGameTime()
     local myPos = Entity.GetAbsOrigin(myHero)
-
+    
     for _, enemy in pairs(enemies) do
         if enemy and Entity.IsAlive(enemy) and not Entity.IsSameTeam(myHero, enemy) then
-            local snapshot = GetEnemyMovementSnapshot(enemy, myPos)
-            local enemyID = snapshot.id
-
-            if snapshot.lastPos and snapshot.lastTime then
-                local distanceTraveled = (snapshot.pos - snapshot.lastPos):Length()
-                local timeDiff = currentTime - snapshot.lastTime
-                local movingTowards = IsMovingTowardsHero(snapshot, myPos)
-                local gettingCloser = snapshot.lastDistanceToMe and (snapshot.distanceToMe < snapshot.lastDistanceToMe - 25)
-
-                if distanceTraveled > 280 and timeDiff < 0.20 and timeDiff > 0 then
-                    if snapshot.distanceToMe < 900 and (gettingCloser or movingTowards) then
-                        if movingTowards ~= false then
-                            if not blinkCooldowns[enemyID] or (currentTime - blinkCooldowns[enemyID]) > 1.0 then
-                                blinkCooldowns[enemyID] = currentTime
-                                SaveEnemyMovementSnapshot(snapshot, currentTime)
-                                return true
-                            end
+            local enemyID = Entity.GetIndex(enemy)
+            local currentPos = Entity.GetAbsOrigin(enemy)
+            local distanceToMe = (currentPos - myPos):Length()
+            local unitName = NPC.GetUnitName(enemy)
+            
+            -- Verifica se temos posição anterior registrada
+            if enemyPositions[enemyID] then
+                local lastPos = enemyPositions[enemyID].pos
+                local lastTime = enemyPositions[enemyID].time
+                local lastDistToMe = enemyPositions[enemyID].distToMe or 9999
+                
+                -- Calcula distância e tempo decorrido
+                local distance = (currentPos - lastPos):Length()
+                local timeDiff = currentTime - lastTime
+                
+                -- Detecta blink: movimento rápido em curto tempo e aproximou
+                if distance > 280 and timeDiff < 0.20 and timeDiff > 0 then
+                    -- Se o inimigo blinkou para perto (< 900 units) e ficou mais próximo que antes
+                    if distanceToMe < 900 and distanceToMe < lastDistToMe then
+                        if not blinkCooldowns[enemyID] or (currentTime - blinkCooldowns[enemyID]) > 1.0 then
+                            blinkCooldowns[enemyID] = currentTime
+                            return true
                         end
                     end
                 end
 
-                if distanceTraveled > 500 and timeDiff < 0.25 then
-                    if snapshot.distanceToMe < 1200 and movingTowards ~= false then
+                -- Aggressive blink detection (AM/Queen/Blink Dagger)
+                if distance > 500 and timeDiff < 0.25 then
+                    if distanceToMe < 1200 then
                         if not blinkCooldowns[enemyID] or (currentTime - blinkCooldowns[enemyID]) > 0.8 then
                             blinkCooldowns[enemyID] = currentTime
-                            SaveEnemyMovementSnapshot(snapshot, currentTime)
                             return true
                         end
                     end
                 end
             end
-
-            SaveEnemyMovementSnapshot(snapshot, currentTime)
+            
+            -- Atualiza posição do inimigo
+            enemyPositions[enemyID] = {
+                pos = currentPos,
+                time = currentTime,
+                distToMe = distanceToMe
+            }
         end
     end
-
+    
     return false
 end
 
@@ -634,80 +608,105 @@ local function DetectBlinkAbilities(myHero)
     local enemies = Heroes.GetAll()
     local currentTime = GameRules.GetGameTime()
     local myPos = Entity.GetAbsOrigin(myHero)
-
+    
     for _, enemy in pairs(enemies) do
         if enemy and Entity.IsAlive(enemy) and not Entity.IsSameTeam(myHero, enemy) then
-            local snapshot = GetEnemyMovementSnapshot(enemy, myPos)
-            local enemyID = snapshot.id
-            local movingTowards = IsMovingTowardsHero(snapshot, myPos)
-            local gettingCloser = snapshot.lastDistanceToMe and (snapshot.distanceToMe < snapshot.lastDistanceToMe - 25)
-
-            if snapshot.distanceToMe < 900 then
-                if snapshot.lastDistanceToMe then
-                    if snapshot.lastDistanceToMe > 900 and snapshot.distanceToMe < 900 and movingTowards ~= false then
+            local enemyID = Entity.GetIndex(enemy)
+            local enemyPos = Entity.GetAbsOrigin(enemy)
+            local distanceToMe = (enemyPos - myPos):Length()
+            
+            -- Verifica se está próximo (range maior para cobrir mais casos)
+            if distanceToMe < 900 then
+                -- Verifica se o inimigo acabou de aparecer perto (teleporte/blink)
+                if enemyPositions[enemyID] then
+                    local lastDist = enemyPositions[enemyID].distToMe or 9999
+                    -- Se estava longe e agora está perto = blink
+                    if lastDist > 900 and distanceToMe < 900 then
                         if not blinkCooldowns[enemyID] or (currentTime - blinkCooldowns[enemyID]) > 1.0 then
                             blinkCooldowns[enemyID] = currentTime
-                            SaveEnemyMovementSnapshot(snapshot, currentTime)
                             return true
                         end
                     end
                 end
-
+                
                 local modifiers = NPC.GetModifiers(enemy)
                 if modifiers then
                     for _, mod in pairs(modifiers) do
                         local modName = Modifier.GetName(mod)
-
+                        
+                        -- Detecta modifiers de blink recentes
                         if modName == "modifier_item_blink_cooldown" or
                            modName == "modifier_antimage_blink" or
                            modName == "modifier_queenofpain_blink" or
                            modName == "modifier_phantom_assassin_phantom_strike" or
                            modName == "modifier_riki_blink_strike" or
+                           -- Faceless Void Timewalk
                            modName == "modifier_faceless_void_time_walk" or
                            modName == "modifier_faceless_void_time_walk_phase" or
+                           -- Spirit Breaker Charge
                            modName == "modifier_spirit_breaker_charge_of_darkness" or
+                           -- Pudge Hook (movimento forçado)
                            modName == "modifier_pudge_meat_hook" or
+                           -- Puck Illusory Orb
                            modName == "modifier_puck_illusory_orb" or
+                           -- Ember Spirit Sleight of Fist
                            modName == "modifier_ember_spirit_sleight_of_fist_caster" or
+                           -- Storm Spirit Ball Lightning
                            modName == "modifier_storm_spirit_ball_lightning" or
+                           -- Void Spirit Dissimilate
                            modName == "modifier_void_spirit_dissimilate" or
+                           -- Mirana Leap
                            modName == "modifier_mirana_leap" or
+                           -- Slark Pounce
                            modName == "modifier_slark_pounce" or
+                           -- Magnus Skewer
                            modName == "modifier_magnataur_skewer_movement" or
+                           -- Invoker Ghost Walk
                            modName == "modifier_invoker_ghost_walk" or
+                           -- Nature's Prophet Teleportation
                            modName == "modifier_furion_teleportation" or
+                           -- Spectre Haunt
                            modName == "modifier_spectre_haunt" or
+                           -- Vengeful Spirit Nether Swap
                            modName == "modifier_vengefulspirit_nether_swap" or
+                           -- Morphling Waveform
                            modName == "modifier_morphling_waveform" or
+                           -- Pangolier Rolling Thunder
                            modName == "modifier_pangolier_gyroshell" or
+                           -- Tusk Snowball
                            modName == "modifier_tusk_snowball_movement" or
+                           -- Earth Spirit Boulder Smash/Rolling Boulder
                            modName == "modifier_earth_spirit_rolling_boulder_caster" or
                            modName == "modifier_earth_spirit_boulder_smash" or
+                           -- Monkey King Tree Dance
                            modName == "modifier_monkey_king_tree_dance" or
+                           -- Weaver Time Lapse (movimento de retorno)
                            modName == "modifier_weaver_time_lapse" or
+                           -- Lifestealer Infest
                            modName == "modifier_life_stealer_infest" or
+                           -- Phoenix Icarus Dive
                            modName == "modifier_phoenix_icarus_dive" or
+                           -- Clockwerk Hookshot
                            modName == "modifier_rattletrap_hookshot" or
+                           -- Batrider Flaming Lasso (movimento forçado)
                            modName == "modifier_batrider_flaming_lasso" or
+                           -- Huskar Life Break
                            modName == "modifier_huskar_life_break_charge" or
+                           -- Sand King Burrowstrike
                            modName == "modifier_sandking_burrowstrike" or
+                           -- Centaur Stampede
                            modName == "modifier_centaur_stampede" then
-                            if movingTowards ~= false and (gettingCloser or not snapshot.lastDistanceToMe) then
-                                if not blinkCooldowns[enemyID] or (currentTime - blinkCooldowns[enemyID]) > 1.0 then
-                                    blinkCooldowns[enemyID] = currentTime
-                                    SaveEnemyMovementSnapshot(snapshot, currentTime)
-                                    return true
-                                end
+                            if not blinkCooldowns[enemyID] or (currentTime - blinkCooldowns[enemyID]) > 1.0 then
+                                blinkCooldowns[enemyID] = currentTime
+                                return true
                             end
                         end
                     end
                 end
             end
-
-            SaveEnemyMovementSnapshot(snapshot, currentTime)
         end
     end
-
+    
     return false
 end
 
@@ -776,18 +775,15 @@ local function DetectEnemyApproach(myHero)
     local enemies = Heroes.GetAll()
     local myPos = Entity.GetAbsOrigin(myHero)
     local activationRange = ui.escape_activation_range:Get()
-
+    
     for _, enemy in pairs(enemies) do
         if enemy and Entity.IsAlive(enemy) and not Entity.IsSameTeam(myHero, enemy) then
-            local snapshot = GetEnemyMovementSnapshot(enemy, myPos)
-            local movingTowards = IsMovingTowardsHero(snapshot, myPos)
-
-            if snapshot.distanceToMe <= activationRange and movingTowards ~= false then
-                SaveEnemyMovementSnapshot(snapshot, GameRules.GetGameTime())
+            local enemyPos = Entity.GetAbsOrigin(enemy)
+            local distanceToMe = (enemyPos - myPos):Length()
+            
+            if distanceToMe <= activationRange then
                 return true
             end
-
-            SaveEnemyMovementSnapshot(snapshot, GameRules.GetGameTime())
         end
     end
     return false
