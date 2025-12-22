@@ -6,8 +6,8 @@ local TargetLock = require("TargetLock")
 local EuphoriaAddon2 = {}
 
 -- ========= MENU =========
-local hero_tab = Menu.Create("Heroes", "Hero List", "Earth Spirit", "EuphoriaAddon2")
-local euphor_tab = hero_tab
+local hero_tab = Menu.Find("Heroes", "Hero List", "Earth Spirit")
+local euphor_tab = hero_tab:Create("EuphoriaAddon 2.0 ⚡")
 
 local main_group    = euphor_tab:Create("Principal")
 local ability_group = euphor_tab:Create("Habilidades")
