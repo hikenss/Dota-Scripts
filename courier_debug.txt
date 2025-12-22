@@ -1,0 +1,67 @@
+22:14:10 - COURIER MORTO DETECTADO! ID: 232 Time: 3 Respawn: 160s
+22:15:02 - Script carregado
+22:15:02 - Novo courier detectado - ID: 1307 Time: 2 Nome: npc_dota_courier
+22:15:02 - Novo courier detectado - ID: 1384 Time: 3 Nome: npc_dota_courier
+22:15:02 - Novo courier detectado - ID: 232 Time: 3 Nome: npc_dota_courier
+22:15:02 - Novo courier detectado - ID: 821 Time: 3 Nome: npc_dota_courier
+22:15:06 - COURIER MORTO DETECTADO! ID: 1384 Time: 3 Respawn: 160s
+22:15:19 - Novo courier detectado - ID: 1493 Time: 3 Nome: npc_dota_courier
+22:15:56 - Script carregado
+22:15:56 - Novo courier detectado - ID: 1307 Time: 2 Nome: npc_dota_courier
+22:15:56 - Novo courier detectado - ID: 1493 Time: 3 Nome: npc_dota_courier
+22:15:56 - Novo courier detectado - ID: 232 Time: 3 Nome: npc_dota_courier
+22:15:56 - Novo courier detectado - ID: 821 Time: 3 Nome: npc_dota_courier
+22:16:00 - COURIER MORTO DETECTADO! ID: 821 Time: 3 Respawn: 160s
+22:16:21 - Novo courier detectado - ID: 482 Time: 3 Nome: npc_dota_courier
+22:17:04 - Novo courier detectado - ID: 821 Time: 3 Nome: npc_dota_courier
+22:18:22 - Novo courier detectado - ID: 1384 Time: 3 Nome: npc_dota_courier
+22:19:15 - Script carregado
+22:19:15 - Novo courier detectado - ID: 1307 Time: 2 Nome: npc_dota_courier
+22:19:15 - Novo courier detectado - ID: 1384 Time: 3 Nome: npc_dota_courier
+22:19:15 - Novo courier detectado - ID: 1493 Time: 3 Nome: npc_dota_courier
+22:19:15 - Novo courier detectado - ID: 482 Time: 3 Nome: npc_dota_courier
+22:19:15 - Novo courier detectado - ID: 232 Time: 3 Nome: npc_dota_courier
+22:19:15 - Novo courier detectado - ID: 821 Time: 3 Nome: npc_dota_courier
+22:19:22 - COURIER MORTO DETECTADO! ID: 232 Time: 3 Respawn: 160s
+22:20:11 - Novo courier detectado - ID: 232 Time: 3 Nome: npc_dota_courier
+22:22:26 - Script carregado
+22:22:27 - Novo courier detectado - ID: 1307 Time: 2 Nome: npc_dota_courier
+22:22:27 - Novo courier detectado - ID: 1384 Time: 3 Nome: npc_dota_courier
+22:22:27 - Novo courier detectado - ID: 1493 Time: 3 Nome: npc_dota_courier
+22:22:27 - Novo courier detectado - ID: 482 Time: 3 Nome: npc_dota_courier
+22:22:27 - Novo courier detectado - ID: 232 Time: 3 Nome: npc_dota_courier
+22:22:27 - Novo courier detectado - ID: 821 Time: 3 Nome: npc_dota_courier
+22:23:14 - Script carregado
+22:23:15 - Novo courier detectado - ID: 1307 Time: 2 Nome: npc_dota_courier
+22:23:15 - Novo courier detectado - ID: 1384 Time: 3 Nome: npc_dota_courier
+22:23:15 - Novo courier detectado - ID: 1493 Time: 3 Nome: npc_dota_courier
+22:23:15 - Novo courier detectado - ID: 482 Time: 3 Nome: npc_dota_courier
+22:23:15 - Novo courier detectado - ID: 232 Time: 3 Nome: npc_dota_courier
+22:23:15 - Novo courier detectado - ID: 821 Time: 3 Nome: npc_dota_courier
+22:24:38 - Script carregado
+22:24:39 - Novo courier detectado - ID: 1307 Time: 2 Nome: npc_dota_courier
+22:24:39 - Novo courier detectado - ID: 1384 Time: 3 Nome: npc_dota_courier
+22:24:39 - Novo courier detectado - ID: 1493 Time: 3 Nome: npc_dota_courier
+22:24:39 - Novo courier detectado - ID: 482 Time: 3 Nome: npc_dota_courier
+22:24:39 - Novo courier detectado - ID: 232 Time: 3 Nome: npc_dota_courier
+22:24:39 - Novo courier detectado - ID: 821 Time: 3 Nome: npc_dota_courier
+22:24:42 - COURIER MORTO DETECTADO! ID: 1493 Time: 3 Respawn: 160s
+22:26:51 - Script carregado
+22:26:52 - Novo courier detectado - ID: 1307 Time: 2 Nome: npc_dota_courier
+22:26:52 - Novo courier detectado - ID: 1384 Time: 3 Nome: npc_dota_courier
+22:26:52 - Novo courier detectado - ID: 482 Time: 3 Nome: npc_dota_courier
+22:26:52 - Novo courier detectado - ID: 232 Time: 3 Nome: npc_dota_courier
+22:26:52 - Novo courier detectado - ID: 821 Time: 3 Nome: npc_dota_courier
+22:27:11 - COURIER MORTO DETECTADO! ID: 482 Time: 3 Respawn: 160s
+22:27:59 - Script carregado
+22:28:00 - Novo courier detectado - ID: 1307 Time: 2 Nome: npc_dota_courier
+22:28:00 - Novo courier detectado - ID: 1384 Time: 3 Nome: npc_dota_courier
+22:28:00 - Novo courier detectado - ID: 1493 Time: 3 Nome: npc_dota_courier
+22:28:00 - Novo courier detectado - ID: 232 Time: 3 Nome: npc_dota_courier
+22:28:00 - Novo courier detectado - ID: 821 Time: 3 Nome: npc_dota_courier
+22:28:04 - COURIER MORTO DETECTADO! ID: 232 Time: 3 Respawn: 160s
+22:28:53 - Novo courier detectado - ID: 232 Time: 3 Nome: npc_dota_courier
+22:30:11 - Script carregado
+22:31:55 - Script carregado
+22:33:01 - Script carregado
+22:35:29 - Script carregado

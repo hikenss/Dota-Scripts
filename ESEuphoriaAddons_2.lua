@@ -6,8 +6,8 @@ local TargetLock = require("TargetLock")
 local EuphoriaAddon2 = {}
 
 -- ========= MENU =========
-local hero_tab = Menu.Find("Heroes", "Hero List", "Earth Spirit")
-local euphor_tab = hero_tab:Create("EuphoriaAddon 2.0 ⚡")
+local hero_tab = Menu.Create("Heroes", "Hero List", "Earth Spirit", "EuphoriaAddon2")
+local euphor_tab = hero_tab
 
 local main_group    = euphor_tab:Create("Principal")
 local ability_group = euphor_tab:Create("Habilidades")
@@ -178,6 +178,13 @@ local retreat_pending = false
 local debug_last = ""
 local roll_travel = 0
 local roll_started_at = 0
+
+-- Earth Spirit: rastreia quando colocou Remnant e precisa rolar
+local earthSpiritPending = {
+    active = false,
+    time = 0,
+    escapePos = nil
+}
 local roll_target_point = nil
 local approach_roll_active = false
 local action_cd_until = 0
@@ -464,6 +471,7 @@ function EuphoriaAddon2.OnUpdate()
     local smash   = GetAbility(myHero, "earth_spirit_boulder_smash")
     local enchant = GetAbility(myHero, "earth_spirit_petrify")
     local rolling = GetAbility(myHero, "earth_spirit_rolling_boulder")
+    local stoneRemnant = GetAbility(myHero, "earth_spirit_stone_caller")
     local grip    = GetAbility(myHero, "earth_spirit_geomagnetic_grip")
     local has_aghs = enchant and Ability.GetLevel(enchant) > 0
     
@@ -568,7 +576,32 @@ function EuphoriaAddon2.OnUpdate()
                 end
                 
                 if rollPos then
-                    Ability.CastPosition(rolling, rollPos)
+                    -- Usa remnant antes de rolar se tiver charge e mana para os dois casts
+                    local hasRemnant = false
+                    if stoneRemnant and Ability.GetLevel(stoneRemnant) > 0 then
+                        local remnantCharges = Ability.GetCurrentCharges and Ability.GetCurrentCharges(stoneRemnant) or 0
+                        local myMana = NPC.GetMana(myHero)
+                        local remnantCost = Ability.GetManaCost and Ability.GetManaCost(stoneRemnant) or 0
+                        local boulderCost = Ability.GetManaCost and Ability.GetManaCost(rolling) or 0
+                        if remnantCharges > 0 and myMana >= (remnantCost + boulderCost) and Ability.IsCastable(stoneRemnant, myMana) then
+                            hasRemnant = true
+                        end
+                    end
+                    
+                    if hasRemnant then
+                        local myPos = Entity.GetAbsOrigin(myHero)
+                        local dirToRoll = (rollPos - myPos):Normalized()
+                        local remnantPos = myPos + dirToRoll * 200
+                        
+                        Ability.CastPosition(stoneRemnant, remnantPos)
+                        earthSpiritPending = {
+                            active = true,
+                            time = now,
+                            escapePos = rollPos
+                        }
+                    else
+                        Ability.CastPosition(rolling, rollPos)
+                    end
                 end
             end
         end
@@ -576,7 +609,30 @@ function EuphoriaAddon2.OnUpdate()
     prevPushKeyState = pushKeyDown
 
 
+    -- EARTH SPIRIT: Usa Rolling Boulder apos colocar Stone Remnant
+    if earthSpiritPending.active then
+        local heroName = NPC.GetUnitName(myHero)
+        if heroName == "npc_dota_hero_earth_spirit" then
+            local elapsed = now - earthSpiritPending.time
+            -- Timeout apos 1.0 segundos
+            if elapsed >= 1.0 then
+                earthSpiritPending.active = false
+            -- Tenta a partir de 0.05s ate conseguir (ou ate 0.5s fallback)
+            elseif elapsed >= 0.05 then
+                if rolling and Ability.IsCastable(rolling, NPC.GetMana(myHero)) then
+                    Ability.CastPosition(rolling, earthSpiritPending.escapePos)
+                    earthSpiritPending.active = false
+                end
+                if elapsed >= 0.5 then
+                    earthSpiritPending.active = false
+                end
+            end
+        else
+            earthSpiritPending.active = false
+        end
+    end
     
+
     -- Combo hold logic (bloqueado durante push escape)
     local holding = IsKeyDown(ui.hotkey:Get())
     if holding and not combo_active and not pushModeActive then
@@ -623,7 +679,29 @@ function EuphoriaAddon2.OnUpdate()
             local dirIn = (predicted - myPosIn)
             local lenIn = dirIn:Length2D()
             if lenIn > 1 then
-                TryCast("roll_in", 0, function() Ability.CastPosition(rolling, predicted) end)
+                TryCast("roll_in", 0, function()
+                    -- Usa remnant antes de rolar se tiver charge e mana para os dois casts
+                    local hasRemnant = false
+                    if stoneRemnant and Ability.GetLevel(stoneRemnant) > 0 then
+                        local remnantCharges = Ability.GetCurrentCharges and Ability.GetCurrentCharges(stoneRemnant) or 0
+                        local myMana = NPC.GetMana(myHero)
+                        local remnantCost = Ability.GetManaCost and Ability.GetManaCost(stoneRemnant) or 0
+                        local boulderCost = Ability.GetManaCost and Ability.GetManaCost(rolling) or 0
+                        if remnantCharges > 0 and myMana >= (remnantCost + boulderCost) and Ability.IsCastable(stoneRemnant, myMana) then
+                            hasRemnant = true
+                        end
+                    end
+                    
+                    if hasRemnant then
+                        local myPosInCast = Entity.GetAbsOrigin(myHero)
+                        local dirToRoll = (predicted - myPosInCast):Normalized()
+                        local remnantPos = myPosInCast + dirToRoll * 200
+                        Ability.CastPosition(stoneRemnant, remnantPos)
+                        earthSpiritPending = { active = true, time = now, escapePos = predicted }
+                    else
+                        Ability.CastPosition(rolling, predicted)
+                    end
+                end)
                 DebugPrint(string.format("STATE0: ROLL prefer -> predicted(%.1f,%.1f) len=%.1f", predicted.x, predicted.y, lenIn))
                 FileLog(string.format("STATE0 ROLL prefer target=(%.0f,%.0f) travel=%.0f", predicted.x, predicted.y, lenIn))
                 roll_travel = lenIn
@@ -653,7 +731,29 @@ function EuphoriaAddon2.OnUpdate()
             local dirIn   = (predicted - myPosIn)
             local lenIn   = dirIn:Length2D()
             if lenIn > 1 then
-                TryCast("roll_in", 0, function() Ability.CastPosition(rolling, predicted) end)
+                TryCast("roll_in", 0, function()
+                    -- Usa remnant antes de rolar se tiver charge e mana para os dois casts
+                    local hasRemnant = false
+                    if stoneRemnant and Ability.GetLevel(stoneRemnant) > 0 then
+                        local remnantCharges = Ability.GetCurrentCharges and Ability.GetCurrentCharges(stoneRemnant) or 0
+                        local myMana = NPC.GetMana(myHero)
+                        local remnantCost = Ability.GetManaCost and Ability.GetManaCost(stoneRemnant) or 0
+                        local boulderCost = Ability.GetManaCost and Ability.GetManaCost(rolling) or 0
+                        if remnantCharges > 0 and myMana >= (remnantCost + boulderCost) and Ability.IsCastable(stoneRemnant, myMana) then
+                            hasRemnant = true
+                        end
+                    end
+                    
+                    if hasRemnant then
+                        local myPosInCast = Entity.GetAbsOrigin(myHero)
+                        local dirToRoll = (predicted - myPosInCast):Normalized()
+                        local remnantPos = myPosInCast + dirToRoll * 200
+                        Ability.CastPosition(stoneRemnant, remnantPos)
+                        earthSpiritPending = { active = true, time = now, escapePos = predicted }
+                    else
+                        Ability.CastPosition(rolling, predicted)
+                    end
+                end)
                 DebugPrint(string.format("Rolling IN predicted: len=%.1f -> (%.1f,%.1f)", lenIn, predicted.x, predicted.y))
                 debug_last = string.format("roll_in predicted (%.1f,%.1f)", predicted.x, predicted.y)
                 FileLog(string.format("ROLL IN travel=%.1f target=(%.0f,%.0f)", lenIn, predicted.x, predicted.y))

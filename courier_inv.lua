@@ -33,7 +33,16 @@ local function InitializeUI()
         Enabled = mainGroup:Switch("Ativar", true, Config.UI.Icons.Main),
         Layout = mainGroup:Combo("Layout", { "Normal", "3x3" }, 0),
         AltOnly = mainGroup:Switch("Mostrar apenas com ALT", false),
-        ShowTimer = mainGroup:Switch("Mostrar timer de respawn", true, "\u{f017}")
+        ShowTimer = mainGroup:Switch("Mostrar timer de respawn", true, "\u{f017}"),
+        TestTimer = mainGroup:Button("Testar Timer (60s)", function()
+            local currentTime = GameRules.GetGameTime()
+            State.deadCouriers[3] = {
+                deathTime = currentTime,
+                respawnTime = currentTime + 60
+            }
+            Log.Write("[Courier] Timer de teste adicionado: 60s")
+        end),
+        DebugMode = mainGroup:Switch("Debug Mode", false, "\u{f188}")
     }
 end
 
@@ -67,6 +76,14 @@ end
 local function outlinecol()
     return stlclr("indication_inactive", PanelColors.Border)
 end
+
+local TimerState = {
+    x = 50,
+    y = 50,
+    dragging = false,
+    dragOffset = {x = 0, y = 0},
+    minimized = false
+}
 
 local State = {
     alpha = 0,
@@ -190,38 +207,89 @@ end
 local function DrawCourierTimer()
     if not UI.ShowTimer or not UI.ShowTimer:Get() then return end
     
-    local screenSize = Render.ScreenSize()
-    local startX = screenSize.x - 200
-    local startY = 100
+    -- Sempre mostra o painel se houver timers OU para debug
+    local hasTimers = false
     local currentTime = GameRules.GetGameTime()
     
-    local yOffset = 0
+    -- Limpa timers expirados primeiro
     for team, data in pairs(State.deadCouriers) do
         local timeLeft = data.respawnTime - currentTime
-        if timeLeft > 0 then
-            local y = startY + yOffset
-            
-            -- Fundo
-            Render.FilledRect(Vec2(startX, y), Vec2(startX + 180, y + 40), Color(20, 20, 25, 200), 8)
-            
-            -- Ícone do courier
-            local courierIcon = Render.LoadImage("panorama/images/heroes/icons/npc_dota_hero_courier_png.vtex_c")
-            if courierIcon then
-                Render.Image(courierIcon, Vec2(startX + 5, y + 5), Vec2(30, 30), Color(255, 255, 255, 255), 4)
-            end
-            
-            -- Texto do timer
-            local timerText = string.format("%d:%02d", math.floor(timeLeft / 60), math.floor(timeLeft % 60))
-            Render.Text(Config.Fonts.Main, 20, timerText, Vec2(startX + 45, y + 10), Color(255, 100, 100, 255))
-            
-            -- Texto do time
-            local teamText = team == 2 and "Radiante" or "Dire"
-            Render.Text(Config.Fonts.Main, 12, teamText, Vec2(startX + 130, y + 15), Color(200, 200, 200, 255))
-            
-            yOffset = yOffset + 50
-        else
-            -- Remove timer expirado
+        if timeLeft <= 0 then
             State.deadCouriers[team] = nil
+        else
+            hasTimers = true
+        end
+    end
+    
+    -- Para debug: sempre mostra o painel
+    if not hasTimers then
+        -- Mostra painel vazio para debug
+        hasTimers = true
+    end
+    
+    if not hasTimers then return end
+    
+    local mouse = Input.GetCursorPos()
+    local mouseDown = Input.IsKeyDown(Enum.ButtonCode.MOUSE_LEFT)
+    
+    -- Dimensões do painel
+    local panelW = TimerState.minimized and 80 or 120
+    local panelH = TimerState.minimized and 20 or 30
+    
+    -- Verifica se mouse está sobre o painel
+    local mouseOver = mouse.x >= TimerState.x and mouse.x <= TimerState.x + panelW and
+                      mouse.y >= TimerState.y and mouse.y <= TimerState.y + panelH
+    
+    -- Lógica de drag
+    if mouseOver and mouseDown and not TimerState.dragging then
+        TimerState.dragging = true
+        TimerState.dragOffset.x = mouse.x - TimerState.x
+        TimerState.dragOffset.y = mouse.y - TimerState.y
+    elseif TimerState.dragging and mouseDown then
+        TimerState.x = mouse.x - TimerState.dragOffset.x
+        TimerState.y = mouse.y - TimerState.dragOffset.y
+    elseif not mouseDown then
+        TimerState.dragging = false
+    end
+    
+    -- Fundo do painel
+    local bgColor = mouseOver and Color(40, 40, 50, 200) or Color(20, 20, 30, 150)
+    Render.FilledRect(Vec2(TimerState.x, TimerState.y), Vec2(TimerState.x + panelW, TimerState.y + panelH), bgColor, 4)
+    
+    -- Botão minimizar
+    local btnX = TimerState.x + panelW - 15
+    local btnY = TimerState.y + 2
+    local btnOver = mouse.x >= btnX and mouse.x <= btnX + 12 and mouse.y >= btnY and mouse.y <= btnY + 12
+    if btnOver then
+        Render.FilledRect(Vec2(btnX, btnY), Vec2(btnX + 12, btnY + 12), Color(60, 60, 70, 150), 2)
+        if Input.IsKeyPressed(Enum.ButtonCode.MOUSE_LEFT) then
+            TimerState.minimized = not TimerState.minimized
+        end
+    end
+    local btnText = TimerState.minimized and "+" or "-"
+    Render.Text(Config.Fonts.Main, 10, btnText, Vec2(btnX + 3, btnY + 1), Color(200, 200, 200, 255))
+    
+    if TimerState.minimized then
+        -- Versão minimizada - só mostra "C"
+        Render.Text(Config.Fonts.Main, 12, "C", Vec2(TimerState.x + 3, TimerState.y + 4), Color(255, 150, 150, 255))
+    else
+        -- Versão completa
+        local hasActiveTimers = false
+        local yOffset = 0
+        for team, data in pairs(State.deadCouriers) do
+            local timeLeft = data.respawnTime - currentTime
+            if timeLeft > 0 then
+                hasActiveTimers = true
+                local timerText = string.format("%d:%02d", math.floor(timeLeft / 60), math.floor(timeLeft % 60))
+                local teamColor = team == 2 and Color(100, 255, 100, 255) or Color(255, 100, 100, 255)
+                Render.Text(Config.Fonts.Main, 11, timerText, Vec2(TimerState.x + 3, TimerState.y + 5 + yOffset), teamColor)
+                yOffset = yOffset + 12
+            end
+        end
+        
+        -- Se não há timers ativos, mostra "No timers"
+        if not hasActiveTimers then
+            Render.Text(Config.Fonts.Main, 10, "No timers", Vec2(TimerState.x + 3, TimerState.y + 8), Color(150, 150, 150, 255))
         end
     end
 end
@@ -268,6 +336,43 @@ local function DrawCourierPanel(courier, alpha)
     end
 end
 
+M.OnEntityKilled = function(ent)
+    if not UI.Enabled or not UI.Enabled:Get() then return end
+    if not UI.ShowTimer or not UI.ShowTimer:Get() then return end
+    
+    if UI.DebugMode and UI.DebugMode:Get() then
+        Log.Write("[Courier Debug] Entity killed: " .. tostring(ent))
+    end
+    
+    local myHero = Heroes.GetLocal()
+    if not myHero then return end
+    local myTeam = Entity.GetTeamNum(myHero)
+    
+    if ent then
+        local unitName = NPC.GetUnitName(ent)
+        if UI.DebugMode and UI.DebugMode:Get() then
+            Log.Write("[Courier Debug] Unit name: " .. tostring(unitName))
+        end
+        
+        if unitName and (unitName == "npc_dota_courier" or unitName == "npc_dota_courier_flying" or string.find(unitName, "courier", 1, true)) then
+            local team = Entity.GetTeamNum(ent)
+            if UI.DebugMode and UI.DebugMode:Get() then
+                Log.Write("[Courier Debug] Courier team: " .. tostring(team) .. " My team: " .. tostring(myTeam))
+            end
+            
+            if team and team ~= myTeam then
+                local currentTime = GameRules.GetGameTime()
+                local respawnTime = getCourierRespawnTime()
+                State.deadCouriers[team] = {
+                    deathTime = currentTime,
+                    respawnTime = currentTime + respawnTime
+                }
+                Log.Write("[Courier] Enemy courier killed! Team: " .. team .. " Respawn in: " .. respawnTime .. "s")
+            end
+        end
+    end
+end
+
 M.OnUpdate = function()
     if not UI.Enabled or not UI.Enabled:Get() then return end
     local myHero = Heroes.GetLocal()
@@ -277,33 +382,14 @@ M.OnUpdate = function()
     local all = NPCs.GetAll()
     if not all then return end
     
-    -- Rastreia couriers inimigos
+    -- Rastreia couriers inimigos vivos para limpar timers
     for _, npc in ipairs(all) do
-        if npc then
+        if npc and Entity.IsAlive(npc) then
             local unitName = NPC.GetUnitName(npc)
             if unitName and (unitName == "npc_dota_courier" or unitName == "npc_dota_courier_flying" or string.find(unitName, "courier", 1, true)) then
                 local team = Entity.GetTeamNum(npc)
                 if team and team ~= myTeam then
-                    local npcIndex = Entity.GetIndex(npc)
-                    
-                    -- Courier estava vivo
-                    if Entity.IsAlive(npc) then
-                        State.trackedCouriers[npcIndex] = true
-                        -- Remove do timer se estava morto
-                        if State.deadCouriers[team] then
-                            State.deadCouriers[team] = nil
-                        end
-                    else
-                        -- Courier morreu
-                        if State.trackedCouriers[npcIndex] and not State.deadCouriers[team] then
-                            local currentTime = GameRules.GetGameTime()
-                            local respawnTime = getCourierRespawnTime()
-                            State.deadCouriers[team] = {
-                                respawnTime = currentTime + respawnTime,
-                                team = team
-                            }
-                        end
-                    end
+                    State.trackedCouriers[Entity.GetIndex(npc)] = true
                 end
             end
         end
@@ -312,12 +398,43 @@ end
 
 M.OnDraw = function()
     if not UI.Enabled or not UI.Enabled:Get() then return end
+    
+    -- Timer de courier
+    if UI.ShowTimer and UI.ShowTimer:Get() then
+        local currentTime = GameRules.GetGameTime()
+        local hasTimers = false
+        
+        -- Limpa timers expirados
+        for team, data in pairs(State.deadCouriers) do
+            if data.respawnTime - currentTime <= 0 then
+                State.deadCouriers[team] = nil
+            else
+                hasTimers = true
+            end
+        end
+        
+        -- Só mostra se houver timers ativos
+        if hasTimers then
+            local x, y = 50, 50
+            Render.FilledRect(Vec2(x, y), Vec2(x + 120, y + 40), Color(0, 0, 0, 200), 4)
+            Render.Text(Config.Fonts.Main, 12, "COURIER TIMER", Vec2(x + 5, y + 5), Color(255, 255, 255, 255))
+            
+            local yOffset = 20
+            for team, data in pairs(State.deadCouriers) do
+                local timeLeft = data.respawnTime - currentTime
+                if timeLeft > 0 then
+                    local timerText = string.format("%d:%02d", math.floor(timeLeft / 60), math.floor(timeLeft % 60))
+                    local teamColor = team == 2 and Color(100, 255, 100, 255) or Color(255, 100, 100, 255)
+                    Render.Text(Config.Fonts.Main, 11, timerText, Vec2(x + 5, y + yOffset), teamColor)
+                    yOffset = yOffset + 15
+                end
+            end
+        end
+    end
+    
     local altDown = Input.IsKeyDown(Enum.ButtonCode.KEY_LALT)
     local showNow = (not UI.AltOnly or not UI.AltOnly:Get()) or altDown
     State.alpha = clamp(State.alpha, showNow and 255 or 0, 10)
-    
-    -- Desenha timer de respawn
-    DrawCourierTimer()
     
     if State.alpha <= 0 then return end
     local myHero = Heroes.GetLocal()
@@ -333,6 +450,11 @@ M.OnDraw = function()
         end
     end
 end
+
+-- Registra as funções no framework
+Callbacks.Add("OnEntityKilled", M.OnEntityKilled)
+Callbacks.Add("OnUpdate", M.OnUpdate)
+Callbacks.Add("OnDraw", M.OnDraw)
 
 return M
 

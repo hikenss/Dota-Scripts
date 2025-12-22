@@ -381,6 +381,28 @@ local function evaluateThreatLevel(courier, courierPos, courierTeam)
         end
     end
     
+    -- Considerar creeps e unidades controladas (podem travar e matar courier)
+    for _, unit in ipairs(enemies) do
+        if Entity.IsAlive(unit) and not Entity.IsHero(unit) and not NPC.IsIllusion(unit) then
+            local unitPos = Entity.GetAbsOrigin(unit)
+            local dist = (courierPos - unitPos):Length()
+            local ranged = NPC.IsRanged(unit)
+            local attackRange = (ranged and 600 or 150) + NPC.GetHullRadius(unit) + 80
+            local threat = 0
+            if dist <= attackRange then
+                threat = 55
+            elseif dist <= attackRange + 200 then
+                threat = 40
+            elseif dist <= radius * 0.5 then
+                threat = 25
+            end
+            if threat > maxThreat then
+                maxThreat = threat
+                closestEnemy = closestEnemy or unit
+            end
+        end
+    end
+    
     -- Verificar torres inimigas
     if isNearTower(courierPos, courierTeam) then
         maxThreat = math.max(maxThreat, 90)
@@ -416,7 +438,8 @@ local function isStuck(courierPos)
     end
     
     courierState.lastPosition = courierPos
-    return courierState.stuckCounter > 30
+    -- Reduzido: reage mais rÇ̧pido ao travamento
+    return courierState.stuckCounter > 20
 end
 
 local function resetCourierState()
@@ -484,19 +507,42 @@ function OnUpdate()
     
     -- Detectar travamento (apenas durante fuga automática)
     if courierState.escaping and isStuck(courierPos) then
-        courierState.stuckCounter = 0
-        courierState.escaping = false
-        courierState.pathCheckpoints = {}
+        -- Em vez de soltar, recalcula rota segura com leve desvio para destravar
+        local enemyPos = nil
+        local _, enemyTmp = evaluateThreatLevel(courier, courierPos, courierTeam)
+        if enemyTmp then
+            enemyPos = Entity.GetAbsOrigin(enemyTmp)
+        end
+        local escapePos = courierState.destination or FOUNTAIN_POSITIONS[courierTeam]
+        local jitter = Vector(math.random(-220, 220), math.random(-220, 220), 0)
+        escapePos = escapePos + jitter
+        local waypoints = generateSafeWaypoints(courierPos, escapePos, courierTeam)
+        courierState.pathCheckpoints = waypoints
         courierState.currentCheckpoint = 1
+        courierState.escaping = true
+        courierState.destination = escapePos
+        courierState.escapeStartTime = currentTime
+        courierState.lastOrderTime = currentTime
         courierState.lastUnstuckTime = currentTime
-        courierState.destination = nil
         courierState.hidingFromVision = false
-        printAlert("⚠️ Travamento detectado! Liberando controle", "#ff8800")
+        courierState.stuckCounter = 0
+        if #waypoints > 0 then
+            Player.PrepareUnitOrders(
+                player,
+                Enum.UnitOrder.DOTA_UNIT_ORDER_MOVE_TO_POSITION,
+                nil,
+                waypoints[1],
+                nil,
+                Enum.PlayerOrderIssuer.DOTA_ORDER_ISSUER_PASSED_UNIT_ONLY,
+                courier
+            )
+        end
+        printAlert("?? Travou na rota! Recalculando fuga", "#ff8800")
         return
     end
     
-    -- Cooldown após destravar para evitar loop
-    if currentTime - courierState.lastUnstuckTime < 5 then
+    -- Cooldown após destravar para evitar loop (reduzido)
+    if currentTime - courierState.lastUnstuckTime < 2 then
         return
     end
     
@@ -810,6 +856,38 @@ function OnUpdate()
     -- Avaliar nível de ameaça
     local threatLevel, closestEnemy = evaluateThreatLevel(courier, courierPos, courierTeam)
     
+    -- Manter rota de fuga ativa: avança checkpoints e reemite ordem para não ficar parado
+    if courierState.escaping and courierState.pathCheckpoints and #courierState.pathCheckpoints > 0 then
+        local target = courierState.pathCheckpoints[courierState.currentCheckpoint] or courierState.pathCheckpoints[#courierState.pathCheckpoints]
+        if target then
+            local distToTarget = (courierPos - target):Length()
+            if distToTarget < 200 then
+                if courierState.currentCheckpoint < #courierState.pathCheckpoints then
+                    courierState.currentCheckpoint = courierState.currentCheckpoint + 1
+                    target = courierState.pathCheckpoints[courierState.currentCheckpoint]
+                else
+                    courierState.escaping = false
+                    courierState.hidingFromVision = false
+                    courierState.destination = nil
+                    courierState.pathCheckpoints = {}
+                    courierState.currentCheckpoint = 1
+                end
+            end
+            if courierState.escaping and target and currentTime - courierState.lastOrderTime > 0.4 then
+                Player.PrepareUnitOrders(
+                    player,
+                    Enum.UnitOrder.DOTA_UNIT_ORDER_MOVE_TO_POSITION,
+                    nil,
+                    target,
+                    nil,
+                    Enum.PlayerOrderIssuer.DOTA_ORDER_ISSUER_PASSED_UNIT_ONLY,
+                    courier
+                )
+                courierState.lastOrderTime = currentTime
+            end
+        end
+    end
+    
     -- HP crítico - voltar para base imediatamente
     if courierHPPercent <= criticalHP:Get() and threatLevel > 0 then
         local escapePos = FOUNTAIN_POSITIONS[courierTeam]
@@ -836,8 +914,8 @@ function OnUpdate()
         return
     end
     
-    -- Ameaça crítica ou alta - FUGIR (apenas se não estiver em cooldown)
-    if (threatLevel >= 70 or courierState.underAttack) and currentTime - courierState.lastUnstuckTime >= 5 then
+    -- Ameaça moderada/alta ou tomou dano - fugir já (cooldown curto)
+    if (threatLevel >= 40 or courierState.underAttack) and currentTime - courierState.lastUnstuckTime >= 0.5 then
         local enemyPos = closestEnemy and Entity.GetAbsOrigin(closestEnemy) or nil
         local escapePos, escapeType = findSafestEscapeRoute(courierPos, enemyPos, courierTeam)
         local waypoints = generateSafeWaypoints(courierPos, escapePos, courierTeam)
@@ -860,7 +938,7 @@ function OnUpdate()
             courier
         )
         
-        local threatText = threatLevel >= 100 and "CRÍTICO" or "ALTO"
+        local threatText = threatLevel >= 80 and "CRÍTICO" or "ALTO"
         printAlert(string.format("⚠️ Perigo %s! Fugindo via %s", threatText, escapeType), "#ff8800")
         return
     end
@@ -897,8 +975,8 @@ function OnUpdate()
         end
     end
     
-    -- Ameaça média - manter distância (tratar como fuga ativa)
-    if threatLevel >= 50 and threatLevel < 70 and closestEnemy and currentTime - courierState.lastUnstuckTime >= 5 then
+    -- Ameaça baixa/média - manter distância (tratar como fuga ativa)
+    if threatLevel >= 25 and threatLevel < 40 and closestEnemy and currentTime - courierState.lastUnstuckTime >= 0.5 then
         local enemyPos = Entity.GetAbsOrigin(closestEnemy)
         local distToEnemy = (courierPos - enemyPos):Length()
         
