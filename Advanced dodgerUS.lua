@@ -97,15 +97,18 @@ ui.start_dodge:ToolTip("Use escape when an enemy starts a gap-closing ability to
 
 
 
-ui.no_escape_near_allies = menuMain:Switch("Don't Escape Near Allies", false, "\u{f0c0}")
-
+ui.no_escape_near_allies = menuMain:Switch("Don't Escape Near Allies", true, "\u{f0c0}", true)
 ui.no_escape_near_allies:ToolTip("Disable escape when allies are nearby to avoid leaving them alone in fights")
 
 
 
-ui.no_escape_ally_range = menuMain:Slider("Ally Range Check", 200, 1500, 600, function(value) return value .. " range" end)
+ui.no_escape_ally_range = menuMain:Slider("Ally Range Check", 200, 1500, 400, function(value) return value .. " range" end)
 
 ui.no_escape_ally_range:ToolTip("Range to check for nearby allies (only used if 'Don't Escape Near Allies' is enabled)")
+
+
+
+
 
 
 
@@ -377,8 +380,7 @@ local CONFIG = {
 
 ═══════════════════════════════════════════════════════════════════════════]]
 
-ui.allies_support = menuSaveAlly:Switch("Enable Save Allies", false, "\u{f0c0}")
-
+ui.allies_support = menuSaveAlly:Switch("Enable Save Allies", true, "\u{f0c0}", true)
 ui.allies_support:ToolTip("Master toggle: Use items and abilities to save allies from dangerous situations")
 
 
@@ -613,6 +615,17 @@ local instantBlinkMods = {
 
 }
 
+-- Modifiers que indicam que o inimigo está teleportando ou acabou de teleportar (TP scroll/Boots of Travel)
+-- Não devemos reagir a inimigos que chegaram via TP
+local teleportingMods = {
+    ["modifier_teleporting"] = true,
+    ["modifier_boots_of_travel_incoming_indicator"] = true,
+    ["modifier_teleport_start"] = true,
+}
+
+-- Rastreia inimigos que acabaram de chegar via TP (para ignorar por alguns segundos)
+local recentlyTeleported = {}
+
 
 
 -- Blinks que são TARGETED em unidade - se o alvo for aliado, NUNCA reagir
@@ -661,6 +674,29 @@ local fastDashMods = {
 
 }
 
+-- Helper: Verifica se um inimigo está teleportando ou acabou de teleportar
+local function IsEnemyTeleporting(enemy)
+    if not enemy then return false end
+    local modifiers = NPC.GetModifiers(enemy)
+    if modifiers then
+        for _, mod in pairs(modifiers) do
+            local modName = Modifier.GetName(mod)
+            if teleportingMods[modName] then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+-- Helper: Verifica se um inimigo acabou de chegar via TP recentemente
+local function DidEnemyJustTeleport(enemyID, currentTime)
+    if not enemyID or not recentlyTeleported[enemyID] then return false end
+    local tpTime = recentlyTeleported[enemyID]
+    -- Ignora por 1.5 segundos após chegar via TP (tempo suficiente para TP animation terminar)
+    return (currentTime - tpTime) < 1.5
+end
+
 -- Função para atualizar posições de todos os inimigos (deve ser chamada todo frame)
 
 local function UpdateEnemyPositions(myHero)
@@ -697,6 +733,13 @@ local function UpdateEnemyPositions(myHero)
             -- Guardar posi????o anterior antes de atualizar
 
             local prevData = enemyPositions[enemyID]
+
+            -- Verifica se o inimigo está teleportando (TP scroll)
+            local isTeleporting = IsEnemyTeleporting(enemy)
+            if isTeleporting then
+                -- Marca que este inimigo está teleportando
+                recentlyTeleported[enemyID] = currentTime
+            end
 
             -- Se estava fora de vis??o (dormant), apenas marca e n??o usa dados antigos
             if Entity.IsDormant(enemy) then
@@ -740,9 +783,20 @@ local function UpdateEnemyPositions(myHero)
                 oldDist = distanceToMe
                 oldPos = currentPos
                 oldTime = currentTime
-                -- Considera blink se antes estava muito longe e reapareceu bem perto
-                if lastVisibleDist and lastVisibleDist > 1200 and distanceToMe < 400 and (lastVisibleDist - distanceToMe) > 800 then
-                    jumpFromFogBlink = true
+                -- Verifica se o inimigo acabou de chegar via TP - não conta como blink
+                local justTeleported = DidEnemyJustTeleport(enemyID, currentTime) or IsEnemyTeleporting(enemy)
+                -- Considera blink se:
+                -- 1. Estava longe (>700) e reapareceu MUITO perto (<500)
+                -- 2. OU estava razoável longe (>500) e reapareceu MUITO perto (<300)
+                -- 3. OU o salto foi grande (>400 de diferença) e acabou perto
+                if not justTeleported and lastVisibleDist then
+                    local distDifference = (lastVisibleDist - distanceToMe)
+                    -- Blink de fog: qualquer mudança significativa + proximidade
+                    if (lastVisibleDist > 700 and distanceToMe < 500 and distDifference > 300) or
+                       (lastVisibleDist > 500 and distanceToMe < 300 and distDifference > 250) or
+                       (distDifference > 400 and distanceToMe < 600) then
+                        jumpFromFogBlink = true
+                    end
                 end
                 enemyPositions[enemyID].dormant = false
             end
@@ -1079,7 +1133,8 @@ local function IsBlinkTowardsMe(myHero, enemy)
 
     local myMove = lastMyMove or 0
     -- If the enemy barely moved and I moved a lot (my blink), don't treat it as a threat
-    if enemyMove < 120 and myMove > 350 then
+    -- But only if I really moved much more than them
+    if enemyMove < 100 and myMove > 400 and (myMove - enemyMove) > 300 then
         return false
     end
 
@@ -1139,11 +1194,11 @@ local function IsBlinkTowardsMe(myHero, enemy)
 
     
 
-    if prevDist > 800 and currentDist < 700 then
+    if prevDist > 700 and currentDist < 600 then
 
         blinkDetected = true
 
-    elseif (prevDist - currentDist) > 400 then
+    elseif (prevDist - currentDist) > 350 then
 
         blinkDetected = true
 
@@ -1153,7 +1208,7 @@ local function IsBlinkTowardsMe(myHero, enemy)
 
     -- Se não detectou blink mas está perto, pode ter sido blink instantâneo
 
-    if not blinkDetected and currentDist < 350 then
+    if not blinkDetected and currentDist < 400 then
 
         blinkDetected = true
 
@@ -2305,11 +2360,31 @@ local function DetectEnemyBlink(myHero)
         if enemy and Entity.IsAlive(enemy) and not Entity.IsSameTeam(myHero, enemy) then
 
             local enemyID = Entity.GetIndex(enemy)
-            -- Se est鈋 dormente (fog), n緌 reprocessa para evitar falsos positivos ao aproximar
+            local data = enemyPositions[enemyID]
+
+            -- CRÍTICO: Processar fog blinks ANTES de verificar IsDormant
+            if data and data.jumpFromFogBlink then
+                local currentPos = data.pos
+                local distanceToMe = data.distToMe
+                if distanceToMe < 550 then
+                    local cooldown = 0.4
+                    if not blinkCooldowns[enemyID] or (currentTime - blinkCooldowns[enemyID]) > cooldown then
+                        blinkCooldowns[enemyID] = currentTime
+                        enemyPositions[enemyID].jumpFromFogBlink = nil
+                        return true
+                    end
+                end
+            end
+
+            -- Se está dormente (fog), não reprocessa para evitar falsos positivos ao aproximar
             if Entity.IsDormant(enemy) then
                 goto continue
             end
-            local data = enemyPositions[enemyID]
+
+            -- Ignora inimigos que estão teleportando ou acabaram de chegar via TP
+            if IsEnemyTeleporting(enemy) or DidEnemyJustTeleport(enemyID, currentTime) then
+                goto continue
+            end
 
             -- Rastrear quando o inimigo foi visto pela primeira vez
             if not enemyFirstSeen[enemyID] then
@@ -2322,65 +2397,33 @@ local function DetectEnemyBlink(myHero)
                 local oldPos = data.oldPos
                 local oldDist = data.oldDistToMe or distanceToMe
 
-                -- Reapareceu do fog e deu salto grande (blink)? reage, sen?o ignora
-                if data.jumpFromFogBlink and distanceToMe < 450 then
-                    enemyPositions[enemyID].jumpFromFogBlink = nil
-
-                    -- Evita falso positivo quando eu blinkei e o inimigo quase n?o se moveu
-                    local enemyMove = data.prevPos and (currentPos - data.prevPos):Length() or 0
-                    if lastMyMove > 350 and enemyMove < 250 then
-                        goto continue
-                    end
-
-                    local iAmClosest = true
-                    for _, ally in pairs(enemies) do
-                        if ally and Entity.IsAlive(ally) and Entity.IsSameTeam(myHero, ally) and ally ~= myHero then
-                            local allyPos = Entity.GetAbsOrigin(ally)
-                            local distToAlly = (currentPos - allyPos):Length()
-                            if distToAlly + 200 < distanceToMe then
-                                iAmClosest = false
-                                break
-                            end
-                        end
-                    end
-
-                    if iAmClosest then
-                        local cooldown = 0.4
-                        if not blinkCooldowns[enemyID] or (currentTime - blinkCooldowns[enemyID]) > cooldown then
-                            blinkCooldowns[enemyID] = currentTime
-                            return true
-                        end
-                    end
-                end
+                -- Nota: fog blinks já são processados no início da função
 
                 -- Calcular dist?ncia que o inimigo REALMENTE se moveu
                 local actualMovement = (currentPos - oldPos):Length()
 
-                -- Ignora inimigos que acabaram de sair do fog, a menos que estejam colados ou tenham teleportado para perto
+                -- Ignora inimigos que acabaram de sair do fog, a menos que estejam colados ou tenham blinkado de verdade
                 local timeSinceFirstSeen = currentTime - enemyFirstSeen[enemyID]
-                if timeSinceFirstSeen < 0.5 then
-                    if distanceToMe > 350 and actualMovement < 250 then
+                if timeSinceFirstSeen < 1.0 then
+                    -- Precisa estar MUITO perto OU ter se movido BASTANTE para confirmar blink
+                    if distanceToMe > 400 and actualMovement < 200 then
                         goto continue
                     end
                 end
 
                 -- Se eu que me movi muito (meu blink) e o inimigo quase n?o se moveu, n?o conta
-                if actualMovement < 150 and lastMyMove > 350 and (oldDist - distanceToMe) > 300 then
+                -- Mas apenas se o inimigo estava REALMENTE longe de mim
+                if actualMovement < 150 and lastMyMove > 350 and oldDist > 1200 then
                     goto continue
                 end
 
                 -- S? dispara se:
-                -- 1. O inimigo se moveu muito (>300 unidades) - confirma blink/dash
+                -- 1. O inimigo se moveu bastante (>250 unidades) - confirma blink/dash real
                 -- 2. E veio na minha dire??o (ficou mais perto)
                 -- 3. E est? perto agora
-                local movedFast = actualMovement > 350
-                local cameCloser = (oldDist - distanceToMe) > 180
-                local isClose = distanceToMe < 700
-
-                -- Evita acionar se ele j? estava vis?vel e apenas caminhou para frente (sem salto)
-                if oldDist <= 900 then
-                    goto continue
-                end
+                local movedFast = actualMovement > 250
+                local cameCloser = (oldDist - distanceToMe) > 150
+                local isClose = distanceToMe < 750
 
                 if movedFast and cameCloser and isClose then
                     -- S? ignora se aliado est? MUITO mais perto (>200 de diferen?a)
@@ -2461,6 +2504,11 @@ local function DetectBlinkAbilities(myHero)
                 goto continue_enemy_mod
             end
 
+            -- Ignora inimigos que estão teleportando ou acabaram de chegar via TP
+            if IsEnemyTeleporting(enemy) or DidEnemyJustTeleport(enemyID, currentTime) then
+                goto continue_enemy_mod
+            end
+
             local enemyPos = Entity.GetAbsOrigin(enemy)
 
             local distanceToMe = (enemyPos - myPos):Length()
@@ -2488,15 +2536,19 @@ local function DetectBlinkAbilities(myHero)
 
             if distanceToMe < 900 then
 
-                -- Verifica se o inimigo acabou de aparecer perto (teleporte/blink instantâneo)
+                -- Verifica se o inimigo acabou de aparecer perto (blink instantâneo)
+                -- Requer movimento do inimigo para confirmar blink vs walking out of fog
 
                 local data = enemyPositions[enemyID]
 
-                if data and data.prevDistToMe then
+                if data and data.prevDistToMe and data.prevPos then
 
-                    -- Se estava longe (>1000) e agora está perto (<700) = blink agressivo
+                    local actualEnemyMovement = (enemyPos - data.prevPos):Length()
 
-                    if data.prevDistToMe > 1000 and distanceToMe < 700 then
+                    -- Se estava longe (>900) e agora está perto (<600) = possível blink agressivo
+                    -- Requer movimento mínimo de 200 para evitar falsos positivos de fog
+
+                    if data.prevDistToMe > 900 and distanceToMe < 600 and actualEnemyMovement > 200 then
 
                         if not blinkCooldowns[enemyID] or (currentTime - blinkCooldowns[enemyID]) > 1.0 then
 
