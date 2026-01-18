@@ -27,7 +27,7 @@ do
   ui.fountain_strike = gF:Switch("Auto SS na Fonte (início)", true, "\u{f015}")
   ui.tp_fountain_strike = gF:Switch("SS em TP na Fonte (KILL)", true, "\u{f0e7}")
   ui.tp_anywhere_strike = gF:Switch("SS em TP em qualquer lugar", true, "\u{26a1}")
-  ui.tp_damage_threshold = gF:Slider("Mín. Dano em TP %", 10, 80, 35, "%d")
+  ui.tp_damage_threshold = gF:Slider("Mín. Dano em TP %", 10, 80, 30, "%d")
   ui.min_visible_enemies = gF:Slider("Mín. Inimigos visíveis (início)", 0, 5, 2, "%d")
 
   local g2 = tab:Create("Auto Sun Strike IA")
@@ -43,7 +43,7 @@ do
   ui.auto_ss_cooldown = g2:Slider("Intervalo (s)", 0, 10, 2, "%d")
   ui.auto_ss_range = g2:Slider("Alcance Máximo", 500, 5000, 2500, "%d")
   ui.auto_ss_draw = g2:Switch("Desenhar Indicador", true, "\u{f192}")
-  ui.min_hit_chance = g2:Slider("Chance mínima %", 20, 95, 45, "%d")
+  ui.min_hit_chance = g2:Slider("Chance mínima %", 20, 95, 35, "%d")
   ui.aggressive_mode = g2:Switch("Modo Agressivo (arriscar mais)", true)
   ui.ignore_danger = g2:Switch("Ignorar perigo próximo", false)
 end
@@ -197,6 +197,72 @@ local function willDealSignificantDamage(me, ss, target, thresholdPct)
   return pct >= (thresholdPct or ui.tp_damage_threshold:Get())
 end
 
+-- ========= FILTROS DE ALVO =========
+local INVULN_MODS = {
+  "modifier_eul_cyclone",
+  "modifier_obsidian_destroyer_astral_imprisonment_prison",
+  "modifier_shadow_demon_disruption",
+  "modifier_puck_phase_shift",
+  "modifier_invulnerable"
+}
+local PROTECT_MODS = {
+  "modifier_dazzle_shallow_grave",
+  "modifier_oracle_false_promise"
+}
+
+local SAFE_WINDOW_MODS = {
+  {mod = "modifier_eul_cyclone", skill = "Euls", duration = 2.5},
+  {mod = "modifier_obsidian_destroyer_astral_imprisonment_prison", skill = "Astral", duration = 4.0},
+  {mod = "modifier_shadow_demon_disruption", skill = "Disruption", duration = 2.5},
+  {mod = "modifier_puck_phase_shift", skill = "Phase Shift", duration = 1.25},
+  {mod = "modifier_wind_waker_cyclone", skill = "Wind Waker", duration = 2.5}
+}
+
+local function HasAnyModifier(unit, names)
+  local mods = NPC.GetModifiers(unit)
+  if not mods then return false end
+  for i = 1, #mods do
+    local n = Modifier.GetName(mods[i])
+    if n then
+      for _, m in ipairs(names) do
+        if n == m then return true end
+      end
+    end
+  end
+  return false
+end
+
+local function IsMagicImmune(unit)
+  if NPC.HasState then
+    return NPC.HasState(unit, Enum.ModifierState.MODIFIER_STATE_MAGIC_IMMUNE)
+  end
+  return false
+end
+
+local function IsUnhittable(unit)
+  return IsMagicImmune(unit) or HasAnyModifier(unit, INVULN_MODS)
+end
+
+local function IsProtectedFromDeath(unit)
+  return HasAnyModifier(unit, PROTECT_MODS)
+end
+
+local function GetActiveImmunityModifier(unit)
+  if not unit then return nil, 0 end
+  local mods = NPC.GetModifiers(unit)
+  if not mods then return nil, 0 end
+  for i = 1, #mods do
+    local m = mods[i]
+    local mod_name = Modifier.GetName(m)
+    for _, sw in ipairs(SAFE_WINDOW_MODS) do
+      if mod_name == sw.mod then
+        return sw, Modifier.GetRemainingTime(m) or 0
+      end
+    end
+  end
+  return nil, 0
+end
+
 -- ============ STATE ============
 local tp_particles = {}
 local active_teleports = {}
@@ -205,6 +271,12 @@ local casted_for = {}
 local last_cleanup = 0
 local preview = nil
 local has_cast_fountain_start = false
+
+-- Adaptativo
+local adaptive_results = {}
+local adaptive_bias = 0 -- negativo = mais conservador; positivo = mais agressivo
+local pending_ss = {} -- {t, pos, targets={entityIdx,...}}
+
 
 -- IA: Rastreamento de movimento
 local enemy_movement_history = {} -- [entity_index] = {positions = {}, times = {}, velocities = {}}
@@ -346,6 +418,24 @@ local function PredictPositionAdvanced(enemy, delay)
 end
 
 -- Calcula chance de acerto baseado em condições
+local BLINK_ITEMS = {"item_blink","item_overwhelming_blink","item_swift_blink","item_arcane_blink"}
+local PUSH_ITEMS = {"item_force_staff","item_hurricane_pike"}
+
+local function HasReadyItem(unit, name)\n  local it = NPC.GetItem(unit, name, true)
+  if not it then return false end
+  return Ability.IsCastable(it, NPC.GetMana(unit))
+end
+
+local function HasInstantEscape(unit)
+  for _, n in ipairs(BLINK_ITEMS) do if HasReadyItem(unit, n) then return true end end
+  return false
+end
+
+local function HasPushEscape(unit)
+  for _, n in ipairs(PUSH_ITEMS) do if HasReadyItem(unit, n) then return true end end
+  return false
+end
+
 local function CalculateHitChance(enemy, delay)
   local chance = 0.5 -- Base 50%
   
@@ -387,8 +477,50 @@ local function CalculateHitChance(enemy, delay)
   if DetectDodgeAttempt(enemy) then
     chance = chance - 0.15
   end
+
+  -- Itens de fuga reduzem chance
+  if HasInstantEscape(enemy) then chance = chance - 0.15 end
+  if HasPushEscape(enemy) then chance = chance - 0.08 end
   
-  return math.min(0.98, math.max(0.3, chance))
+  return math.min(0.98, math.max(0.2, chance))
+end
+
+-- ========= CLUSTERING =========
+local function FindBestCluster(me, ss, total_delay, maxRange)
+  local myTeam = Entity.GetTeamNum(me)
+  local myPos = Entity.GetAbsOrigin(me)
+  local candidates = {}
+  for _, enemy in ipairs(Heroes.GetAll()) do
+    if enemy ~= me and Entity.IsAlive(enemy) and Entity.GetTeamNum(enemy) ~= myTeam and not NPC.IsIllusion(enemy) and Entity.IsVisible(me, enemy) and not IsUnhittable(enemy) then
+      local enemyPos = Entity.GetAbsOrigin(enemy)
+      if (enemyPos - myPos):Length2D() <= maxRange then
+        UpdateMovementHistory(enemy)
+        table.insert(candidates, {unit = enemy, pos = PredictPositionAdvanced(enemy, total_delay)})
+      end
+    end
+  end
+  local best = {count = 0, center = nil, targets = nil}
+  for i = 1, #candidates do
+    local seed = candidates[i]
+    local group = {seed.unit}
+    local sum = seed.pos
+    for j = 1, #candidates do
+      if i ~= j then
+        local other = candidates[j]
+        if (other.pos - seed.pos):Length2D() <= 175 then
+          table.insert(group, other.unit)
+          sum = sum + other.pos
+        end
+      end
+    end
+    if #group > best.count then
+      best.count = #group
+      best.center = sum / #group
+      best.targets = group
+    end
+  end
+  if best.count >= 2 then return best end
+  return nil
 end
 
 -- ============ PARTICLES ============
@@ -502,11 +634,14 @@ local function plan_cast(me, ss, tp_id, tp)
     local okToCast = not casted_for[tp_id] and not InDanger(me) and ShouldCastAt(tp.dest, myTeam)
 
     if okToCast and tp.entity then
+      if IsUnhittable(tp.entity) then okToCast = false end
       local nearEnemyFountain = isNearFountain(tp.dest, enemyTeam)
       if nearEnemyFountain and ui.tp_fountain_strike:Get() then
-        okToCast = canKillWithSunStrike(me, ss, tp.entity) or willDealSignificantDamage(me, ss, tp.entity, ui.tp_damage_threshold:Get())
+        local lethal = (not IsProtectedFromDeath(tp.entity)) and canKillWithSunStrike(me, ss, tp.entity)
+        okToCast = lethal or willDealSignificantDamage(me, ss, tp.entity, ui.tp_damage_threshold:Get())
       elseif ui.tp_anywhere_strike:Get() then
-        okToCast = canKillWithSunStrike(me, ss, tp.entity) or willDealSignificantDamage(me, ss, tp.entity, ui.tp_damage_threshold:Get())
+        local lethal = (not IsProtectedFromDeath(tp.entity)) and canKillWithSunStrike(me, ss, tp.entity)
+        okToCast = lethal or willDealSignificantDamage(me, ss, tp.entity, ui.tp_damage_threshold:Get())
       end
     end
 
@@ -545,6 +680,12 @@ local function cleanup()
       enemy_movement_history[idx] = nil
     end
   end
+
+  for idx, track_info in pairs(immunity_exit_tracking) do
+    if not track_info.enemy or not Entity.IsAlive(track_info.enemy) or (now - track_info.exit_time > 1) then
+      immunity_exit_tracking[idx] = nil
+    end
+  end
 end
 
 function M.OnUpdate()
@@ -575,8 +716,10 @@ function M.OnUpdate()
 
         local tp = active_teleports[job.tp_id]
         if tp and tp.entity then
+          if IsUnhittable(tp.entity) then okToCast = false end
           if ui.tp_fountain_strike:Get() or ui.tp_anywhere_strike:Get() then
-            okToCast = okToCast and (canKillWithSunStrike(me, ss, tp.entity) or willDealSignificantDamage(me, ss, tp.entity, ui.tp_damage_threshold:Get()))
+            local lethal = (not IsProtectedFromDeath(tp.entity)) and canKillWithSunStrike(me, ss, tp.entity)
+            okToCast = okToCast and (lethal or willDealSignificantDamage(me, ss, tp.entity, ui.tp_damage_threshold:Get()))
           end
         end
 
@@ -585,6 +728,31 @@ function M.OnUpdate()
           log("CAST SCHEDULE ent=%d", job.tp_id)
         end
         table.remove(schedule, i)
+      end
+    end
+  end
+
+  -- Avaliação adaptativa de acertos
+  do
+    local now = GameRules.GetGameTime()
+    for i = #pending_ss, 1, -1 do
+      local p = pending_ss[i]
+      if now >= p.t then
+        local hit = false
+        for _, id in ipairs(p.targets or {}) do
+          local unit = Entity.GetEntity(id)
+          if unit and Entity.IsAlive(unit) and not IsUnhittable(unit) then
+            local upos = Entity.GetAbsOrigin(unit)
+            if (upos - p.pos):Length2D() <= 190 then
+              hit = true; break
+            end
+          end
+        end
+        table.remove(pending_ss, i)
+        table.insert(adaptive_results, hit and 1 or -1)
+        if #adaptive_results > 8 then table.remove(adaptive_results, 1) end
+        local sum = 0; for _,v in ipairs(adaptive_results) do sum = sum + v end
+        adaptive_bias = math.max(-3, math.min(3, sum))
       end
     end
   end
@@ -636,11 +804,23 @@ function AutoSunStrikeEnemies(me, ss)
   local total_delay = delay + cpoint + safety_total()
 
   local bestTarget = nil
-  local bestChance = (ui.min_hit_chance:Get() / 100.0)
+  local baseMin = (ui.min_hit_chance:Get() / 100.0)
+  local adjMin = math.max(0.2, math.min(0.9, baseMin - 0.05 * adaptive_bias))
+  local bestChance = adjMin
 
   for _, enemy in ipairs(Heroes.GetAll()) do
     if enemy ~= me and Entity.IsAlive(enemy) and Entity.GetTeamNum(enemy) ~= myTeam and
        not NPC.IsIllusion(enemy) and Entity.IsVisible(me, enemy) then
+
+      local swMod, remainingTime = GetActiveImmunityModifier(enemy)
+      if swMod then
+        local exitTime = now + remainingTime
+        local idx = Entity.GetIndex(enemy)
+        if remainingTime > 0 then
+          immunity_exit_tracking[idx] = {exit_time = exitTime, skill = swMod.skill, enemy = enemy}
+          log("Safe window tracked: %s from %s (exits at %.2f)", NPC.GetUnitName(enemy) or "?", swMod.skill, exitTime)
+        end
+      end
 
       UpdateMovementHistory(enemy)
 
@@ -674,7 +854,7 @@ function AutoSunStrikeEnemies(me, ss)
             valid = true
           end
 
-          if valid then
+          if valid and not IsUnhittable(enemy) then
             local hitChance = CalculateHitChance(enemy, total_delay)
             if ui.aggressive_mode:Get() then
               hitChance = math.max(hitChance - 0.08, 0.3) -- arriscar um pouco mais
@@ -689,13 +869,51 @@ function AutoSunStrikeEnemies(me, ss)
     end
   end
 
+  -- Cluster: tenta acertar 2+ alvos próximos
+  local cluster = FindBestCluster(me, ss, total_delay, maxRange)
+  if cluster and ui.aggressive_mode:Get() then
+    if TryCastSS(me, cluster.center) then
+      last_auto_ss_cast = now
+      auto_ss_target = {hero = cluster.targets[1], pos = cluster.center, t = now + total_delay, chance = bestChance}
+      local ids = {}
+      for _, u in ipairs(cluster.targets) do table.insert(ids, Entity.GetIndex(u)) end
+      table.insert(pending_ss, {t = now + total_delay, pos = cluster.center, targets = ids})
+      log("AUTO SS cluster x%d", cluster.count)
+      return
+    end
+  end
+
   if bestTarget then
     local predictPos = PredictPositionAdvanced(bestTarget, total_delay)
-    -- Se agressivo, permitir alvo em movimento com limiar reduzido
-    if TryCastSS(me, predictPos) then
+    if not IsUnhittable(bestTarget) and TryCastSS(me, predictPos) then
       last_auto_ss_cast = now
       auto_ss_target = {hero = bestTarget, pos = predictPos, t = now + total_delay, chance = bestChance}
+      table.insert(pending_ss, {t = now + total_delay, pos = predictPos, targets = {Entity.GetIndex(bestTarget)}})
       log("AUTO SS on %s (chance: %.0f%%)", NPC.GetUnitName(bestTarget) or "?", bestChance * 100)
+    end
+  end
+
+  -- Safe window exit handler: schedule SS para quando sair de invulnerabilidade
+  do
+    for idx, track_info in pairs(immunity_exit_tracking) do
+      if track_info.enemy and Entity.IsAlive(track_info.enemy) then
+        local rem = track_info.exit_time - now
+        if rem > 0.1 and rem <= (delay + cpoint + 0.05) then
+          local enemy = track_info.enemy
+          local predictedPos = PredictPositionAdvanced(enemy, rem + 0.05)
+          if ManaOK(me) and CanExecute(ss) and not InDanger(me) and not IsUnhittable(enemy) then
+            if TryCastSS(me, predictedPos) then
+              last_auto_ss_cast = now
+              log("Safe window exit SS (%s) on %s", track_info.skill, NPC.GetUnitName(enemy) or "?")
+              immunity_exit_tracking[idx] = nil
+            end
+          end
+        elseif rem <= 0 then
+          immunity_exit_tracking[idx] = nil
+        end
+      else
+        immunity_exit_tracking[idx] = nil
+      end
     end
   end
 end
