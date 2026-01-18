@@ -1,7 +1,29 @@
 local marci_dlc = {}
 
+-- Log file para debug
+local log_file = nil
+local function LogToFile(message)
+    if not log_file then
+        -- Tenta criar na pasta do script
+        log_file = io.open("marci_rebound_log.txt", "a")
+        if not log_file then
+            log_file = io.open("c:\\UB\\scripts\\marci_rebound_log.txt", "a")
+        end
+    end
+    if log_file then
+        log_file:write(os.date("%H:%M:%S") .. " " .. message .. "\n")
+        log_file:flush()
+    end
+end
+
+-- Teste inicial
+LogToFile("===== Script Marci carregado =====")
+
 local menu = Menu.Create("Heroes", "Hero List", "Marci", "Marci Helper")
 local main_group = menu:Create("Main")
+
+-- Rebound Cursor submenu
+local rebound_group = menu:Create("Rebound Cursor")
 
 local ui = {}
 ui.enabled = main_group:Switch("Ativar Script", true, "\u{f0e7}")
@@ -19,20 +41,54 @@ ui.auto_face_target = main_group:Switch("Virar Auto para Alvo", true, "\u{f01e}"
 ui.debug_enabled = main_group:Switch("Modo Debug", false, "\u{f188}")
 ui.show_notifications = main_group:Switch("Mostrar Notificações", true, "\u{f0f3}")
 
+-- Rebound Cursor UI
+ui.rebound_enabled = rebound_group:Switch("Enable Rebound", true, "\u{f00c}")
+ui.rebound_enabled:ToolTip("Master toggle for Rebound cursor direction targeting")
+
+ui.rebound_skill = rebound_group:Switch("Rebound (ally jump)", true, "panorama/images/spellicons/marci_companion_run_png.vtex_c")
+ui.rebound_skill:ToolTip("Use Rebound skill to jump to nearby allies")
+
+ui.companion_skill = rebound_group:Switch("Companion Run (ally boost)", false, "panorama/images/spellicons/marci_companion_run_png.vtex_c")
+ui.companion_skill:ToolTip("Use Companion Run instead of Rebound (if available)")
+
+ui.target_low_hp = rebound_group:Switch("Prioritize Low HP Allies", false, "\u{f1f2}")
+ui.target_low_hp:ToolTip("Jump to allies with lower HP first")
+
+ui.cursor_direction = rebound_group:Switch("Cast Direction: Cursor", true, "\u{f1b1}")
+ui.cursor_direction:ToolTip("Send second cast towards cursor direction")
+
+-- Modo: Somente Hotkey (desativa auto)
+ui.rebound_hotkey_only = rebound_group:Switch("Somente Hotkey", true, "\u{f11c}")
+ui.rebound_hotkey_only:ToolTip("Pular apenas quando pressionar a tecla de pulo. Desativa o auto-rebound ao ver aliado.")
+
+-- Hotkey to trigger jump toward cursor
+ui.rebound_hotkey = rebound_group:Bind("Tecla de Pulo (Rebound)", Enum.ButtonCode.KEY_V, "\u{f11c}")
+ui.rebound_hotkey:ToolTip("Pressione a tecla para pular na direção do cursor usando Rebound")
+
+-- Pending rebound tracker (similar to advanced dodger)
+local reboundPending = {
+    active = false,
+    time = 0,
+    castPos = nil
+}
+
+-- Track last hotkey state
+local lastReboundKeyState = false
+
 local INTERCEPT_CONFIGS = {
     ["modifier_item_forcestaff_active"] = {
         name = "Force Staff",
         ui_key = "force_staff",
-        predict_distance = 600,
-        cast_delay = 0,
-        priority = 2
+        predict_distance = 800,
+        cast_delay = 0.1,
+        priority = 1
     },
     ["modifier_phoenix_icarus_dive"] = {
         name = "Phoenix Dive",
         ui_key = "phoenix_dive",
-        predict_distance = 400,
-        cast_delay = 0,
-        priority = 3
+        predict_distance = 600,
+        cast_delay = 0.05,
+        priority = 2
     },
     ["modifier_techies_suicide_leap"] = {
         name = "Techies Blast Off",
@@ -59,17 +115,17 @@ local INTERCEPT_CONFIGS = {
     ["modifier_shredder_timber_chain"] = {
         name = "Timber Chain",
         ui_key = "timber_chain",
-        predict_distance = 800,
-        cast_delay = 0,
-        priority = 3,
+        predict_distance = 1200,
+        cast_delay = 0.05,
+        priority = 2,
         intercept_trajectory = true
     },
     ["modifier_spirit_breaker_charge_of_darkness"] = {
         name = "SB Charge",
         ui_key = "spirit_breaker_charge",
-        predict_distance = 1000,
-        cast_delay = 0,
-        priority = 3,
+        predict_distance = 1500,
+        cast_delay = 0.1,
+        priority = 2,
         intercept_trajectory = true
     }
 }
@@ -89,9 +145,7 @@ local function initialize_marci()
         return false
     end
     dispose_ability = NPC.GetAbility(my_hero, "marci_grapple")
-    if not dispose_ability then
-        return false
-    end
+    -- dispose_ability pode ser nil; Rebound não depende disso
     return true
 end
 
@@ -118,8 +172,18 @@ local function quick_predict_position(target, config)
     end
     local rotation = Entity.GetAbsRotation(target)
     local forward = rotation:GetForward():Normalized()
+    local velocity = Entity.GetVelocity(target)
     if string.find(config.name, "Phoenix") then
-        return current_pos + (forward * 400)
+        return current_pos + (forward * 600)
+    end
+    if string.find(config.name, "Spirit Breaker") or string.find(config.name, "SB Charge") then
+        return current_pos + (forward * config.predict_distance * 0.6) + (velocity * 0.2)
+    end
+    if string.find(config.name, "Timber Chain") then
+        return current_pos + (forward * config.predict_distance * 0.5) + (velocity * 0.15)
+    end
+    if string.find(config.name, "Force Staff") then
+        return current_pos + (forward * config.predict_distance * 0.4) + (velocity * 0.1)
     end
     if string.find(config.name, "Zeus") then
         return current_pos + (forward * config.predict_distance * 0.5)
@@ -188,6 +252,59 @@ local function is_target_in_dispose_range(target)
     return distance <= ui.dispose_range:Get()
 end
 
+-- Rebound Cursor Functions
+local function FindNearestAllyHero(myHero, myPos, range, cursorPos, cursorInfluence)
+    local bestAlly = nil
+    local bestScore = math.huge
+    local bestHPPercent = 1.0
+    
+    local allHeroes = Heroes.GetAll()
+    for _, ally in pairs(allHeroes) do
+        if ally and Entity.IsAlive(ally) and Entity.IsSameTeam(myHero, ally) and ally ~= myHero then
+            if not NPC.IsIllusion(ally) then
+                local allyPos = Entity.GetAbsOrigin(ally)
+                local distToAlly = (allyPos - myPos):Length()
+                
+                -- Check range
+                if distToAlly <= range then
+                    local hpPercent = Entity.GetHealth(ally) / Entity.GetMaxHealth(ally)
+                    
+                    -- If targeting low HP: prioritize by HP first, then by distance
+                    if ui.target_low_hp:Get() then
+                        -- First priority: lowest HP percentage
+                        if hpPercent < bestHPPercent then
+                            bestHPPercent = hpPercent
+                            bestScore = distToAlly
+                            bestAlly = ally
+                        -- If HP similar, use distance as tiebreaker
+                        elseif math.abs(hpPercent - bestHPPercent) < 0.05 and distToAlly < bestScore then
+                            bestScore = distToAlly
+                            bestAlly = ally
+                        end
+                    else
+                        -- Normal mode: distance only (with cursor influence)
+                        local score = distToAlly
+                        
+                        -- Apply cursor influence
+                        if cursorPos and cursorInfluence > 0 then
+                            local distToCursor = (allyPos - cursorPos):Length()
+                            score = (distToAlly * (100 - cursorInfluence) + distToCursor * cursorInfluence) / 100
+                        end
+                        
+                        if score < bestScore then
+                            bestScore = score
+                            bestAlly = ally
+                            bestHPPercent = hpPercent
+                        end
+                    end
+                end
+            end
+        end
+    end
+    
+    return bestAlly
+end
+
 function marci_dlc.OnModifierCreate(entity, modifier)
     if not ui.enabled:Get() or not initialize_marci() then
         return
@@ -201,12 +318,8 @@ function marci_dlc.OnModifierCreate(entity, modifier)
         print("Modifier detected: " .. mod_name .. " on " .. NPC.GetUnitName(entity))
     end
     if config.name == "Force Staff" then
-        local ability = Modifier.GetAbility(modifier)
-        if ability then
-            local owner = Ability.GetOwner(ability)
-            if not owner or Entity.IsSameTeam(owner, my_hero) then
-                return
-            end
+        if not entity or Entity.IsSameTeam(entity, my_hero) then
+            return
         end
     end
     if not entity or not Entity.IsAlive(entity) or Entity.IsSameTeam(entity, my_hero) then
@@ -282,6 +395,178 @@ function marci_dlc.OnUpdate()
     if not ui.enabled:Get() or not initialize_marci() then
         return
     end
+    
+    local currentTime = GameRules.GetGameTime()
+    local myPos = Entity.GetAbsOrigin(my_hero)
+    local myMana = NPC.GetMana(my_hero)
+    local cursorPos = Input.GetWorldCursorPos()
+
+    -- Hotkey-triggered Rebound toward cursor (prioritize allies only)
+    local keyPressed = ui.rebound_hotkey:IsDown()
+    
+    if keyPressed and not lastReboundKeyState then
+        local status = "INICIO"
+        
+        -- Tenta pegar companion_run primeiro, depois rebound
+        local companionRun = NPC.GetAbility(my_hero, "marci_companion_run")
+        local rebound = NPC.GetAbility(my_hero, "marci_rebound")
+        
+        local activeSkill = nil
+        if companionRun and not Ability.IsHidden(companionRun) then
+            activeSkill = companionRun
+        elseif rebound and not Ability.IsHidden(rebound) then
+            activeSkill = rebound
+        end
+        
+        if not activeSkill then
+            status = "SEM_SKILL"
+        elseif not Ability.IsCastable(activeSkill, myMana) then
+            status = "NAO_CASTAVEL"
+        else
+            local range = 700
+            local cursorInfluence = 70
+            local targetAlly = FindNearestAllyHero(my_hero, myPos, range, cursorPos, cursorInfluence)
+            
+            if targetAlly then
+                status = "OK"
+                Ability.CastTarget(activeSkill, targetAlly)
+                if ui.cursor_direction:Get() then
+                    local targetPos = Entity.GetAbsOrigin(targetAlly)
+                    local myTeam = Entity.GetTeamNum(my_hero)
+                    local fountainPos
+                    
+                    -- Radiant (team 2) ou Dire (team 3)
+                    if myTeam == 2 then
+                        fountainPos = Vector(-7000, -6500, 384)  -- Fonte Radiant
+                    else
+                        fountainPos = Vector(7000, 6500, 384)    -- Fonte Dire
+                    end
+                    
+                    -- Direção do alvo para a fonte
+                    local dirToFountain = (fountainPos - targetPos):Normalized()
+                    local castPos = targetPos + dirToFountain * 800
+                    
+                    reboundPending = { active = true, time = currentTime, castPos = castPos }
+                end
+            else
+                status = "SEM_ALIADO"
+            end
+        end
+        
+        lastReboundKeyState = keyPressed
+    end
+    
+    lastReboundKeyState = keyPressed
+    
+    -- Handle pending rebound direction cast
+    if reboundPending.active then
+        local elapsed = currentTime - reboundPending.time
+        
+        -- Timeout after 0.5 seconds
+        if elapsed >= 0.5 then
+            reboundPending.active = false
+        -- Send direction after delay
+        elseif elapsed >= 0.08 then
+            if reboundPending.castPos then
+                local rebound = NPC.GetAbility(my_hero, "marci_rebound")
+                local companionRun = NPC.GetAbility(my_hero, "marci_companion_run")
+                
+                local activeSkill = nil
+                if companionRun and not Ability.IsHidden(companionRun) then
+                    activeSkill = companionRun
+                elseif rebound and not Ability.IsHidden(rebound) then
+                    activeSkill = rebound
+                end
+                
+                if activeSkill then
+                    Ability.CastPosition(activeSkill, reboundPending.castPos)
+                end
+            end
+            
+            reboundPending.active = false
+        end
+        return
+    end
+    
+    -- Rebound Cursor Logic (auto) - só roda se Somente Hotkey estiver DESLIGADO
+    if ui.rebound_enabled:Get() and not ui.rebound_hotkey_only:Get() then
+        -- myPos, myMana, cursorPos already computed above
+        
+        -- Try to cast Rebound
+        if ui.rebound_skill:Get() then
+            local rebound = NPC.GetAbility(my_hero, "marci_rebound")
+            
+            if rebound and not Ability.IsHidden(rebound) and Ability.IsCastable(rebound, myMana) then
+                local range = 700  -- Fixo
+                local cursorInfluence = 70  -- Fixo
+                
+                -- Find nearest ally
+                local targetAlly = FindNearestAllyHero(my_hero, myPos, range, cursorPos, cursorInfluence)
+                
+                if targetAlly then
+                    -- Cast on ally
+                    Ability.CastTarget(rebound, targetAlly)
+                    
+                    -- Calculate direction for second cast (towards cursor)
+                    if ui.cursor_direction:Get() then
+                        local targetPos = Entity.GetAbsOrigin(targetAlly)
+                        local safeDistance = 600  -- Fixo
+                        
+                        -- Direction from target towards cursor
+                        local dirToCursor = (cursorPos - targetPos):Normalized()
+                        local castPos = targetPos + dirToCursor * safeDistance
+                        
+                        -- Mark pending for direction cast
+                        reboundPending = {
+                            active = true,
+                            time = currentTime,
+                            castPos = castPos
+                        }
+                    end
+                    
+                    return
+                end
+            end
+        end
+        
+        -- Try to cast Companion Run
+        if ui.companion_skill:Get() then
+            local companionRun = NPC.GetAbility(my_hero, "marci_companion_run")
+            
+            if companionRun and not Ability.IsHidden(companionRun) and Ability.IsCastable(companionRun, myMana) then
+                local range = 1050  -- Fixo
+                local cursorInfluence = 70  -- Fixo
+                
+                -- Find nearest ally
+                local targetAlly = FindNearestAllyHero(my_hero, myPos, range, cursorPos, cursorInfluence)
+                
+                if targetAlly then
+                    -- Cast on ally
+                    Ability.CastTarget(companionRun, targetAlly)
+                    
+                    -- Calculate direction for second cast (towards cursor)
+                    if ui.cursor_direction:Get() then
+                        local targetPos = Entity.GetAbsOrigin(targetAlly)
+                        local safeDistance = 600  -- Fixo
+                        
+                        -- Direction from target towards cursor
+                        local dirToCursor = (cursorPos - targetPos):Normalized()
+                        local castPos = targetPos + dirToCursor * safeDistance
+                        
+                        -- Mark pending for direction cast
+                        reboundPending = {
+                            active = true,
+                            time = currentTime,
+                            castPos = castPos
+                        }
+                    end
+                    
+                    return
+                end
+            end
+        end
+    end
+    
     local current_time = GameRules.GetGameTime()
     for entity_id, target_data in pairs(active_targets) do
         local entity = target_data.entity

@@ -11,7 +11,9 @@ CourierUltimate.State = {
     lastEscapeTime = 0,
     trackedCouriers = {},
     seenCouriers = {},
-    alertTime = 0
+    alertTime = 0,
+    alerts = {},
+    lastReturnTime = 0
 }
 
 local tab = Menu.Create("Scripts", "Utility", "Courier Ultimate")
@@ -45,6 +47,7 @@ ui_saver.criticalHP = saverGroup:Slider("Critical HP %", 20, 80, 40, true)
 ui_saver.hideInShop = saverGroup:Switch("Hide in Secret Shop", true, "", true)
 ui_saver.smartEscape = saverGroup:Switch("Smart Escape", true, "", true)
 ui_saver.showAlerts = saverGroup:Switch("Show Alerts", false, "", true)
+ui_saver.autoReturn = saverGroup:Switch("Auto Return to Base", true, "", true)
 
 local ui_alert = {}
 ui_alert.enabled = alertGroup:Switch("Alert on Spotted", true, "\u{1f514}", true)
@@ -63,6 +66,62 @@ local SECRET_SHOPS = {
     Vector(-4553, 1046, 256),
     Vector(4486, -1542, 256)
 }
+
+local function toReadableHeroName(hero)
+    if not hero or not NPC.GetUnitName then return nil end
+    local raw = NPC.GetUnitName(hero)
+    if not raw then return nil end
+    local clean = raw:gsub("npc_dota_hero_", ""):gsub("_", " ")
+    if clean == "" then return nil end
+    return clean:sub(1, 1):upper() .. clean:sub(2)
+end
+
+local function getCourierOwnerHero(courier)
+    if not courier then return nil end
+    if Entity.GetOwner then
+        local owner = Entity.GetOwner(courier)
+        if owner and (not Entity.IsHero or Entity.IsHero(owner)) then
+            return owner
+        end
+    end
+    local team = Entity.GetTeamNum(courier)
+    local pos = Entity.GetAbsOrigin(courier)
+    local closest, closestDist = nil, nil
+    for i = 1, Heroes.Count() do
+        local hero = Heroes.Get(i)
+        if hero and Entity.GetTeamNum(hero) == team then
+            local dist = (Entity.GetAbsOrigin(hero) - pos):Length()
+            if not closestDist or dist < closestDist then
+                closest, closestDist = hero, dist
+            end
+        end
+    end
+    return closest
+end
+
+local function formatCourierLabel(team, ownerHero)
+    local ownerName = toReadableHeroName(ownerHero)
+    if ownerName then
+        return ownerName
+    end
+    return "Courier"
+end
+
+local function rememberAlert(id, courier, team, now)
+    local owner = getCourierOwnerHero(courier)
+    local label = formatCourierLabel(team, owner)
+    local pos = Entity.GetAbsOrigin(courier)
+    CourierUltimate.State.alerts[id] = {
+        npc = courier,
+        pos = pos,
+        team = team,
+        label = label,
+        color = team == Enum.TeamNum.TEAM_RADIANT and Color(120, 255, 120, 230) or Color(255, 120, 120, 230),
+        expire = now + 4
+    }
+    
+    return label
+end
 
 local function getCourierRespawnTime()
     local t = GameRules.GetDOTATime()
@@ -320,6 +379,33 @@ local function UpdateSaver()
         CourierUltimate.State.escaping = false
         CourierUltimate.State.escapeTarget = nil
     end
+    
+    -- Auto return to base when idle and no items to deliver
+    if ui_saver.autoReturn:Get() and not CourierUltimate.State.escaping then
+        local items = getCourierItems(courier)
+        local hasItems = #items > 0
+        local inShop, shopPos = isInSecretShop(pos)
+        
+        -- Only return if: no items, not in secret shop, and hasn't returned recently
+        if not hasItems and not inShop and (time - CourierUltimate.State.lastReturnTime) > 5 then
+            local fountain = FOUNTAIN[team]
+            local distToFountain = (pos - fountain):Length()
+            
+            -- If not already at fountain (more than 500 units away)
+            if distToFountain > 500 then
+                Player.PrepareUnitOrders(
+                    Players.GetLocal(),
+                    Enum.UnitOrder.DOTA_UNIT_ORDER_MOVE_TO_POSITION,
+                    nil,
+                    fountain,
+                    nil,
+                    Enum.PlayerOrderIssuer.DOTA_ORDER_ISSUER_PASSED_UNIT_ONLY,
+                    courier
+                )
+                CourierUltimate.State.lastReturnTime = time
+            end
+        end
+    end
 end
 
 function CourierUltimate.OnUpdate()
@@ -382,20 +468,37 @@ function CourierUltimate.OnUpdate()
                             if time - CourierUltimate.State.alertTime > 3 then
                                 CourierUltimate.State.alertTime = time
                                 
+                                local alertLabel = rememberAlert(id, npc, team, time)
+                                
                                 if ui_alert.sound:Get() then
                                     Engine.ExecuteCommand("playvol sounds/ui/chat_wheel_message.vsnd 1")
                                 end
                                 
                                 if ui_alert.chat:Get() then
-                                    Chat.Print("ConsoleChat", "<font color='#ff0000'>[COURIER SPOTTED]</font>")
+                                    Chat.Print("ConsoleChat", string.format("<font color='#ff0000'>[COURIER]</font> %s", alertLabel))
                                 end
                                 
                                 if ui_alert.ping:Get() then
                                     local pos = Entity.GetAbsOrigin(npc)
-                                    GameRules.SendCustomMessage("Enemy courier spotted!", 0, 0)
+                                    Player.PrepareUnitOrders(
+                                        Players.GetLocal(),
+                                        Enum.UnitOrder.DOTA_UNIT_ORDER_PING_ABILITY,
+                                        npc,
+                                        Vector(0, 0, 0),
+                                        nil,
+                                        Enum.PlayerOrderIssuer.DOTA_ORDER_ISSUER_PASSED_UNIT_ONLY,
+                                        nil
+                                    )
                                 end
                             end
                             CourierUltimate.State.seenCouriers[id] = time
+                        else
+                            local existing = CourierUltimate.State.alerts[id]
+                            if existing then
+                                existing.expire = time + 2
+                                existing.npc = npc
+                                existing.pos = Entity.GetAbsOrigin(npc)
+                            end
                         end
                     end
                 end
@@ -405,15 +508,66 @@ function CourierUltimate.OnUpdate()
         for id, lastSeen in pairs(CourierUltimate.State.seenCouriers) do
             if not currentCouriers[id] and time - lastSeen > 5 then
                 CourierUltimate.State.seenCouriers[id] = nil
+                CourierUltimate.State.alerts[id] = nil
             end
         end
     end
+end
+
+local function DrawAlerts()
+    if not ui_alert.enabled:Get() then return end
+    local now = GameRules.GetGameTime()
+    
+    -- Clean up alerts for couriers in fog first
+    for id, alert in pairs(CourierUltimate.State.alerts) do
+        if alert.npc and Entity.IsAlive(alert.npc) then
+            local isVisible = false
+            if Entity.IsVisibleToPlayer then
+                isVisible = Entity.IsVisibleToPlayer(alert.npc, Players.GetLocal())
+            end
+            if not isVisible then
+                CourierUltimate.State.alerts[id] = nil
+            end
+        end
+    end
+    
+    -- Now draw remaining visible alerts
+    for id, alert in pairs(CourierUltimate.State.alerts) do
+        if now > alert.expire then
+            CourierUltimate.State.alerts[id] = nil
+        elseif alert.npc and Entity.IsAlive(alert.npc) then
+            local isVisible = false
+            if Entity.IsVisibleToPlayer then
+                isVisible = Entity.IsVisibleToPlayer(alert.npc, Players.GetLocal())
+            end
+            
+            if isVisible then
+                local pos = Entity.GetAbsOrigin(alert.npc)
+                local screen, vis = Render.WorldToScreen(pos + Vector(0, 0, 120))
+                if vis and screen then
+                    local label = alert.label or "Enemy courier"
+                    local size = Render.TextSize(font, 13, label)
+                    local padding = 6
+                    local bx = screen.x - size.x / 2 - padding
+                    local by = screen.y - size.y - 18
+                    Render.FilledRect(Vec2(bx, by), Vec2(bx + size.x + padding * 2, by + size.y + 8), Color(15, 15, 20, 200), 4)
+                    Render.Text(font, 13, label, Vec2(screen.x - size.x / 2, by + 2), alert.color or Color(255, 220, 120, 230))
+                    Render.Circle(screen, 10, alert.color or Color(255, 220, 120, 230))
+                end
+            end
+        end
+    end
+end
+
+local function DrawMinimapPings()
+    -- Removed - using dota_ping_location command instead
 end
 
 function CourierUltimate.OnDraw()
     DrawTimer()
     DrawInventory()
     UpdateSaver()
+    DrawAlerts()
 end
 
 function CourierUltimate.OnPrepareUnitOrders(order)

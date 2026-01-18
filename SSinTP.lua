@@ -22,6 +22,14 @@ do
   ui.draw_preview = g:Switch("Desenhar Prévia", true, "\u{f5b0}")
   ui.debug = g:Switch("Debug", false)
 
+  -- Opções de Fonte/TP (fundindo Sunstrike_On_Fountain)
+  local gF = tab:Create("Fonte/TP")
+  ui.fountain_strike = gF:Switch("Auto SS na Fonte (início)", true, "\u{f015}")
+  ui.tp_fountain_strike = gF:Switch("SS em TP na Fonte (KILL)", true, "\u{f0e7}")
+  ui.tp_anywhere_strike = gF:Switch("SS em TP em qualquer lugar", true, "\u{26a1}")
+  ui.tp_damage_threshold = gF:Slider("Mín. Dano em TP %", 10, 80, 35, "%d")
+  ui.min_visible_enemies = gF:Slider("Mín. Inimigos visíveis (início)", 0, 5, 2, "%d")
+
   local g2 = tab:Create("Auto Sun Strike IA")
   ui.auto_ss_enabled = g2:Switch("Ativar Auto SS IA", false, "\u{2600}")
   ui.ai_prediction = g2:Switch("Predição Avançada", true)
@@ -35,6 +43,9 @@ do
   ui.auto_ss_cooldown = g2:Slider("Intervalo (s)", 0, 10, 2, "%d")
   ui.auto_ss_range = g2:Slider("Alcance Máximo", 500, 5000, 2500, "%d")
   ui.auto_ss_draw = g2:Switch("Desenhar Indicador", true, "\u{f192}")
+  ui.min_hit_chance = g2:Slider("Chance mínima %", 20, 95, 45, "%d")
+  ui.aggressive_mode = g2:Switch("Modo Agressivo (arriscar mais)", true)
+  ui.ignore_danger = g2:Switch("Ignorar perigo próximo", false)
 end
 
 -- ============ HELPERS ============
@@ -105,6 +116,7 @@ end
 local function InDanger(me)
   local r = ui.danger_range:Get()
   if r <= 0 then return false end
+  if ui.ignore_danger and ui.ignore_danger:Get() then return false end
   local myTeam = Entity.GetTeamNum(me)
   local myPos = Entity.GetAbsOrigin(me)
   for _, h in ipairs(Heroes.GetAll()) do
@@ -154,6 +166,37 @@ local function drawCircleSafe(pos, radius, color)
   end
 end
 
+-- ========= DANO/KILL =========
+local function calculateSunStrikeDamage(me, ss, target)
+  if not ss or not target then return 0 end
+  local level = Ability.GetLevel(ss)
+  if level == 0 then return 0 end
+  local baseDamage = {100, 162.5, 225, 287.5}
+  local damage = baseDamage[level] or 0
+  local magicResist = NPC.GetMagicalArmorValue(target)
+  damage = damage * (1 - (magicResist or 0))
+  if me then
+    local spellAmp = NPC.GetSpellAmplification(me) or 0
+    damage = damage * (1 + spellAmp)
+  end
+  return damage
+end
+
+local function canKillWithSunStrike(me, ss, target)
+  if not target then return false end
+  local hp = Entity.GetHealth(target) or 0
+  local dmg = calculateSunStrikeDamage(me, ss, target)
+  return dmg >= hp and hp > 0
+end
+
+local function willDealSignificantDamage(me, ss, target, thresholdPct)
+  if not target then return false end
+  local maxHp = Entity.GetMaxHealth(target) or 1
+  local dmg = calculateSunStrikeDamage(me, ss, target)
+  local pct = (dmg / maxHp) * 100
+  return pct >= (thresholdPct or ui.tp_damage_threshold:Get())
+end
+
 -- ============ STATE ============
 local tp_particles = {}
 local active_teleports = {}
@@ -161,6 +204,7 @@ local schedule = {}
 local casted_for = {}
 local last_cleanup = 0
 local preview = nil
+local has_cast_fountain_start = false
 
 -- IA: Rastreamento de movimento
 local enemy_movement_history = {} -- [entity_index] = {positions = {}, times = {}, velocities = {}}
@@ -186,6 +230,13 @@ local FOUNTAIN = {
   [2] = Vector(-7200, -6666, 384),
   [3] = Vector(7200, 6666, 384),
 }
+
+local function isNearFountain(pos, team)
+  if not pos or not team then return false end
+  local f = FOUNTAIN[team]
+  if not f then return false end
+  return (pos - f):Length2D() < 1600
+end
 
 -- ============ IA AVANÇADA ============
 
@@ -395,6 +446,7 @@ function M.OnModifierCreate(ent, mod)
     finish = now + math.max(0.1, rem),
     team = team,
     dest = nil,
+    entity = ent,
     particle = nil,
   }
   log("TP start ent=%d rem=%.2f", id, rem)
@@ -445,8 +497,20 @@ local function plan_cast(me, ss, tp_id, tp)
   end
 
   if t_cast <= now then
-    if not casted_for[tp_id] and not InDanger(me) and 
-       ShouldCastAt(tp.dest, Entity.GetTeamNum(me)) and TryCastSS(me, tp.dest) then
+    local myTeam = Entity.GetTeamNum(me)
+    local enemyTeam = (myTeam == 2) and 3 or 2
+    local okToCast = not casted_for[tp_id] and not InDanger(me) and ShouldCastAt(tp.dest, myTeam)
+
+    if okToCast and tp.entity then
+      local nearEnemyFountain = isNearFountain(tp.dest, enemyTeam)
+      if nearEnemyFountain and ui.tp_fountain_strike:Get() then
+        okToCast = canKillWithSunStrike(me, ss, tp.entity) or willDealSignificantDamage(me, ss, tp.entity, ui.tp_damage_threshold:Get())
+      elseif ui.tp_anywhere_strike:Get() then
+        okToCast = canKillWithSunStrike(me, ss, tp.entity) or willDealSignificantDamage(me, ss, tp.entity, ui.tp_damage_threshold:Get())
+      end
+    end
+
+    if okToCast and TryCastSS(me, tp.dest) then
       casted_for[tp_id] = true
       log("CAST NOW ent=%d", tp_id)
     end
@@ -507,8 +571,16 @@ function M.OnUpdate()
     for i = #schedule, 1, -1 do
       local job = schedule[i]
       if job.time <= now then
-        if not casted_for[job.tp_id] and not InDanger(me) and 
-           ShouldCastAt(job.pos, Entity.GetTeamNum(me)) and TryCastSS(me, job.pos) then
+        local okToCast = not casted_for[job.tp_id] and not InDanger(me) and ShouldCastAt(job.pos, Entity.GetTeamNum(me))
+
+        local tp = active_teleports[job.tp_id]
+        if tp and tp.entity then
+          if ui.tp_fountain_strike:Get() or ui.tp_anywhere_strike:Get() then
+            okToCast = okToCast and (canKillWithSunStrike(me, ss, tp.entity) or willDealSignificantDamage(me, ss, tp.entity, ui.tp_damage_threshold:Get()))
+          end
+        end
+
+        if okToCast and TryCastSS(me, job.pos) then
           casted_for[job.tp_id] = true
           log("CAST SCHEDULE ent=%d", job.tp_id)
         end
@@ -518,6 +590,28 @@ function M.OnUpdate()
   end
 
   cleanup()
+
+  -- SS na fonte no início do jogo
+  if ui.fountain_strike:Get() and not has_cast_fountain_start then
+    local t = GameRules.GetGameTime()
+    if t < 200 then
+      local visible = 0
+      local myTeam = Entity.GetTeamNum(me)
+      for _, hero in ipairs(Heroes.GetAll()) do
+        if hero ~= me and Entity.IsAlive(hero) and Entity.GetTeamNum(hero) ~= myTeam and not NPC.IsIllusion(hero) and Entity.IsVisible(me, hero) then
+          visible = visible + 1
+        end
+      end
+      if visible >= ui.min_visible_enemies:Get() then
+        local enemyTeam = (myTeam == 2) and 3 or 2
+        local enemyFountain = FOUNTAIN[enemyTeam]
+        if TryCastSS(me, enemyFountain) then
+          has_cast_fountain_start = true
+          log("Fountain strike at game start")
+        end
+      end
+    end
+  end
 
   if ui.auto_ss_enabled:Get() then
     AutoSunStrikeEnemies(me, ss)
@@ -542,7 +636,7 @@ function AutoSunStrikeEnemies(me, ss)
   local total_delay = delay + cpoint + safety_total()
 
   local bestTarget = nil
-  local bestChance = 0.6 -- Mínimo 60% de chance
+  local bestChance = (ui.min_hit_chance:Get() / 100.0)
 
   for _, enemy in ipairs(Heroes.GetAll()) do
     if enemy ~= me and Entity.IsAlive(enemy) and Entity.GetTeamNum(enemy) ~= myTeam and
@@ -576,12 +670,15 @@ function AutoSunStrikeEnemies(me, ss)
             end
           end
 
-          if not valid and not ui.auto_ss_stationary:Get() and not ui.auto_ss_stun:Get() then
+          if not valid and (ui.aggressive_mode:Get()) then
             valid = true
           end
 
           if valid then
             local hitChance = CalculateHitChance(enemy, total_delay)
+            if ui.aggressive_mode:Get() then
+              hitChance = math.max(hitChance - 0.08, 0.3) -- arriscar um pouco mais
+            end
             if hitChance > bestChance then
               bestChance = hitChance
               bestTarget = enemy
@@ -594,7 +691,7 @@ function AutoSunStrikeEnemies(me, ss)
 
   if bestTarget then
     local predictPos = PredictPositionAdvanced(bestTarget, total_delay)
-    
+    -- Se agressivo, permitir alvo em movimento com limiar reduzido
     if TryCastSS(me, predictPos) then
       last_auto_ss_cast = now
       auto_ss_target = {hero = bestTarget, pos = predictPos, t = now + total_delay, chance = bestChance}

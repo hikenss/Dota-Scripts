@@ -1,53 +1,18 @@
-local script = {}
+-- Script fundido em SSinTP.lua
+-- Este arquivo foi desativado para evitar duplicidade.
+local M = {}
 
--- Menu
-local tab = Menu.Create("Heroes", "Hero List", "Invoker", "Auto Usage", "Sun Strike Settings")
-local settings = {}
-settings.fountain_strike = tab:Switch("Auto SS na Fonte (Kill)", true, "\u{f015}")
-settings.tp_fountain_strike = tab:Switch("Auto SS TP Fonte (Kill)", true, "\u{f0e7}")
-settings.tp_anywhere_strike = tab:Switch("Auto SS TP Qualquer Lugar", true, "\u{26a1}")
-settings.tp_damage_threshold = tab:Slider("Dano Mínimo TP %", 20, 80, 40, "%d")
-settings.min_enemies = tab:Slider("Mín. Inimigos Visíveis", 0, 5, 3, "%d")
-settings.auto_invoke = tab:Switch("Auto Invocar SS", true)
-settings.debug = tab:Switch("Debug", false)
+function M.OnUpdate() end
+function M.OnDraw() end
+function M.OnParticleCreate(_) end
+function M.OnParticleUpdate(_) end
+function M.OnParticleDestroy(_) end
+function M.OnModifierCreate(_, _) end
+function M.OnModifierDestroy(_, _) end
+function M.OnGameStart() end
+function M.OnGameEnd() end
 
--- Constantes
-local RADIANT_FOUNTAIN = Vector(-7200, -6666, 384)
-local DIRE_FOUNTAIN = Vector(6846, 6251, 384)
-local FOUNTAIN_RADIUS = 1500
-
-local State = {
-  localHero = nil,
-  localPlayer = nil,
-  exort = nil,
-  invoke = nil,
-  sunstrike = nil,
-  lastExortTap = 0,
-  lastInvokeTap = 0,
-  hasBeenCastThisGame = false,
-  teleportParticles = {},
-  activeTeleports = {},
-  castedFor = {}
-}
-
-local function log(msg)
-  if settings.debug:Get() then
-    print("[SS Fountain] " .. msg)
-  end
-end
-
-local function getExortOrbCount()
-  if not State.localHero then return 0 end
-  local mods = NPC.GetModifiers(State.localHero) or {}
-  local count = 0
-  for i = 1, #mods do
-    if Modifier.GetName(mods[i]) == "modifier_invoker_exort_instance" then
-      count = count + 1
-      if count == 3 then break end
-    end
-  end
-  return count
-end
+return M
 
 local function ensureSunstrikeInvoked()
   if not settings.auto_invoke:Get() then

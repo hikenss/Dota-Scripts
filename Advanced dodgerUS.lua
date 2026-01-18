@@ -89,7 +89,10 @@ ui.blink_dodge = menuMain:Switch("React to Enemy Blinks", true, "panorama/images
 ui.blink_dodge:ToolTip("Use escape when an enemy blinks aggressively towards you")
 
 ui.escape_item_blink = menuMain:Switch("Use Blink Dagger to Escape", true, "panorama/images/items/blink_png.vtex_c")
-ui.escape_item_blink:ToolTip("Usa Blink Dagger para pular para longe do inimigo mais pr?ximo (antes das habilidades)")
+ui.escape_item_blink:ToolTip("Usa Blink Dagger para pular para longe do inimigo mais próximo (antes das habilidades)")
+
+ui.escape_item_forcestaff = menuMain:Switch("Use Force Staff to Escape", true, "panorama/images/items/force_staff_png.vtex_c")
+ui.escape_item_forcestaff:ToolTip("Use Force Staff to push yourself away from the nearest enemy (after Blink Dagger)")
 
 ui.start_dodge = menuMain:Switch("React to Enemy Initiations", true, "\u{f135}")
 
@@ -260,6 +263,8 @@ ui.defensive_abilities = menuEscapeAbilities:MultiSelect("", {
 
     { "sniper_concussive_grenade", "panorama/images/spellicons/sniper_concussive_grenade_png.vtex_c", true },
 
+    { "spirit_breaker_charge_of_darkness", "panorama/images/spellicons/spirit_breaker_charge_of_darkness_png.vtex_c", true },
+
     { "storm_spirit_ball_lightning", "panorama/images/spellicons/storm_spirit_ball_lightning_png.vtex_c", true },
 
     -- T
@@ -315,6 +320,8 @@ ui.enemy_skills_dodge = menuEscapeAbilities:MultiSelect("", {
     { "modifier_riki_blink_strike", "panorama/images/spellicons/riki_blink_strike_png.vtex_c", true },
 
     { "modifier_zuus_heavenly_jump", "panorama/images/spellicons/zuus_heavenly_jump_png.vtex_c", true },
+
+    { "modifier_ember_spirit_fire_remnant", "panorama/images/spellicons/ember_spirit_fire_remnant_png.vtex_c", true },
 
     -- Charge Skills
 
@@ -431,6 +438,8 @@ ui.allies_abilities = menuSaveAlly:MultiSelect("", {
 
     { "marci_rebound", "panorama/images/spellicons/marci_companion_run_png.vtex_c", true },
 
+    { "earth_spirit_geomagnetic_grip", "panorama/images/spellicons/earth_spirit_geomagnetic_grip_png.vtex_c", true },
+
 }, true)
 
 ui.allies_abilities:ToolTip("Select abilities to use on allies affected by the skills above")
@@ -491,7 +500,9 @@ local marciReboundPending = {
 
     time = 0,
 
-    escapePos = nil
+    escapePos = nil,
+
+    targetUnit = nil  -- Rastreia para qual unidade (aliado ou inimigo) está pulando
 
 }
 
@@ -565,6 +576,30 @@ local zeusPending = {
 
 
 
+-- Throttle para salvar aliados (evita spam de items)
+
+local lastAllySaveTime = 0
+
+local lastAllyProtected = nil
+
+
+
+-- Rastreia quando um aliado começou a estar em CC + sendo atacado
+
+-- Para confirmar que é realmente perigoso antes de usar item
+
+local allyDangerTime = {}  -- { allyEntity = currentTime quando começou o perigo }-- Force Staff: rastreia quando virou e precisa usar o item
+
+local forceStaffPending = {
+
+    active = false,
+
+    time = 0
+
+}
+
+
+
 -- Tabela para rastrear animações detectadas
 
 local animationDetected = {}
@@ -598,6 +633,8 @@ local animationToModifier = {
     ["rolling_boulder"] = "modifier_earth_spirit_rolling_boulder_caster",
 
     ["heavenly_jump"] = "modifier_zuus_heavenly_jump",
+
+    ["fire_remnant"] = "modifier_ember_spirit_fire_remnant",
 
 }
 
@@ -657,6 +694,8 @@ local aggressiveMovementMods = {
     ["modifier_earth_spirit_rolling_boulder_caster"] = true,
 
     ["modifier_storm_spirit_ball_lightning"] = true,
+
+    ["modifier_ember_spirit_fire_remnant"] = true,
 
     ["modifier_zuus_heavenly_jump"] = true,
 
@@ -1843,6 +1882,214 @@ end
 
 
 
+-- Função para verificar se aliado está sendo atacado por inimigos
+
+local function IsAllyBeingAttacked(ally)
+
+    if not ally then return 0 end
+
+    local allyPos = Entity.GetAbsOrigin(ally)
+
+    local enemies = Heroes.GetAll()
+
+    local attackersCount = 0
+
+    
+
+    for _, enemy in pairs(enemies) do
+
+        if enemy and Entity.IsAlive(enemy) and not Entity.IsSameTeam(ally, enemy) then
+
+            -- Verifica distância + facing direction
+
+            local enemyPos = Entity.GetAbsOrigin(enemy)
+
+            local dist = (enemyPos - allyPos):Length()
+
+            if dist < 600 then
+
+                local toAlly = (allyPos - enemyPos):Normalized()
+
+                local forward = Entity.GetRotation(enemy):GetForward()
+
+                local dot = forward.x * toAlly.x + forward.y * toAlly.y
+
+                if dot > 0.5 then -- Inimigo olhando para o aliado e próximo
+
+                    attackersCount = attackersCount + 1
+
+                end
+
+            end
+
+        end
+
+    end
+
+    
+
+    return attackersCount
+
+end
+
+
+
+-- Função para calcular prioridade de salvamento de um aliado
+
+-- Retorna pontuação: quanto MAIOR, mais urgente salvar
+
+local function CalculateAllyPriority(ally, ccName)
+
+    local priority = 0
+
+    
+
+    -- 1. HP baixo = alta prioridade (inverte: 100% HP = 0 pontos, 10% HP = 90 pontos)
+
+    local hpPercent = Entity.GetHealth(ally) / Entity.GetMaxHealth(ally) * 100
+
+    priority = priority + (100 - hpPercent) -- HP 20% = 80 pontos
+
+    
+
+    -- 2. Aliado sendo atacado = +50 pontos por atacante
+
+    local attackers = IsAllyBeingAttacked(ally)
+
+    priority = priority + (attackers * 50)
+
+    
+
+    -- 3. CCs mais mortais = mais prioridade
+
+    local ccPriority = {
+
+        ["scythe"] = 100, -- Necro ult, morte certa
+
+        ["duel"] = 80, -- LC Duel, alta prioridade
+
+        ["grip"] = 70, -- Bane Grip
+
+        ["chrono"] = 60, -- Void Chrono
+
+        ["black_hole"] = 60, -- Enigma
+
+        ["lasso"] = 50, -- Batrider
+
+        ["dismember"] = 50, -- Pudge
+
+        ["doom"] = 50, -- Doom
+
+        ["omnislash"] = 70, -- Juggernaut
+
+        ["curse"] = 40, -- Wyvern
+
+        ["call"] = 40, -- Axe
+
+        ["overgrowth"] = 30, -- Treant
+
+        ["shackle"] = 30, -- Windrunner
+
+    }
+
+    priority = priority + (ccPriority[ccName] or 20)
+
+    
+
+    -- 4. Carrys/Cores tem prioridade (baseado em quantidade de itens)
+
+    local itemCount = 0
+
+    for i = 0, 8 do
+
+        local item = NPC.GetItemByIndex(ally, i)
+
+        if item then
+
+            itemCount = itemCount + 1
+
+        end
+
+    end
+
+    priority = priority + (itemCount * 5) -- Até +40 pontos para 8 itens
+
+    
+
+    return priority
+
+end
+
+
+
+-- Função para escolher o melhor aliado para salvar entre vários com CC
+
+local function GetBestAllyToSave(alliesWithCC)
+
+    if not alliesWithCC or #alliesWithCC == 0 then
+
+        return nil, nil, nil
+
+    end
+
+    
+
+    local currentTime = GameRules.GetGameTime()
+
+    local bestAlly = nil
+
+    local bestMod = nil
+
+    local bestCCName = nil
+
+    local bestPriority = -999
+
+    
+
+    for _, data in ipairs(alliesWithCC) do
+
+        -- Registra quando o aliado começou a estar em perigo
+
+        if not allyDangerTime[data.ally] then
+
+            allyDangerTime[data.ally] = currentTime
+
+        end
+
+        
+
+        -- Só protege se está em perigo há pelo menos 1.0s (confirmação)
+
+        local timeInDanger = currentTime - allyDangerTime[data.ally]
+
+        if timeInDanger >= 1.0 then
+
+            local priority = CalculateAllyPriority(data.ally, data.ccName)
+
+            if priority > bestPriority and not IsAlreadyProtected(data.ally) then
+
+                bestPriority = priority
+
+                bestAlly = data.ally
+
+                bestMod = data.ccMod
+
+                bestCCName = data.ccName
+
+            end
+
+        end
+
+    end
+
+    
+
+    return bestAlly, bestMod, bestCCName
+
+end
+
+
+
 -- Função unificada para usar habilidades defensivas
 
 local function UseDefensiveItems(myHero)
@@ -2983,6 +3230,92 @@ local function UseEscapeAbilities(myHero)
 
     
 
+    local myPos = Entity.GetAbsOrigin(myHero)
+
+    local heroName = NPC.GetUnitName(myHero)
+
+    
+
+    -- Spirit Breaker - Charge of Darkness (EXECUTA PRIMEIRO - não precisa verificar proteção)
+
+    if heroName == "npc_dota_hero_spirit_breaker" then
+
+        local enabledSkills = ui.defensive_abilities:ListEnabled()
+
+        local isEnabled = false
+
+        for _, name in ipairs(enabledSkills) do
+
+            if name == "spirit_breaker_charge_of_darkness" then
+
+                isEnabled = true
+
+                break
+
+            end
+
+        end
+
+        
+
+        if isEnabled then
+
+            local chargeOfDarkness = NPC.GetAbility(myHero, "spirit_breaker_charge_of_darkness")
+
+            if chargeOfDarkness and Ability.IsCastable(chargeOfDarkness, NPC.GetMana(myHero)) then
+
+                -- Prioriza creeps/neutral inimigos globalmente; heróis como fallback
+
+                local bestTarget = nil
+
+                local maxDist = 0
+
+                -- Busca creeps inimigos em raio alto
+                local creeps = NPCs.InRadius(myPos, 10000, Entity.GetTeamNum(myHero), Enum.TeamType.TEAM_ENEMY)
+                for _, npc in ipairs(creeps or {}) do
+                    if npc and Entity.IsAlive(npc) and NPC.IsCreep(npc) then
+                        local npcPos = Entity.GetAbsOrigin(npc)
+                        if npcPos then
+                            local dist = (npcPos - myPos):Length()
+                            if dist > maxDist and dist >= 300 then
+                                maxDist = dist
+                                bestTarget = npc
+                            end
+                        end
+                    end
+                end
+
+                -- Fallback: heróis inimigos
+                if not bestTarget then
+                    local allHeroes = Heroes.GetAll()
+                    for _, hero in pairs(allHeroes) do
+                        if hero and Entity.IsAlive(hero) and not Entity.IsSameTeam(myHero, hero) then
+                            local heroPos = Entity.GetAbsOrigin(hero)
+                            if heroPos then
+                                local dist = (heroPos - myPos):Length()
+                                if dist > maxDist and dist >= 500 then
+                                    maxDist = dist
+                                    bestTarget = hero
+                                end
+                            end
+                        end
+                    end
+                end
+
+                if bestTarget then
+                    Ability.CastTarget(chargeOfDarkness, bestTarget)
+                    lastEscapeTime = currentTime
+                    return true
+                end
+
+            end
+
+        end
+
+    end
+
+    
+
     if IsAlreadyProtected(myHero) then 
 
         return false 
@@ -3107,7 +3440,7 @@ local function UseEscapeAbilities(myHero)
 
     
 
-    -- Slark - Pounce (vira para direção oposta ANTES de pular) ou Shadow Dance
+    -- Slark - Pounce (vira para direção oposta ANTES de pular)
 
     if heroName == "npc_dota_hero_slark" then
 
@@ -3419,57 +3752,35 @@ local function UseEscapeAbilities(myHero)
 
             if bestTarget then
 
-                -- Calcula a direção de escape (oposta ao inimigo mais próximo)
+                -- Calcula direção para a FONTE (posição fixa e segura)
 
-                local allEnemies = Heroes.GetAll()
+                local targetPos = Entity.GetAbsOrigin(bestTarget)
 
-                local nearestEnemy = nil
+                local myTeam = Entity.GetTeamNum(myHero)
 
-                local minEnemyDist = 9999
+                local fountainPos
 
-                for _, enemy in pairs(allEnemies) do
+                
 
-                    if enemy and Entity.IsAlive(enemy) and not Entity.IsSameTeam(myHero, enemy) then
+                -- Radiant (team 2) ou Dire (team 3)
 
-                        local dist = (Entity.GetAbsOrigin(enemy) - myPos):Length()
+                if myTeam == 2 then
 
-                        if dist < minEnemyDist then
+                    fountainPos = Vector(-7000, -6500, 384)  -- Fonte Radiant
 
-                            minEnemyDist = dist
+                else
 
-                            nearestEnemy = enemy
-
-                        end
-
-                    end
+                    fountainPos = Vector(7000, 6500, 384)    -- Fonte Dire
 
                 end
 
                 
 
-                -- Calcula posição de escape (800 unidades na direção oposta ao inimigo)
+                -- Direção do alvo para a fonte
 
-                local escapePos
+                local escapeDir = (fountainPos - targetPos):Normalized()
 
-                local targetPos = Entity.GetAbsOrigin(bestTarget)
-
-                if nearestEnemy then
-
-                    local enemyPos = Entity.GetAbsOrigin(nearestEnemy)
-
-                    local escapeDir = (myPos - enemyPos):Normalized()
-
-                    escapePos = targetPos + escapeDir * 800
-
-                else
-
-                    -- Se não há inimigo, pula na direção oposta ao facing
-
-                    local forward = Entity.GetRotation(myHero):GetForward()
-
-                    escapePos = targetPos - forward * 800
-
-                end
+                local escapePos = targetPos + escapeDir * 800
 
                 
 
@@ -3479,7 +3790,7 @@ local function UseEscapeAbilities(myHero)
 
                 
 
-                -- Marca pendente para enviar a direção no próximo frame
+                -- Marca pendente para enviar a direção para a fonte
 
                 marciReboundPending = {
 
@@ -3487,7 +3798,9 @@ local function UseEscapeAbilities(myHero)
 
                     time = currentTime,
 
-                    escapePos = escapePos
+                    escapePos = escapePos,
+
+                    targetUnit = bestTarget
 
                 }
 
@@ -4018,7 +4331,23 @@ local function UseEscapeAbilities(myHero)
 
             if nearestEnemy then
 
-                Ability.CastPosition(iceShards, Entity.GetAbsOrigin(nearestEnemy))
+                -- Calcula direção do inimigo para o Tusk
+
+                local enemyPos = Entity.GetAbsOrigin(nearestEnemy)
+
+                local dirToTusk = (myPos - enemyPos):Normalized()
+
+                
+
+                -- Casta Ice Shards MUITO PRÓXIMO ao Tusk (200 unidades na direção do inimigo)
+
+                -- Isso faz a parede aparecer bem perto, bloqueando o caminho do inimigo
+
+                local castPos = myPos - dirToTusk * 200
+
+                
+
+                Ability.CastPosition(iceShards, castPos)
 
                 lastEscapeTime = currentTime
 
@@ -4613,6 +4942,38 @@ local function UseEscapeAbilities(myHero)
             lastEscapeTime = currentTime
 
             return true
+
+        end
+
+    end
+
+    
+
+    -- Force Staff - Item que funciona como escape (empurra na direção oposta ao inimigo)
+
+    if ui.escape_item_forcestaff and ui.escape_item_forcestaff:Get() then
+
+        local forcestaff = NPC.GetItem(myHero, "item_force_staff", true)
+
+        if forcestaff and Ability.IsCastable(forcestaff, NPC.GetMana(myHero)) then
+
+            -- Calcula posição de escape (oposta ao inimigo)
+            local escapePos = GetEscapePosition(600)
+
+            if escapePos then
+                -- Primeiro faz o herói olhar para a direção de escape
+                Player.PrepareUnitOrders(Players.GetLocal(), Enum.UnitOrder.DOTA_UNIT_ORDER_MOVE_TO_POSITION, nil, escapePos, nil, Enum.PlayerOrderIssuer.DOTA_ORDER_ISSUER_PASSED_UNIT_ONLY, myHero)
+
+                -- Marca pendente para usar Force Staff no próximo frame (para garantir que virou)
+                forceStaffPending = {
+                    active = true,
+                    time = currentTime
+                }
+
+                lastEscapeTime = currentTime
+
+                return true
+            end
 
         end
 
@@ -5224,6 +5585,220 @@ end
 
 -- Nova função para usar itens defensivos em aliados
 
+-- Função para usar skills defensivas no melhor aliado em perigo
+
+local function UseAllyDefensiveAbilities(myHero, alliesInCC)
+
+    if not alliesInCC or #alliesInCC == 0 then
+
+        return false
+
+    end
+
+    
+
+    local myPos = Entity.GetAbsOrigin(myHero)
+
+    local heroName = NPC.GetUnitName(myHero)
+
+    
+
+    -- Phoenix Supernova
+
+    if heroName == "npc_dota_hero_phoenix" and ui.allies_abilities:IsSelected("phoenix_supernova") then
+
+        if NPC.HasScepter(myHero) then
+
+            for _, data in ipairs(alliesInCC) do
+
+                local bestAlly = data.ally
+
+                local bestAllyPos = Entity.GetAbsOrigin(bestAlly)
+
+                local dist = (myPos - bestAllyPos):Length()
+
+                
+
+                if dist <= 1000 then
+
+                    local supernova = NPC.GetAbility(myHero, "phoenix_supernova")
+
+                    local myMana = NPC.GetMana(myHero)
+
+                    
+
+                    if supernova and Ability.IsCastable(supernova, myMana) then
+
+                        Ability.CastTarget(supernova, bestAlly)
+
+                        return true
+
+                    end
+
+                end
+
+            end
+
+        end
+
+    end
+
+    
+
+    -- Centaur Stomp/Mount
+
+    if heroName == "npc_dota_hero_centaur" and ui.allies_abilities:IsSelected("centaur_mount") then
+
+        for _, data in ipairs(alliesInCC) do
+
+            local bestAlly = data.ally
+
+            local bestAllyPos = Entity.GetAbsOrigin(bestAlly)
+
+            local dist = (myPos - bestAllyPos):Length()
+
+            
+
+            if dist <= 1200 then
+
+                local mount = NPC.GetAbility(myHero, "centaur_mount")
+
+                local myMana = NPC.GetMana(myHero)
+
+                
+
+                if mount and Ability.IsCastable(mount, myMana) then
+
+                    Ability.CastTarget(mount, bestAlly)
+
+                    return true
+
+                end
+
+            end
+
+        end
+
+    end
+
+    
+
+    -- Marci Companion Run / Rebound
+
+    if heroName == "npc_dota_hero_marci" and (ui.allies_abilities:IsSelected("marci_companion_run") or ui.allies_abilities:IsSelected("marci_rebound")) then
+
+        for _, data in ipairs(alliesInCC) do
+
+            local bestAlly = data.ally
+
+            local bestAllyPos = Entity.GetAbsOrigin(bestAlly)
+
+            local dist = (myPos - bestAllyPos):Length()
+
+            
+
+            if dist <= 1050 then
+
+                local rebound = NPC.GetAbility(myHero, "marci_rebound")
+
+                local companionRun = NPC.GetAbility(myHero, "marci_companion_run")
+
+                local myMana = NPC.GetMana(myHero)
+
+                
+
+                local activeSkill = nil
+
+                
+
+                if companionRun and not Ability.IsHidden(companionRun) and Ability.IsCastable(companionRun, myMana) then
+
+                    activeSkill = companionRun
+
+                elseif rebound and not Ability.IsHidden(rebound) and Ability.IsCastable(rebound, myMana) then
+
+                    activeSkill = rebound
+
+                end
+
+                
+
+                if activeSkill then
+
+                    Ability.CastTarget(activeSkill, bestAlly)
+
+                    return true
+
+                end
+
+            end
+
+        end
+
+    end
+
+    
+
+    -- Earth Spirit Geomagnetic Grip
+
+    if heroName == "npc_dota_hero_earth_spirit" and ui.allies_abilities:IsSelected("earth_spirit_geomagnetic_grip") then
+
+        for _, data in ipairs(alliesInCC) do
+
+            local bestAlly = data.ally
+
+            local bestAllyPos = Entity.GetAbsOrigin(bestAlly)
+
+            local dist = (myPos - bestAllyPos):Length()
+
+            
+
+            local grip = NPC.GetAbility(myHero, "earth_spirit_geomagnetic_grip")
+
+            
+
+            if grip then
+
+                local myMana = NPC.GetMana(myHero)
+
+                local gripLevel = Ability.GetLevel(grip)
+
+                local hasAghanim = NPC.HasItem(myHero, "item_aghanims_shard", true)
+
+                
+
+                local baseRanges = {550, 600, 650, 700}
+
+                local aghanimRanges = {825, 900, 975, 1050}
+
+                
+
+                local gripRange = hasAghanim and aghanimRanges[gripLevel] or baseRanges[gripLevel]
+
+                
+
+                if Ability.IsCastable(grip, myMana) and dist <= gripRange then
+
+                    Ability.CastTarget(grip, bestAlly)
+
+                    return true
+
+                end
+
+            end
+
+        end
+
+    end
+
+    
+
+    return false
+
+end
+
+
+
 local function UseDefensiveItemsOnAllies(myHero, targetHero)
 
     if IsAlreadyProtected(targetHero) then
@@ -5574,55 +6149,35 @@ local function UseDefensiveItemsOnAllies(myHero, targetHero)
 
             if activeSkill then
 
-                -- Calcula a direção de escape (do aliado para longe dos inimigos)
+                -- Calcula direção para a FONTE (posição fixa e segura)
 
-                local allEnemies = Heroes.GetAll()
+                local targetPos = Entity.GetAbsOrigin(targetHero)
 
-                local nearestEnemy = nil
+                local myTeam = Entity.GetTeamNum(myHero)
 
-                local minEnemyDist = 9999
+                local fountainPos
 
-                for _, enemy in pairs(allEnemies) do
+                
 
-                    if enemy and Entity.IsAlive(enemy) and not Entity.IsSameTeam(myHero, enemy) then
+                -- Radiant (team 2) ou Dire (team 3)
 
-                        local dist = (Entity.GetAbsOrigin(enemy) - allyPos):Length()
+                if myTeam == 2 then
 
-                        if dist < minEnemyDist then
+                    fountainPos = Vector(-7000, -6500, 384)  -- Fonte Radiant
 
-                            minEnemyDist = dist
+                else
 
-                            nearestEnemy = enemy
-
-                        end
-
-                    end
+                    fountainPos = Vector(7000, 6500, 384)    -- Fonte Dire
 
                 end
 
                 
 
-                -- Calcula posição de escape (longe do inimigo, a partir do aliado)
+                -- Direção do aliado para a fonte
 
-                local escapePos
+                local escapeDir = (fountainPos - targetPos):Normalized()
 
-                if nearestEnemy then
-
-                    local enemyPos = Entity.GetAbsOrigin(nearestEnemy)
-
-                    local escapeDir = (allyPos - enemyPos):Normalized()
-
-                    escapePos = allyPos + escapeDir * 800
-
-                else
-
-                    -- Se não há inimigo, pula na direção da Marci para o aliado
-
-                    local dirToAlly = (allyPos - myPos):Normalized()
-
-                    escapePos = allyPos + dirToAlly * 800
-
-                end
+                local escapePos = targetPos + escapeDir * 800
 
                 
 
@@ -5632,7 +6187,7 @@ local function UseDefensiveItemsOnAllies(myHero, targetHero)
 
                 
 
-                -- Marca pendente para enviar a direção no próximo frame
+                -- Marca pendente para enviar a direção para a fonte
 
                 marciReboundPending = {
 
@@ -5640,11 +6195,65 @@ local function UseDefensiveItemsOnAllies(myHero, targetHero)
 
                     time = GameRules.GetGameTime(),
 
-                    escapePos = escapePos
+                    escapePos = escapePos,
+
+                    targetUnit = targetHero
 
                 }
 
                 
+
+                return true
+
+            end
+
+        end
+
+    end
+
+    
+
+    -- EARTH SPIRIT: Geomagnetic Grip - puxa aliado para perto (com Aghanim = range elevado)
+
+    if heroName == "npc_dota_hero_earth_spirit" and IsAllyAbilityEnabled("earth_spirit_geomagnetic_grip") then
+
+        local grip = NPC.GetAbility(myHero, "earth_spirit_geomagnetic_grip")
+
+        
+
+        if grip then
+
+            local myMana = NPC.GetMana(myHero)
+
+            local myPos = Entity.GetAbsOrigin(myHero)
+
+            local allyPos = Entity.GetAbsOrigin(targetHero)
+
+            local distance = (myPos - allyPos):Length()
+
+            
+
+            -- Range baseado no nível da skill: 550/600/650/700 base, 825/900/975/1050 com Aghanim
+
+            local gripLevel = Ability.GetLevel(grip)
+
+            local hasAghanim = NPC.HasItem(myHero, "item_aghanims_shard", true)
+
+            
+
+            local baseRanges = {550, 600, 650, 700}
+
+            local aghanimRanges = {825, 900, 975, 1050}
+
+            
+
+            local gripRange = hasAghanim and aghanimRanges[gripLevel] or baseRanges[gripLevel]
+
+            
+
+            if Ability.IsCastable(grip, myMana) and distance <= gripRange then
+
+                Ability.CastTarget(grip, targetHero)
 
                 return true
 
@@ -6068,27 +6677,47 @@ function Dodger.OnUpdate()
 
                 marciReboundPending.active = false
 
-            -- Envia a posição de direção após pequeno delay
+            -- Envia a DIREÇÃO após delay
 
-            elseif elapsed >= 0.03 then
+            elseif elapsed >= 0.1 then
 
-                Player.PrepareUnitOrders(
+                local escapePos = marciReboundPending.escapePos
 
-                    Players.GetLocal(),
+                
 
-                    Enum.UnitOrder.DOTA_UNIT_ORDER_MOVE_TO_POSITION,
+                if escapePos then
 
-                    nil,
+                    -- Pega a skill ativa
 
-                    marciReboundPending.escapePos,
+                    local rebound = NPC.GetAbility(myHero, "marci_rebound")
 
-                    nil,
+                    local companionRun = NPC.GetAbility(myHero, "marci_companion_run")
 
-                    Enum.PlayerOrderIssuer.DOTA_ORDER_ISSUER_HERO_ONLY,
+                    
 
-                    myHero
+                    local activeSkill = nil
 
-                )
+                    if companionRun and not Ability.IsHidden(companionRun) then
+
+                        activeSkill = companionRun
+
+                    elseif rebound and not Ability.IsHidden(rebound) then
+
+                        activeSkill = rebound
+
+                    end
+
+                    
+
+                    if activeSkill then
+
+                        Ability.CastPosition(activeSkill, escapePos)
+
+                    end
+
+                end
+
+                
 
                 marciReboundPending.active = false
 
@@ -6167,6 +6796,10 @@ function Dodger.OnUpdate()
         end
 
     end
+
+    
+
+    -- MIRANA: Verifica ângulo e usa Leap quando estiver olhando na direção certa
 
     
 
@@ -6306,8 +6939,6 @@ function Dodger.OnUpdate()
 
     
 
-    -- ZEUS: Verifica ângulo e usa Heavenly Jump quando estiver olhando na direção certa
-
     if zeusPending.active then
 
         local heroName = NPC.GetUnitName(myHero)
@@ -6367,6 +6998,71 @@ function Dodger.OnUpdate()
         else
 
             zeusPending.active = false
+
+        end
+
+    end
+
+    
+
+    -- FORCE STAFF: Verifica ângulo e usa Force Staff quando estiver olhando para TRÁS (longe do inimigo)
+
+    if forceStaffPending.active then
+
+        local elapsed = currentTime - forceStaffPending.time
+
+        -- Timeout após 0.5 segundos (mesmo que os outros)
+
+        if elapsed >= 0.5 then
+
+            forceStaffPending.active = false
+
+        else
+
+            local forcestaff = NPC.GetItem(myHero, "item_force_staff", true)
+
+            if forcestaff and Ability.IsCastable(forcestaff, NPC.GetMana(myHero)) then
+
+                -- Encontra o inimigo mais próximo
+                local myPos = Entity.GetAbsOrigin(myHero)
+                local allEnemies = Heroes.GetAll()
+                local nearestEnemy = nil
+                local minDist = 9999
+
+                for _, enemy in pairs(allEnemies) do
+                    if enemy and Entity.IsAlive(enemy) and not Entity.IsSameTeam(myHero, enemy) then
+                        local dist = (Entity.GetAbsOrigin(enemy) - myPos):Length()
+                        if dist < minDist then
+                            minDist = dist
+                            nearestEnemy = enemy
+                        end
+                    end
+                end
+
+                if nearestEnemy then
+                    -- Calcula direção do inimigo
+                    local enemyPos = Entity.GetAbsOrigin(nearestEnemy)
+                    local toEnemy = (enemyPos - myPos):Normalized()
+
+                    -- Calcula para onde o herói está olhando
+                    local forward = Entity.GetRotation(myHero):GetForward()
+
+                    -- Produto escalar: cos do ângulo entre herói e inimigo
+                    local dot = forward.x * toEnemy.x + forward.y * toEnemy.y
+
+                    -- Só casteia se estiver aproximadamente virado (dot < 0.2 = ângulo ≈ 78 graus)
+                    -- Permite ativar mais rápido mas evita empurrar para o inimigo
+                    if dot < 0.2 then
+                        Ability.CastTarget(forcestaff, myHero)
+                        forceStaffPending.active = false
+                    end
+                else
+                    -- Sem inimigos próximos, casteia normalmente
+                    Ability.CastTarget(forcestaff, myHero)
+                    forceStaffPending.active = false
+                end
+
+            end
 
         end
 
@@ -6484,11 +7180,17 @@ function Dodger.OnUpdate()
 
         
 
+        -- NOVO SISTEMA: Coleta todos aliados com CC urgente primeiro
+
+        local alliesWithCC = {}
+
+        
+
         for _, ally in pairs(alliesInRadius) do
 
             if ally and Entity.IsAlive(ally) and ally ~= myHero then
 
-                -- PRIORIDADE 1: CCs críticos - USA ITENS IMEDIATAMENTE (Shadow Amulet no final)
+                -- Detecta CCs críticos neste aliado
 
                 local modifiers = NPC.GetModifiers(ally)
 
@@ -6700,135 +7402,17 @@ function Dodger.OnUpdate()
 
                 if hasUrgentCC then
 
-                    -- Tenta Eul's no inimigo primeiro (se habilitado)
+                    -- Adiciona aliado à lista para priorização
 
-                    if ui.use_euls_offensive:Get() then
+                    table.insert(alliesWithCC, {
 
-                        UseEulsOnEnemy(myHero, ally)
+                        ally = ally,
 
-                    end
+                        ccMod = ccModifier,
 
-                    -- Tenta usar itens defensivos no aliado em ordem de prioridade
+                        ccName = ccName
 
-                    if not IsAlreadyProtected(ally) then
-
-                        local enabledAllyItems = ui.allies_items:ListEnabled()
-
-                        
-
-                        -- Função helper para verificar se item está habilitado
-
-                        local function IsItemEnabledInMenu(itemName)
-
-                            for _, name in ipairs(enabledAllyItems) do
-
-                                if name == itemName then return true end
-
-                            end
-
-                            return false
-
-                        end
-
-                        
-
-                        -- Tenta Wind Waker primeiro
-
-                        if IsItemEnabledInMenu("item_wind_waker") then
-
-                            local windWaker = NPC.GetItem(myHero, "item_wind_waker", true)
-
-                            if windWaker and Ability.IsCastable(windWaker, NPC.GetMana(myHero)) then
-
-                                Ability.CastTarget(windWaker, ally)
-
-                            end
-
-                        end
-
-                        
-
-                        -- Se não tem Wind Waker ou falhou, tenta Glimmer
-
-                        if IsItemEnabledInMenu("item_glimmer_cape") then
-
-                            local glimmer = NPC.GetItem(myHero, "item_glimmer_cape", true)
-
-                            if glimmer and Ability.IsCastable(glimmer, NPC.GetMana(myHero)) then
-
-                                Ability.CastTarget(glimmer, ally)
-
-                            end
-
-                        end
-
-                        
-
-                        -- Tenta Lotus (BLOQUEADO contra Juggernaut - não reflete Omnislash)
-
-                        if IsItemEnabledInMenu("item_lotus_orb") and ccName ~= "omnislash" then
-
-                            local lotus = NPC.GetItem(myHero, "item_lotus_orb", true)
-
-                            if lotus and Ability.IsCastable(lotus, NPC.GetMana(myHero)) then
-
-                                Ability.CastTarget(lotus, ally)
-
-                            end
-
-                        end
-
-                        
-
-                        -- Tenta Ethereal (BLOQUEADO contra heróis que ficam imunes durante ults)
-
-                        -- Bane (Grip), Pudge (Dismember), Necro (Scythe), Doom, Treant (Overgrowth)
-
-                        if IsItemEnabledInMenu("item_ethereal_blade") and 
-
-                           ccName ~= "grip" and ccName ~= "dismember" and 
-
-                           ccName ~= "scythe" and ccName ~= "doom" and ccName ~= "overgrowth" then
-
-                            local ethereal = NPC.GetItem(myHero, "item_ethereal_blade", true)
-
-                            if ethereal and Ability.IsCastable(ethereal, NPC.GetMana(myHero)) then
-
-                                Ability.CastTarget(ethereal, ally)
-
-                            end
-
-                        end
-
-                        
-
-                        -- Shadow Amulet - Regras especiais por tipo de CC
-
-                        if IsItemEnabledInMenu("item_shadow_amulet") and ccModifier then
-
-                            local remainingTime = Modifier.GetDieTime(ccModifier) - GameRules.GetGameTime()
-
-                            
-
-                            -- Shadow Amulet precisa de 1.5s para ativar, mas damos 2.0s de margem
-
-                            -- para garantir que o timing funcione bem
-
-                            if remainingTime <= 2.0 and remainingTime > 0.5 then
-
-                                local shadowAmulet = NPC.GetItem(myHero, "item_shadow_amulet", true)
-
-                                if shadowAmulet and Ability.IsCastable(shadowAmulet, NPC.GetMana(myHero)) then
-
-                                    Ability.CastTarget(shadowAmulet, ally)
-
-                                end
-
-                            end
-
-                        end
-
-                    end
+                    })
 
                 else
 
@@ -6891,6 +7475,310 @@ function Dodger.OnUpdate()
                     if allyInDanger then
 
                         UseDefensiveItemsOnAllies(myHero, ally)
+
+                    end
+
+                end
+
+            end
+
+        end
+
+        
+
+        -- Limpa aliados que não estão mais em CC
+
+        for ally, _ in pairs(allyDangerTime) do
+
+            if not ally or not Entity.IsAlive(ally) then
+
+                allyDangerTime[ally] = nil
+
+            else
+
+                -- Verifica se aliado ainda tem CC crítico
+
+                local modifiers = NPC.GetModifiers(ally)
+
+                local hasCriticalCC = false
+
+                
+
+                if modifiers then
+
+                    for _, mod in pairs(modifiers) do
+
+                        local modName = Modifier.GetName(mod)
+
+                        if string.find(modName, "chronosphere") or
+
+                           string.find(modName, "black_hole") or
+
+                           modName == "modifier_legion_commander_duel" or
+
+                           modName == "modifier_bane_fiends_grip" or
+
+                           modName == "modifier_pudge_dismember" or
+
+                           modName == "modifier_necrolyte_reapers_scythe" then
+
+                            hasCriticalCC = true
+
+                            break
+
+                        end
+
+                    end
+
+                end
+
+                
+
+                -- Remove se não tem mais CC
+
+                if not hasCriticalCC then
+
+                    allyDangerTime[ally] = nil
+
+                end
+
+            end
+
+        end
+
+        
+
+        -- NOVO: Após coletar todos aliados com CC, escolhe o MELHOR para salvar
+
+        if #alliesWithCC > 0 then
+
+            local bestAlly, bestMod, bestCCName = GetBestAllyToSave(alliesWithCC)
+
+            
+
+            if bestAlly and bestAlly ~= lastAllyProtected then
+
+                -- Throttle: só tenta proteger outro aliado a cada 2 segundos
+
+                local currentTime = GameRules.GetGameTime()
+
+                if currentTime >= lastAllySaveTime + 2.0 then
+
+                    -- PRIMEIRO TENTA USAR SKILLS DEFENSIVAS
+
+                    if UseAllyDefensiveAbilities(myHero, alliesWithCC) then
+
+                        lastAllySaveTime = currentTime
+
+                        lastAllyProtected = bestAlly
+
+                        return
+
+                    end
+
+                    
+
+                    local myPos = Entity.GetAbsOrigin(myHero)
+
+                local allyPos = Entity.GetAbsOrigin(bestAlly)
+
+                local distToAlly = (allyPos - myPos):Length()
+
+                
+
+                -- Tenta Eul's no inimigo primeiro (se habilitado)
+
+                if ui.use_euls_offensive:Get() then
+
+                    UseEulsOnEnemy(myHero, bestAlly)
+
+                end
+
+                
+
+                -- Usa itens defensivos no MELHOR aliado (menor HP / sendo atacado)
+
+                if not IsAlreadyProtected(bestAlly) then
+
+                    local enabledAllyItems = ui.allies_items:ListEnabled()
+
+                    
+
+                    local function IsItemEnabledInMenu(itemName)
+
+                        for _, name in ipairs(enabledAllyItems) do
+
+                            if name == itemName then return true end
+
+                        end
+
+                        return false
+
+                    end
+
+                    
+
+                    -- Tenta Wind Waker primeiro (range 550)
+
+                    if IsItemEnabledInMenu("item_wind_waker") and distToAlly <= 550 then
+
+                        local windWaker = NPC.GetItem(myHero, "item_wind_waker", true)
+
+                        if windWaker and Ability.IsCastable(windWaker, NPC.GetMana(myHero)) then
+
+                            Ability.CastTarget(windWaker, bestAlly)
+
+                            lastAllySaveTime = currentTime
+
+                            lastAllyProtected = bestAlly
+
+                            return
+
+                        end
+
+                    end
+
+                    
+
+                    -- Glimmer Cape (range 550)
+
+                    if IsItemEnabledInMenu("item_glimmer_cape") and distToAlly <= 550 then
+
+                        local glimmer = NPC.GetItem(myHero, "item_glimmer_cape", true)
+
+                        if glimmer and Ability.IsCastable(glimmer, NPC.GetMana(myHero)) then
+
+                            Ability.CastTarget(glimmer, bestAlly)
+
+                            lastAllySaveTime = currentTime
+
+                            lastAllyProtected = bestAlly
+
+                            return
+
+                        end
+
+                    end
+
+                    
+
+                    -- Lotus (BLOQUEADO contra Omnislash) - range 900
+
+                    if IsItemEnabledInMenu("item_lotus_orb") and bestCCName ~= "omnislash" and distToAlly <= 900 then
+
+                        local lotus = NPC.GetItem(myHero, "item_lotus_orb", true)
+
+                        if lotus and Ability.IsCastable(lotus, NPC.GetMana(myHero)) then
+
+                            Ability.CastTarget(lotus, bestAlly)
+
+                            lastAllySaveTime = currentTime
+
+                            lastAllyProtected = bestAlly
+
+                            return
+
+                        end
+
+                    end
+
+                    
+
+                    -- Ethereal Blade (BLOQUEADO contra CCs específicos) - range 800
+
+                    if IsItemEnabledInMenu("item_ethereal_blade") and distToAlly <= 800 and
+
+                       bestCCName ~= "grip" and bestCCName ~= "dismember" and 
+
+                       bestCCName ~= "scythe" and bestCCName ~= "doom" and bestCCName ~= "overgrowth" then
+
+                        local ethereal = NPC.GetItem(myHero, "item_ethereal_blade", true)
+
+                        if ethereal and Ability.IsCastable(ethereal, NPC.GetMana(myHero)) then
+
+                            Ability.CastTarget(ethereal, bestAlly)
+
+                            lastAllySaveTime = currentTime
+
+                            lastAllyProtected = bestAlly
+
+                            return
+
+                        end
+
+                    end
+
+                    
+
+                    -- Shadow Amulet - timing especial - range 600
+
+                    if IsItemEnabledInMenu("item_shadow_amulet") and bestMod and distToAlly <= 600 then
+
+                        local remainingTime = Modifier.GetDieTime(bestMod) - GameRules.GetGameTime()
+
+                        if remainingTime <= 2.0 and remainingTime > 0.5 then
+
+                            local shadowAmulet = NPC.GetItem(myHero, "item_shadow_amulet", true)
+
+                            if shadowAmulet and Ability.IsCastable(shadowAmulet, NPC.GetMana(myHero)) then
+
+                                Ability.CastTarget(shadowAmulet, bestAlly)
+
+                                lastAllySaveTime = currentTime
+
+                                lastAllyProtected = bestAlly
+
+                                return
+
+                            end
+
+                        end
+
+                    end
+
+                    
+
+                    -- Force Staff - empurra o aliado para longe - range 550
+
+                    if IsItemEnabledInMenu("item_force_staff") and distToAlly <= 550 then
+
+                        local forceStaff = NPC.GetItem(myHero, "item_force_staff", true)
+
+                        if forceStaff and Ability.IsCastable(forceStaff, NPC.GetMana(myHero)) then
+
+                            Ability.CastTarget(forceStaff, bestAlly)
+
+                            lastAllySaveTime = currentTime
+
+                            lastAllyProtected = bestAlly
+
+                            return
+
+                        end
+
+                    end
+
+                    
+
+                    -- Hurricane Pike - range 550
+
+                    if IsItemEnabledInMenu("item_hurricane_pike") and distToAlly <= 550 then
+
+                        local pike = NPC.GetItem(myHero, "item_hurricane_pike", true)
+
+                        if pike and Ability.IsCastable(pike, NPC.GetMana(myHero)) then
+
+                            Ability.CastTarget(pike, bestAlly)
+
+                            lastAllySaveTime = currentTime
+
+                            lastAllyProtected = bestAlly
+
+                            return
+
+                        end
+
+                    end
 
                     end
 

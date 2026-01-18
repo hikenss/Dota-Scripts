@@ -5,6 +5,9 @@
 local TargetLock = require("TargetLock")
 local EuphoriaAddon2 = {}
 
+-- ========= CONFIG PERSISTENCE NAMES =========
+local CONFIG_NAME = "ESEuphoriaAddons2"
+
 -- ========= MENU =========
 local hero_tab = Menu.Find("Heroes", "Hero List", "Earth Spirit")
 local euphor_tab = hero_tab:Create("EuphoriaAddon 2.0 ⚡")
@@ -64,6 +67,230 @@ ui.delay_harpoon = delay_group:Slider("Harpoon Delay", 200, 400, 250, "%d ms")
 ui.delay_smash   = delay_group:Slider("Smash Delay", 120, 300, 200, "%d ms")
 ui.delay_enchant = delay_group:Slider("Enchant Delay", 150, 300, 200, "%d ms")
 ui.delay_bkb     = delay_group:Slider("BKB Delay", 50, 150, 80, "%d ms")
+
+-- ========= CONFIG PERSISTENCE FUNCTIONS =========
+local function SaveConfig()
+    if not Config then
+        print("[ESEuphoriaAddons2] Config API not available!")
+        return
+    end
+    
+    -- Main settings
+    pcall(function() Config.WriteInt(CONFIG_NAME, "enable", ui.enable:Get() and 1 or 0) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "hotkey", ui.hotkey:Get()) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "mode", ui.mode:Get()) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "debug", ui.debug:Get() and 1 or 0) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "use_move", ui.use_move:Get() and 1 or 0) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "min_dist", ui.min_dist:Get()) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "target_prio", ui.target_prio:Get()) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "retreat_after_smash", ui.retreat_after_smash:Get() and 1 or 0) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "file_logging", ui.file_logging:Get() and 1 or 0) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "prefer_roll", ui.prefer_roll:Get() and 1 or 0) end)
+    
+    -- Push simples
+    pcall(function() Config.WriteInt(CONFIG_NAME, "save_enable", ui.save_enable:Get() and 1 or 0) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "save_hotkey", ui.save_hotkey:Get()) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "save_cursor_range", ui.save_cursor_range:Get()) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "save_target_mode", ui.save_target_mode:Get()) end)
+    
+    -- Grip
+    pcall(function() Config.WriteInt(CONFIG_NAME, "grip_enable", ui.grip_enable:Get() and 1 or 0) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "grip_hotkey", ui.grip_hotkey:Get()) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "grip_hp_threshold", ui.grip_hp_threshold:Get()) end)
+    
+    -- Ally
+    pcall(function() Config.WriteInt(CONFIG_NAME, "ally_mode", ui.ally_mode:Get()) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "ally_lock", ui.ally_lock:Get() and 1 or 0) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "ally_max_range", ui.ally_max_range:Get()) end)
+    
+    -- Abilities
+    pcall(function() Config.WriteInt(CONFIG_NAME, "enchant", ui.enchant:Get() and 1 or 0) end)
+    
+    -- Items
+    pcall(function() Config.WriteInt(CONFIG_NAME, "use_bkb", ui.use_bkb:Get() and 1 or 0) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "smart_bkb", ui.smart_bkb:Get() and 1 or 0) end)
+    
+    -- Chain CC items (MultiSelect - save as bitmask)
+    pcall(function()
+        local chain_cc_mask = 0
+        local chain_cc_items = {"Rod of Atos", "Eul's Scepter", "Scythe of Vyse", "Orchid", "Nullifier"}
+        for i, name in ipairs(chain_cc_items) do
+            if ui.chain_cc:Get(name) then
+                chain_cc_mask = chain_cc_mask + (2 ^ (i - 1))
+            end
+        end
+        Config.WriteInt(CONFIG_NAME, "chain_cc", chain_cc_mask)
+    end)
+    
+    -- Delays
+    pcall(function() Config.WriteInt(CONFIG_NAME, "delay_blink", ui.delay_blink:Get()) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "delay_harpoon", ui.delay_harpoon:Get()) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "delay_smash", ui.delay_smash:Get()) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "delay_enchant", ui.delay_enchant:Get()) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "delay_bkb", ui.delay_bkb:Get()) end)
+    
+    print("[ESEuphoriaAddons2] Config saved!")
+end
+
+local function LoadConfig()
+    if not Config then
+        print("[ESEuphoriaAddons2] Config API not available, skipping load!")
+        return
+    end
+    
+    pcall(function()
+        -- Main settings
+        local enable = Config.ReadInt(CONFIG_NAME, "enable", 1)
+        ui.enable:Set(enable == 1)
+        
+        local hotkey = Config.ReadInt(CONFIG_NAME, "hotkey", Enum.ButtonCode.KEY_G)
+        if hotkey ~= 0 then ui.hotkey:Set(hotkey) end
+        
+        local mode = Config.ReadInt(CONFIG_NAME, "mode", 1)
+        ui.mode:Set(mode)
+        
+        local debug_val = Config.ReadInt(CONFIG_NAME, "debug", 0)
+        ui.debug:Set(debug_val == 1)
+        
+        local use_move = Config.ReadInt(CONFIG_NAME, "use_move", 1)
+        ui.use_move:Set(use_move == 1)
+        
+        local min_dist = Config.ReadInt(CONFIG_NAME, "min_dist", 200)
+        ui.min_dist:Set(min_dist)
+        
+        local target_prio = Config.ReadInt(CONFIG_NAME, "target_prio", 0)
+        ui.target_prio:Set(target_prio)
+        
+        local retreat = Config.ReadInt(CONFIG_NAME, "retreat_after_smash", 1)
+        ui.retreat_after_smash:Set(retreat == 1)
+        
+        local file_log = Config.ReadInt(CONFIG_NAME, "file_logging", 0)
+        ui.file_logging:Set(file_log == 1)
+        
+        local prefer_roll = Config.ReadInt(CONFIG_NAME, "prefer_roll", 1)
+        ui.prefer_roll:Set(prefer_roll == 1)
+        
+        -- Push simples
+        local save_enable = Config.ReadInt(CONFIG_NAME, "save_enable", 1)
+        ui.save_enable:Set(save_enable == 1)
+        
+        local save_hotkey = Config.ReadInt(CONFIG_NAME, "save_hotkey", Enum.ButtonCode.KEY_H)
+        if save_hotkey ~= 0 then ui.save_hotkey:Set(save_hotkey) end
+        
+        local save_cursor_range = Config.ReadInt(CONFIG_NAME, "save_cursor_range", 400)
+        ui.save_cursor_range:Set(save_cursor_range)
+        
+        local save_target_mode = Config.ReadInt(CONFIG_NAME, "save_target_mode", 0)
+        ui.save_target_mode:Set(save_target_mode)
+        
+        -- Grip
+        local grip_enable = Config.ReadInt(CONFIG_NAME, "grip_enable", 1)
+        ui.grip_enable:Set(grip_enable == 1)
+        
+        local grip_hotkey = Config.ReadInt(CONFIG_NAME, "grip_hotkey", Enum.ButtonCode.KEY_K)
+        if grip_hotkey ~= 0 then ui.grip_hotkey:Set(grip_hotkey) end
+        
+        local grip_hp = Config.ReadInt(CONFIG_NAME, "grip_hp_threshold", 30)
+        ui.grip_hp_threshold:Set(grip_hp)
+        
+        -- Ally
+        local ally_mode = Config.ReadInt(CONFIG_NAME, "ally_mode", 0)
+        ui.ally_mode:Set(ally_mode)
+        
+        local ally_lock = Config.ReadInt(CONFIG_NAME, "ally_lock", 1)
+        ui.ally_lock:Set(ally_lock == 1)
+        
+        local ally_max_range = Config.ReadInt(CONFIG_NAME, "ally_max_range", 1200)
+        ui.ally_max_range:Set(ally_max_range)
+        
+        -- Abilities
+        local enchant = Config.ReadInt(CONFIG_NAME, "enchant", 1)
+        ui.enchant:Set(enchant == 1)
+        
+        -- Items
+        local use_bkb = Config.ReadInt(CONFIG_NAME, "use_bkb", 1)
+        ui.use_bkb:Set(use_bkb == 1)
+        
+        local smart_bkb = Config.ReadInt(CONFIG_NAME, "smart_bkb", 1)
+        ui.smart_bkb:Set(smart_bkb == 1)
+        
+        -- Chain CC items (MultiSelect - load from bitmask)
+        local chain_cc_mask = Config.ReadInt(CONFIG_NAME, "chain_cc", 3) -- default: Atos + Euls
+        local chain_cc_items = {"Rod of Atos", "Eul's Scepter", "Scythe of Vyse", "Orchid", "Nullifier"}
+        for i, name in ipairs(chain_cc_items) do
+            local bit = 2 ^ (i - 1)
+            local enabled = (chain_cc_mask % (bit * 2)) >= bit
+            ui.chain_cc:Set(name, enabled)
+        end
+        
+        -- Delays
+        local delay_blink = Config.ReadInt(CONFIG_NAME, "delay_blink", 150)
+        ui.delay_blink:Set(delay_blink)
+        
+        local delay_harpoon = Config.ReadInt(CONFIG_NAME, "delay_harpoon", 250)
+        ui.delay_harpoon:Set(delay_harpoon)
+        
+        local delay_smash = Config.ReadInt(CONFIG_NAME, "delay_smash", 200)
+        ui.delay_smash:Set(delay_smash)
+        
+        local delay_enchant = Config.ReadInt(CONFIG_NAME, "delay_enchant", 200)
+        ui.delay_enchant:Set(delay_enchant)
+        
+        local delay_bkb = Config.ReadInt(CONFIG_NAME, "delay_bkb", 80)
+        ui.delay_bkb:Set(delay_bkb)
+        
+        print("[ESEuphoriaAddons2] Config loaded!")
+    end)
+end
+
+local function SetupConfigCallbacks()
+    -- Main settings callbacks
+    ui.enable:SetCallback(function() SaveConfig() end)
+    ui.hotkey:SetCallback(function() SaveConfig() end)
+    ui.mode:SetCallback(function() SaveConfig() end)
+    ui.debug:SetCallback(function() SaveConfig() end)
+    ui.use_move:SetCallback(function() SaveConfig() end)
+    ui.min_dist:SetCallback(function() SaveConfig() end)
+    ui.target_prio:SetCallback(function() SaveConfig() end)
+    ui.retreat_after_smash:SetCallback(function() SaveConfig() end)
+    ui.file_logging:SetCallback(function() SaveConfig() end)
+    ui.prefer_roll:SetCallback(function() SaveConfig() end)
+    
+    -- Push simples callbacks
+    ui.save_enable:SetCallback(function() SaveConfig() end)
+    ui.save_hotkey:SetCallback(function() SaveConfig() end)
+    ui.save_cursor_range:SetCallback(function() SaveConfig() end)
+    ui.save_target_mode:SetCallback(function() SaveConfig() end)
+    
+    -- Grip callbacks
+    ui.grip_enable:SetCallback(function() SaveConfig() end)
+    ui.grip_hotkey:SetCallback(function() SaveConfig() end)
+    ui.grip_hp_threshold:SetCallback(function() SaveConfig() end)
+    
+    -- Ally callbacks
+    ui.ally_mode:SetCallback(function() SaveConfig() end)
+    ui.ally_lock:SetCallback(function() SaveConfig() end)
+    ui.ally_max_range:SetCallback(function() SaveConfig() end)
+    
+    -- Abilities callbacks
+    ui.enchant:SetCallback(function() SaveConfig() end)
+    
+    -- Items callbacks
+    ui.use_bkb:SetCallback(function() SaveConfig() end)
+    ui.smart_bkb:SetCallback(function() SaveConfig() end)
+    ui.chain_cc:SetCallback(function() SaveConfig() end)
+    
+    -- Delays callbacks
+    ui.delay_blink:SetCallback(function() SaveConfig() end)
+    ui.delay_harpoon:SetCallback(function() SaveConfig() end)
+    ui.delay_smash:SetCallback(function() SaveConfig() end)
+    ui.delay_enchant:SetCallback(function() SaveConfig() end)
+    ui.delay_bkb:SetCallback(function() SaveConfig() end)
+end
+
+-- ========= LOAD CONFIG AND SETUP CALLBACKS =========
+LoadConfig()
+SetupConfigCallbacks()
 
 -- ========= DEBUG =========
 local function DebugPrint(msg)
