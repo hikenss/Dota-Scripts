@@ -222,9 +222,10 @@ local function DrawTimer()
     local time = GameRules.GetGameTime()
     local hasTimers = false
     
-    for team, data in pairs(CourierUltimate.State.deadCouriers) do
+    -- Limpar timers expirados
+    for id, data in pairs(CourierUltimate.State.deadCouriers) do
         if data.respawnTime - time <= 0 then
-            CourierUltimate.State.deadCouriers[team] = nil
+            CourierUltimate.State.deadCouriers[id] = nil
         else
             hasTimers = true
         end
@@ -235,7 +236,8 @@ local function DrawTimer()
     local x, y = 50, 50
     local h = 10
     
-    for team, data in pairs(CourierUltimate.State.deadCouriers) do
+    -- Calcular altura necessária
+    for id, data in pairs(CourierUltimate.State.deadCouriers) do
         local left = data.respawnTime - time
         if left > 0 then
             h = h + 20
@@ -245,11 +247,11 @@ local function DrawTimer()
     Render.FilledRect(Vec2(x, y), Vec2(x + 110, y + h), Color(15, 15, 20, 200), 4)
     
     local yOff = 6
-    for team, data in pairs(CourierUltimate.State.deadCouriers) do
+    for id, data in pairs(CourierUltimate.State.deadCouriers) do
         local left = data.respawnTime - time
         if left > 0 then
             local text = string.format("%d:%02d", math.floor(left / 60), math.floor(left % 60))
-            local color = team == 2 and Color(120, 255, 120) or Color(255, 120, 120)
+            local color = data.team == 2 and Color(120, 255, 120) or Color(255, 120, 120)
             
             if data.ownerHero then
                 local heroName = NPC.GetUnitName(data.ownerHero)
@@ -431,21 +433,25 @@ function CourierUltimate.OnUpdate()
     local time = GameRules.GetGameTime()
     for id, data in pairs(CourierUltimate.State.trackedCouriers) do
         if not tracked[id] and time - data.time < 2 then
-            local owner = nil
-            for i = 1, Heroes.Count() do
-                local h = Heroes.Get(i)
-                if h and Entity.GetTeamNum(h) == data.team then
-                    owner = h
-                    break
+            -- Só adicionar se não existe já um timer para este courier
+            if not CourierUltimate.State.deadCouriers[id] then
+                local owner = nil
+                for i = 1, Heroes.Count() do
+                    local h = Heroes.Get(i)
+                    if h and Entity.GetTeamNum(h) == data.team then
+                        owner = h
+                        break
+                    end
                 end
+                
+                local respawn = getCourierRespawnTime()
+                CourierUltimate.State.deadCouriers[id] = {
+                    deathTime = time,
+                    respawnTime = time + respawn,
+                    ownerHero = owner,
+                    team = data.team
+                }
             end
-            
-            local respawn = getCourierRespawnTime()
-            CourierUltimate.State.deadCouriers[data.team] = {
-                deathTime = time,
-                respawnTime = time + respawn,
-                ownerHero = owner
-            }
         end
     end
     

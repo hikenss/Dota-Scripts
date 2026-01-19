@@ -213,7 +213,7 @@ ui.defensive_abilities = menuEscapeAbilities:MultiSelect("", {
 
     { "magnataur_skewer", "panorama/images/spellicons/magnataur_skewer_png.vtex_c", true },
 
-    { "marci_rebound", "panorama/images/spellicons/marci_companion_run_png.vtex_c", true },
+    { "marci_rebound", "panorama/images/spellicons/marci_companion_run_png.vtex_c", false },
 
     { "mirana_leap", "panorama/images/spellicons/mirana_leap_png.vtex_c", true },
 
@@ -436,7 +436,7 @@ ui.allies_abilities = menuSaveAlly:MultiSelect("", {
 
     { "centaur_mount", "panorama/images/spellicons/centaur_mount_png.vtex_c", true },
 
-    { "marci_rebound", "panorama/images/spellicons/marci_companion_run_png.vtex_c", true },
+    { "marci_rebound", "panorama/images/spellicons/marci_companion_run_png.vtex_c", false },
 
     { "earth_spirit_geomagnetic_grip", "panorama/images/spellicons/earth_spirit_geomagnetic_grip_png.vtex_c", true },
 
@@ -5739,57 +5739,8 @@ local function UseAllyDefensiveAbilities(myHero, alliesInCC)
 
     
 
-    -- Earth Spirit Geomagnetic Grip
-
-    if heroName == "npc_dota_hero_earth_spirit" and ui.allies_abilities:IsSelected("earth_spirit_geomagnetic_grip") then
-
-        for _, data in ipairs(alliesInCC) do
-
-            local bestAlly = data.ally
-
-            local bestAllyPos = Entity.GetAbsOrigin(bestAlly)
-
-            local dist = (myPos - bestAllyPos):Length()
-
-            
-
-            local grip = NPC.GetAbility(myHero, "earth_spirit_geomagnetic_grip")
-
-            
-
-            if grip then
-
-                local myMana = NPC.GetMana(myHero)
-
-                local gripLevel = Ability.GetLevel(grip)
-
-                local hasAghanim = NPC.HasItem(myHero, "item_aghanims_shard", true)
-
-                
-
-                local baseRanges = {550, 600, 650, 700}
-
-                local aghanimRanges = {825, 900, 975, 1050}
-
-                
-
-                local gripRange = hasAghanim and aghanimRanges[gripLevel] or baseRanges[gripLevel]
-
-                
-
-                if Ability.IsCastable(grip, myMana) and dist <= gripRange then
-
-                    Ability.CastTarget(grip, bestAlly)
-
-                    return true
-
-                end
-
-            end
-
-        end
-
-    end
+    -- Earth Spirit Geomagnetic Grip - remover daqui, deixar para PRIORIDADE 2
+    -- (será ativado através de UseDefensiveItemsOnAllies para garantir que itens defensivos também sejam tentados)
 
     
 
@@ -5871,7 +5822,13 @@ local function UseDefensiveItemsOnAllies(myHero, targetHero)
 
         {name = "item_lotus_orb", castType = "target", priority = 3},
 
-        {name = "item_ethereal_blade", castType = "target", priority = 4}
+        {name = "item_ethereal_blade", castType = "target", priority = 4},
+
+        {name = "item_shadow_amulet", castType = "target", priority = 5},
+
+        {name = "item_force_staff", castType = "target", priority = 6},
+
+        {name = "item_hurricane_pike", castType = "target", priority = 7}
 
     }
 
@@ -7264,41 +7221,165 @@ function Dodger.OnUpdate()
 
                         if modName == "modifier_legion_commander_duel" then
 
-                            hasUrgentCC = true
+                            -- Verifica se Legion que duelou é INIMIGO
 
-                            ccModifier = mod
+                            local lcEnemy = nil
 
-                            ccName = "duel"
+                            for _, enemy in pairs(enemies) do
+
+                                if enemy and Entity.IsAlive(enemy) and not Entity.IsSameTeam(myHero, enemy) then
+
+                                    if NPC.GetUnitName(enemy) == "npc_dota_hero_legion_commander" then
+
+                                        if NPC.HasModifier(enemy, "modifier_legion_commander_duel") then
+
+                                            lcEnemy = enemy
+
+                                            break
+
+                                        end
+
+                                    end
+
+                                end
+
+                            end
+
+                            -- Só marca como urgente se Legion inimiga duelou
+
+                            if lcEnemy then
+
+                                hasUrgentCC = true
+
+                                ccModifier = mod
+
+                                ccName = "duel"
+
+                            end
 
                             break
 
                         elseif modName == "modifier_axe_berserkers_call" then
 
-                            hasUrgentCC = true
+                            -- Verifica se Axe que deu call é INIMIGO
 
-                            ccModifier = mod
+                            local axeEnemy = nil
 
-                            ccName = "call"
+                            for _, enemy in pairs(enemies) do
+
+                                if enemy and Entity.IsAlive(enemy) and not Entity.IsSameTeam(myHero, enemy) then
+
+                                    if NPC.GetUnitName(enemy) == "npc_dota_hero_axe" then
+
+                                        if NPC.HasModifier(enemy, "modifier_axe_berserkers_call") then
+
+                                            axeEnemy = enemy
+
+                                            break
+
+                                        end
+
+                                    end
+
+                                end
+
+                            end
+
+                            -- Só marca como urgente se Axe inimigo deu call
+
+                            if axeEnemy then
+
+                                hasUrgentCC = true
+
+                                ccModifier = mod
+
+                                ccName = "call"
+
+                            end
 
                             break
 
                         elseif string.find(modName, "black_hole") then
 
-                            hasUrgentCC = true
+                            -- Verifica se Enigma com Black Hole é INIMIGO
 
-                            ccModifier = mod
+                            local enigmaEnemy = nil
 
-                            ccName = "black_hole"
+                            for _, enemy in pairs(enemies) do
+
+                                if enemy and Entity.IsAlive(enemy) and not Entity.IsSameTeam(myHero, enemy) then
+
+                                    if NPC.GetUnitName(enemy) == "npc_dota_hero_enigma" then
+
+                                        if NPC.HasModifier(enemy, "modifier_enigma_black_hole") then
+
+                                            enigmaEnemy = enemy
+
+                                            break
+
+                                        end
+
+                                    end
+
+                                end
+
+                            end
+
+                            -- Só marca como urgente se Enigma inimigo usou Black Hole
+
+                            if enigmaEnemy then
+
+                                hasUrgentCC = true
+
+                                ccModifier = mod
+
+                                ccName = "black_hole"
+
+                            end
 
                             break
 
                         elseif string.find(modName, "chronosphere") then
 
-                            hasUrgentCC = true
+                            -- Verifica se Faceless Void com Chrono é INIMIGO
 
-                            ccModifier = mod
+                            local voidEnemy = nil
 
-                            ccName = "chrono"
+                            for _, enemy in pairs(enemies) do
+
+                                if enemy and Entity.IsAlive(enemy) and not Entity.IsSameTeam(myHero, enemy) then
+
+                                    if NPC.GetUnitName(enemy) == "npc_dota_hero_faceless_void" then
+
+                                        -- Void tem modifier quando está dentro do Chrono
+
+                                        if NPC.HasModifier(enemy, "modifier_faceless_chronosphere_freeze") or 
+
+                                           NPC.HasAbility(enemy, "faceless_void_chronosphere") then
+
+                                            voidEnemy = enemy
+
+                                            break
+
+                                        end
+
+                                    end
+
+                                end
+
+                            end
+
+                            -- Só marca como urgente se Void inimigo usou Chrono
+
+                            if voidEnemy then
+
+                                hasUrgentCC = true
+
+                                ccModifier = mod
+
+                                ccName = "chrono"
+
+                            end
 
                             break
 
@@ -7461,6 +7542,24 @@ function Dodger.OnUpdate()
                         local enemyCount = CountEnemiesNearAlly(ally, math.max(CONFIG.allies_abilities_range, CONFIG.allies_items_range))
 
                         if enemyCount >= 1 then
+
+                            allyInDanger = true
+
+                        end
+
+                    end
+
+                    
+
+                    -- CRITÉRIO ADICIONAL: Se tem 2+ inimigos próximos, ativa proteção mesmo com HP alto
+
+                    -- (para Earth Spirit e itens defensivos)
+
+                    if not allyInDanger then
+
+                        local enemyCountHigh = CountEnemiesNearAlly(ally, math.max(CONFIG.allies_abilities_range, CONFIG.allies_items_range))
+
+                        if enemyCountHigh >= 2 then
 
                             allyInDanger = true
 

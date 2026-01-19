@@ -871,6 +871,7 @@ function EuphoriaAddon2.OnUpdate()
         retreat_pending = false
         retreat_dir = nil
         approach_roll_active = false
+        earthSpiritPending.active = false  -- Limpa qualquer roll pendente ao iniciar combo
         FileLog("Combo START alvo="..(smash_enemy and Entity.GetUnitName(smash_enemy) or "nil"))
         local allyStart = FindPreferredAlly(myHero, false)
         FileLog("Ally SELECT="..(allyStart and Entity.GetUnitName(allyStart) or "auto"))
@@ -950,6 +951,9 @@ function EuphoriaAddon2.OnUpdate()
             DebugPrint(string.format("STATE0: blink -> state=1 t=%.2f dist=%.1f", combo_time, dist))
             FileLog(string.format("STATE0 BLINK dist=%.1f", dist))
             
+            -- Marca que usou blink (não precisa criar remnant depois)
+            approach_roll_active = false
+            earthSpiritPending.active = false  -- Cancela qualquer roll pendente
             action_cd_until = now + 0.05
         elseif rolling and CanCast(myHero, rolling) and dist > ui.min_dist:Get() and dist < 1200 then
             -- Inicia com Rolling Boulder para aproximar com direção precisa ao alvo
@@ -1154,7 +1158,26 @@ function EuphoriaAddon2.OnUpdate()
                     end
                 end
                 
+                -- Verifica se há remnant próximo ao inimigo (evita chutar remnant em vez do herói)
+                local hasRemnantNear = false
                 if not hasAllyNear then
+                    for i = 1, NPCs.Count() do
+                        local npc = NPCs.Get(i)
+                        if npc and Entity.IsAlive(npc) then
+                            local npcName = NPC.GetUnitName(npc)
+                            if npcName == "npc_dota_earth_spirit_stone" then
+                                local distToEnemy = (Entity.GetAbsOrigin(npc) - enemyPos):Length2D()
+                                if distToEnemy <= 150 then
+                                    hasRemnantNear = true
+                                    FileLog(string.format("STATE2 smash BLOCKED: remnant próximo ao inimigo (dist=%.1f)", distToEnemy))
+                                    break
+                                end
+                            end
+                        end
+                    end
+                end
+                
+                if not hasAllyNear and not hasRemnantNear then
                     last_dir = dir
                     local castOk = TryCast("smash", ui.delay_smash:Get(), function()
                         Ability.CastPosition(smash, Entity.GetAbsOrigin(smash_enemy) + dir * 300)
