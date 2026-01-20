@@ -166,8 +166,21 @@ local session = {
     startMMR = 0,
     initialized = false,
     wins = 0,
-    losses = 0
+    losses = 0,
+    weekStart = 0
 }
+
+-- Função para obter o timestamp do início da semana atual (segunda-feira 00:00)
+local function GetWeekStart()
+    local time = os.time()
+    local date = os.date("*t", time)
+    -- Dia da semana: 1 = Domingo, 2 = Segunda, ..., 7 = Sábado
+    local dayOfWeek = date.wday
+    -- Calcular dias desde segunda-feira (2 = segunda)
+    local daysSinceMonday = (dayOfWeek == 1) and 6 or (dayOfWeek - 2)
+    -- Retornar timestamp da segunda-feira às 00:00
+    return time - (daysSinceMonday * 86400) - (date.hour * 3600) - (date.min * 60) - date.sec
+end
 
 local rank_icon_cache = {}
 
@@ -199,6 +212,7 @@ function MMRTracker.ResetSession()
     session.startMMR = 0
     session.wins = 0
     session.losses = 0
+    session.weekStart = GetWeekStart()
     state.lastMMR = 0
     state.mmr_diff = 0
 
@@ -212,11 +226,13 @@ function MMRTracker.ResetSession()
         db["x"][DB_KEY]["session_steam_id"] = steamid
         db["x"][DB_KEY]["session_wins"] = 0
         db["x"][DB_KEY]["session_losses"] = 0
+        db["x"][DB_KEY]["session_week_start"] = session.weekStart
     else
         db["x"][DB_KEY]["session_start_mmr"] = nil
         db["x"][DB_KEY]["session_steam_id"] = nil
         db["x"][DB_KEY]["session_wins"] = nil
         db["x"][DB_KEY]["session_losses"] = nil
+        db["x"][DB_KEY]["session_week_start"] = nil
     end
     db["x"][DB_KEY]["mmr"] = nil
     db["x"][DB_KEY]["steam_id"] = nil
@@ -227,17 +243,34 @@ function MMRTracker.OnGameThreadInit()
 
     local mmr = Engine.GetMMRV2()
     local steamid = GC.GetSteamID()
+    local currentWeekStart = GetWeekStart()
 
-    -- Sempre reseta a sessão ao entrar no Dota
-    if mmr > 0 then
+    -- Carrega sessão salva
+    local savedWeekStart = db["x"][DB_KEY]["session_week_start"]
+    local savedMMR = db["x"][DB_KEY]["session_start_mmr"]
+    local savedWins = db["x"][DB_KEY]["session_wins"] or 0
+    local savedLosses = db["x"][DB_KEY]["session_losses"] or 0
+
+    -- Verifica se a sessão é da semana atual
+    if savedWeekStart and savedWeekStart == currentWeekStart and savedMMR and mmr > 0 then
+        -- Sessão válida: carrega dados salvos
+        session.startMMR = savedMMR
+        session.wins = savedWins
+        session.losses = savedLosses
+        session.weekStart = savedWeekStart
+        session.initialized = true
+    elseif mmr > 0 then
+        -- Nova semana ou primeira vez: reseta a sessão
         session.startMMR = mmr
         session.wins = 0
         session.losses = 0
+        session.weekStart = currentWeekStart
         session.initialized = true
         db["x"][DB_KEY]["session_start_mmr"] = mmr
         db["x"][DB_KEY]["session_steam_id"] = steamid
         db["x"][DB_KEY]["session_wins"] = 0
         db["x"][DB_KEY]["session_losses"] = 0
+        db["x"][DB_KEY]["session_week_start"] = currentWeekStart
     end
 
     db["x"][DB_KEY]["mmr"] = mmr
@@ -252,21 +285,19 @@ local function GetRankInfo(mmr)
 
     local current = { mmr = 0, name = "Herald", tier = 1 }
     local nextRank = nil
-    for i, data in ipairs(rankTable) do
-        if mmr < data[1] then
-            nextRank = { mmr = data[1], name = data[2], tier = data[3] }
-            if i > 1 then
-                local prev = rankTable[i - 1]
-                current = { mmr = prev[1], name = prev[2], tier = prev[3] }
+    
+    -- Procura o rank atual: o último rank cujo MMR mínimo é <= ao MMR do jogador
+    for i = #rankTable, 1, -1 do
+        local data = rankTable[i]
+        if mmr >= data[1] then
+            current = { mmr = data[1], name = data[2], tier = data[3] }
+            -- Próximo rank é o seguinte na tabela, se existir
+            if i < #rankTable then
+                local next = rankTable[i + 1]
+                nextRank = { mmr = next[1], name = next[2], tier = next[3] }
             end
             break
         end
-    end
-
-    -- Immortal: если цикл прошел без break (MMR >= 5600)
-    if not nextRank and #rankTable > 0 then
-        local last = rankTable[#rankTable]
-        current = { mmr = last[1], name = last[2], tier = last[3] }
     end
 
     return current, nextRank
@@ -307,17 +338,26 @@ function MMRTracker.OnFrame()
     local pos = Vec2(s_x:Get(), s_y:Get())
     local myMMR = Engine.GetMMRV2()
 
+    -- Verifica se mudou de semana
+    local currentWeekStart = GetWeekStart()
+    if session.initialized and session.weekStart ~= currentWeekStart then
+        -- Nova semana: reseta sessão
+        MMRTracker.ResetSession()
+    end
+
     if not session.initialized and myMMR > 0 then
         InitDB()
         local steamid = GC.GetSteamID()
         session.startMMR = myMMR
         session.wins = 0
         session.losses = 0
+        session.weekStart = currentWeekStart
         session.initialized = true
         db["x"][DB_KEY]["session_start_mmr"] = myMMR
         db["x"][DB_KEY]["session_steam_id"] = steamid
         db["x"][DB_KEY]["session_wins"] = 0
         db["x"][DB_KEY]["session_losses"] = 0
+        db["x"][DB_KEY]["session_week_start"] = currentWeekStart
     end
 
     local currentRank, nextRank = GetRankInfo(myMMR)

@@ -6188,12 +6188,18 @@ local function UseDefensiveItemsOnAllies(myHero, targetHero)
 
             local distance = (myPos - allyPos):Length()
 
-            
+            -- Critério simples: HP < 25% E tem inimigo próximo (500 range)
+            local allyHP = Entity.GetHealth(targetHero)
+            local allyMaxHP = Entity.GetMaxHealth(targetHero)
+            local allyHPPercent = (allyHP / allyMaxHP) * 100
+            local enemiesNearAlly = CountEnemiesNearAlly(targetHero, 500)
+
+            if allyHPPercent >= 25 or enemiesNearAlly < 1 then
+                goto continue_earth_grip
+            end
 
             -- Range baseado no nível da skill: 550/600/650/700 base, 825/900/975/1050 com Aghanim
-
             local gripLevel = Ability.GetLevel(grip)
-
             local hasAghanim = NPC.HasItem(myHero, "item_aghanims_shard", true)
 
             
@@ -6215,6 +6221,8 @@ local function UseDefensiveItemsOnAllies(myHero, targetHero)
                 return true
 
             end
+
+            ::continue_earth_grip::
 
         end
 

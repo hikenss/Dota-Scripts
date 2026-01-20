@@ -16,7 +16,7 @@ local Config = {
             EnemyRange = "Enemy Range",
         },
         Icons = {
-            Main = "\u{f6b6}",
+            Main = "\u{f6d6}",
             Info = "\u{f129}",
             Activation = "\u{f135}",
             Priority = "\u{f0c9}",
@@ -212,14 +212,9 @@ local function disable_interface_scale(container)
 end
 
 local function InitializeUI()
-    tab = Menu.Create(
-        Config.UI.TabName,
-        Config.UI.ScriptName,
-        Config.UI.ScriptID,
-        Config.UI.ScriptID
-    )
-
-    if tab and Config.UI.Icons.Main and tab.Icon then
+    tab = Menu.Create("General", "Main", Config.UI.ScriptName)
+    
+    if tab and Config.UI.Icons.Main then
         pcall(tab.Icon, tab, Config.UI.Icons.Main)
     end
 
@@ -284,38 +279,6 @@ local function InitializeUI()
         return group
     end
 
-    local info_group = create_submenu_group("Info", {
-        label = Config.UI.Groups.Info,
-        icon = Config.UI.Icons.Info,
-    })
-
-    if info_group then
-        if info_group.Label then
-            info_group:Label("Author: GhostyPowa")
-        elseif info_group.Text then
-            info_group:Text("Author: GhostyPowa")
-        else
-            local author_display = info_group:Switch("Author: GhostyPowa", false, Config.UI.Icons.Info)
-            if author_display then
-                apply_compact_style(author_display)
-                if author_display.SetEnabled then
-                    author_display:SetEnabled(false)
-                elseif author_display.Disable then
-                    author_display:Disable()
-                elseif author_display.SetState then
-                    author_display:SetState(false)
-                end
-            end
-        end
-
-        apply_compact_style(info_group)
-    end
-
-    local activation_group = create_submenu_group("Activation", {
-        label = Config.UI.Groups.Activation,
-        icon = Config.UI.Icons.Activation,
-    })
-
     local priority_group = create_submenu_group("Priority", {
         label = Config.UI.Groups.Priority,
         icon = Config.UI.Icons.Priority,
@@ -333,9 +296,10 @@ local function InitializeUI()
 
     local ui = {}
 
-    if activation_group then
-        ui.enable = activation_group:Switch("Enable", true, Config.UI.Icons.Enable)
-        ui.meteor_combo = activation_group:Switch("Meteor Hammer Combo", true, Config.UI.Icons.MeteorCombo)
+    -- Add Enable and Meteor Combo at the top of Priority group
+    if priority_group then
+        ui.enable = priority_group:Switch("Enable", true, Config.UI.Icons.Enable)
+        ui.meteor_combo = priority_group:Switch("Meteor Hammer Combo", true, Config.UI.Icons.MeteorCombo)
 
         apply_compact_style(ui.enable)
         apply_compact_style(ui.meteor_combo)
@@ -346,8 +310,8 @@ local function InitializeUI()
         using_gear = using_gear,
         gear_panel = gear_panel,
         groups = {
-            info = info_group,
-            activation = activation_group,
+            info = nil,
+            activation = priority_group,
             priority = priority_group,
             thresholds = threshold_group,
             enemy_range = enemy_range_group,
@@ -693,6 +657,54 @@ local ITEM_DEFINITIONS = {
         requires_enemy = true,
         search_range = 1200,
     },
+    essence_ring = {
+        item_name = "item_essence_ring",
+        display_name = "Essence Ring",
+        type = "no_target",
+        modifier = "modifier_item_essence_ring_active",
+        requires_enemy = true,
+        search_range = 1200,
+    },
+    psychic_headband = {
+        item_name = "item_psychic_headband",
+        display_name = "Psychic Headband",
+        type = "no_target",
+        modifier = "modifier_item_paranormal_diadem_active",
+        requires_enemy = true,
+        search_range = 1200,
+    },
+    idol_of_screeauk = {
+        item_name = "item_idol_of_screeauk",
+        display_name = "Idol of Scree'auk",
+        type = "no_target",
+        modifier = "modifier_item_idol_of_screaawk_active",
+        requires_enemy = true,
+        search_range = 1200,
+    },
+    flayers_bota = {
+        item_name = "item_flayers_bota",
+        display_name = "Flayer's Bota",
+        type = "no_target",
+        modifier = "modifier_item_flayers_boots_active",
+        requires_enemy = true,
+        search_range = 1200,
+    },
+    metamorphic_mandible = {
+        item_name = "item_metamorphic_mandible",
+        display_name = "Metamorphic Mandible",
+        type = "no_target",
+        modifier = "modifier_item_metamorphic_mandible_active",
+        requires_enemy = true,
+        search_range = 1200,
+    },
+    ash_legion_shield = {
+        item_name = "item_ash_legion_shield",
+        display_name = "Ash Legion Shield",
+        type = "no_target",
+        modifier = "modifier_item_ash_legion_shield_active",
+        requires_enemy = true,
+        search_range = 1200,
+    },
 }
 
 local ABILITY_DEFINITIONS = {
@@ -780,6 +792,12 @@ local priority_keys = {
     "pavise",
     "drums",
     "boots_of_bearing",
+    "essence_ring",
+    "psychic_headband",
+    "idol_of_screeauk",
+    "flayers_bota",
+    "metamorphic_mandible",
+    "ash_legion_shield",
     "atos",
     "hex",
     "abyssal",
@@ -1241,7 +1259,7 @@ for _, item in ipairs(priority_items) do
             item_enemy_min_counts[key] = enemy_range_group:Slider(
                 min_label,
                 0,
-                10,
+                5,
                 1,
                 function(value)
                     return string.format("%d", value)
