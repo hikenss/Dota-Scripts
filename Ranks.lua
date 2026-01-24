@@ -1,6 +1,6 @@
 local MMRTracker = {}
 
--- [[ 0. PERSISTENT STORAGE ]]
+-- [[ 0. ПЕРСИСТЕНТНОЕ ХРАНИЛИЩЕ ]]
 local DB_KEY = "mmr_tracker_ult"
 
 local function InitDB()
@@ -12,52 +12,52 @@ local function InitDB()
     end
 end
 
--- [[ 1. MENU ]]
+-- [[ 1. МЕНЮ ]]
 
-local g_main = Menu.Create("Scripts", "Other", "MMR Tracker Ultimate", "Settings", "Main")
+local g_main = Menu.Create("Scripts", "Outros", "MMR Tracker Ultimate", "Configurações", "Principal")
 g_main:Parent():Parent():Icon("\u{f080}")
 
-local s_enable      = g_main:Switch("Enable Panel", true)
-local s_lock        = g_main:Switch("Lock Position", false)
-local s_transparent = g_main:Switch("Transparent Background", true)
-local s_trans_alpha = g_main:Slider("Background Opacity", 0, 100, 60, "%d%%")
+local s_enable      = g_main:Switch("Ativar painel", true)
+local s_lock        = g_main:Switch("Bloquear posição", false)
+local s_transparent = g_main:Switch("Fundo transparente", true)
+local s_trans_alpha = g_main:Slider("Opacidade do fundo", 0, 100, 60, "%d%%")
 
 local s_x           = g_main:Slider("Pos X", 0, 1920, 300, "%d")
 local s_y           = g_main:Slider("Pos Y", 0, 1080, 100, "%d")
 s_x:Visible(false)
 s_y:Visible(false)
 
-g_main:Button("Reset Position", function()
+g_main:Button("Redefinir posição", function()
     s_x:Set(300)
     s_y:Set(100)
 end)
 
 -- === ГРУППА 2: СТАТИСТИКА ===
-local g_stats        = Menu.Create("Scripts", "Other", "MMR Tracker Ultimate", "Settings", "\u{f080} Statistics")
+local g_stats        = Menu.Create("Scripts", "Outros", "MMR Tracker Ultimate", "Configurações", "\u{f080} Estatísticas")
 
-local s_session_show = g_stats:Switch("Show Session", true)
+local s_session_show = g_stats:Switch("Mostrar sessão", true)
 
-g_stats:Button("Reset Session", function()
+g_stats:Button("Сбросить сессию", function()
     MMRTracker.ResetSession()
 end)
 
 -- === ГРУППА 3: КАЛЬКУЛЯТОР ===
-local g_calc        = Menu.Create("Scripts", "Other", "MMR Tracker Ultimate", "Settings", "\u{f1ec} Calculator")
+local g_calc        = Menu.Create("Scripts", "Outros", "MMR Tracker Ultimate", "Configurações", "\u{f1ec} Calculadora")
 
-local s_avg_delta   = g_calc:Slider("Average MMR per Game", 10, 100, 25, "%d")
-local s_calc_show   = g_calc:Switch("Show Games Calculator", true)
-local s_target_use  = g_calc:Switch("Use Custom Target", false)
-local s_target_val  = g_calc:Slider("Target MMR", 1000, 12000, 5000, "%d")
-local s_rank_icon   = g_calc:Switch("Show Rank Icon", false)
+local s_avg_delta   = g_calc:Slider("MMR médio por jogo", 10, 100, 25, "%d")
+local s_calc_show   = g_calc:Switch("Mostrar calculadora de partidas", true)
+local s_target_use  = g_calc:Switch("Usar meta própria", false)
+local s_target_val  = g_calc:Slider("Meta de MMR", 1000, 12000, 5000, "%d")
+local s_rank_icon   = g_calc:Switch("Mostrar ícone de ranking", false)
 
 -- === ГРУППА 4: TILT GUARD ===
-local g_tilt        = Menu.Create("Scripts", "Other", "MMR Tracker Ultimate", "Settings", "\u{f132} Tilt Guard")
+local g_tilt        = Menu.Create("Scripts", "Outros", "MMR Tracker Ultimate", "Configurações", "\u{f132} Tilt Guard")
 
-local s_tilt_enable = g_tilt:Switch("Enable Tilt Protection", true)
-local s_tilt_limit  = g_tilt:Slider("Loss Limit for Alert", 50, 200, 75, "-%d")
+local s_tilt_enable = g_tilt:Switch("Ativar proteção contra tilt", true)
+local s_tilt_limit  = g_tilt:Slider("Limite de perda para alerta", 50, 200, 75, "-%d")
 
 
--- [[ 2. CONFIGURATION AND DATA ]]
+-- [[ 2. КОНФИГУРАЦИЯ И ДАННЫЕ ]]
 
 local theme = {
     bg          = Color(20, 20, 20, 255),
@@ -77,7 +77,6 @@ local theme = {
 }
 
 local fonts = {
-    -- Segoe UI has clean shapes and works well for overlays; using boldish weight for readability
     main = Render.LoadFont("Segoe UI", Enum.FontCreate.FONTFLAG_ANTIALIAS, Enum.FontWeight.BOLD),
     bold = Render.LoadFont("Segoe UI", Enum.FontCreate.FONTFLAG_ANTIALIAS, Enum.FontWeight.BOLD),
     small = Render.LoadFont("Segoe UI", Enum.FontCreate.FONTFLAG_ANTIALIAS, Enum.FontWeight.NORMAL),
@@ -85,102 +84,29 @@ local fonts = {
     warn = Render.LoadFont("Segoe UI", Enum.FontCreate.FONTFLAG_ANTIALIAS, Enum.FontWeight.BOLD)
 }
 
-local function mmr_to_rank_tier(mmr)
-    if mmr >= 5620 then
-        return 80
-    elseif mmr >= 5420 then
-        return 75
-    elseif mmr >= 5220 then
-        return 74
-    elseif mmr >= 5020 then
-        return 73
-    elseif mmr >= 4820 then
-        return 72
-    elseif mmr >= 4620 then
-        return 71
-    elseif mmr >= 4466 then
-        return 65
-    elseif mmr >= 4312 then
-        return 64
-    elseif mmr >= 4158 then
-        return 63
-    elseif mmr >= 4004 then
-        return 62
-    elseif mmr >= 3850 then
-        return 61
-    elseif mmr >= 3696 then
-        return 55
-    elseif mmr >= 3542 then
-        return 54
-    elseif mmr >= 3388 then
-        return 53
-    elseif mmr >= 3234 then
-        return 52
-    elseif mmr >= 3080 then
-        return 51
-    elseif mmr >= 2926 then
-        return 45
-    elseif mmr >= 2772 then
-        return 44
-    elseif mmr >= 2618 then
-        return 43
-    elseif mmr >= 2464 then
-        return 42
-    elseif mmr >= 2310 then
-        return 41
-    elseif mmr >= 2156 then
-        return 35
-    elseif mmr >= 2002 then
-        return 34
-    elseif mmr >= 1848 then
-        return 33
-    elseif mmr >= 1694 then
-        return 32
-    elseif mmr >= 1540 then
-        return 31
-    elseif mmr >= 1386 then
-        return 25
-    elseif mmr >= 1232 then
-        return 24
-    elseif mmr >= 1078 then
-        return 23
-    elseif mmr >= 924 then
-        return 22
-    elseif mmr >= 770 then
-        return 21
-    elseif mmr >= 616 then
-        return 15
-    elseif mmr >= 462 then
-        return 14
-    elseif mmr >= 308 then
-        return 13
-    elseif mmr >= 154 then
-        return 12
-    elseif mmr > 0 then
-        return 11
+local rank_icon_thresholds = {
+    {5620, 80}, {5420, 75}, {5220, 74}, {5020, 73}, {4820, 72}, {4620, 71},
+    {4466, 65}, {4312, 64}, {4158, 63}, {4004, 62}, {3850, 61},
+    {3696, 55}, {3542, 54}, {3388, 53}, {3234, 52}, {3080, 51},
+    {2926, 45}, {2772, 44}, {2618, 43}, {2464, 42}, {2310, 41},
+    {2156, 35}, {2002, 34}, {1848, 33}, {1694, 32}, {1540, 31},
+    {1386, 25}, {1232, 24}, {1078, 23}, {924, 22}, {770, 21},
+    {616, 15}, {462, 14}, {308, 13}, {154, 12}
+}
+
+local function rank_icon_id(mmr)
+    for _, t in ipairs(rank_icon_thresholds) do
+        if mmr >= t[1] then return t[2] end
     end
-    return 0
+    return mmr > 0 and 11 or 0
 end
 
 local session = {
     startMMR = 0,
     initialized = false,
     wins = 0,
-    losses = 0,
-    weekStart = 0
+    losses = 0
 }
-
--- Função para obter o timestamp do início da semana atual (segunda-feira 00:00)
-local function GetWeekStart()
-    local time = os.time()
-    local date = os.date("*t", time)
-    -- Dia da semana: 1 = Domingo, 2 = Segunda, ..., 7 = Sábado
-    local dayOfWeek = date.wday
-    -- Calcular dias desde segunda-feira (2 = segunda)
-    local daysSinceMonday = (dayOfWeek == 1) and 6 or (dayOfWeek - 2)
-    -- Retornar timestamp da segunda-feira às 00:00
-    return time - (daysSinceMonday * 86400) - (date.hour * 3600) - (date.min * 60) - date.sec
-end
 
 local rank_icon_cache = {}
 
@@ -205,79 +131,51 @@ local rankTable = {
     { 5600, "Immortal", 0 }
 }
 
--- [[ 3. LOGIC ]]
+-- [[ 3. ЛОГИКА ]]
+
+local function save_session(mmr, steam, wins, losses)
+    db["x"][DB_KEY]["session_start_mmr"] = mmr
+    db["x"][DB_KEY]["session_steam_id"] = steam
+    db["x"][DB_KEY]["session_wins"] = wins or 0
+    db["x"][DB_KEY]["session_losses"] = losses or 0
+end
+
+local function load_or_init_session(mmr, steam)
+    if mmr <= 0 then
+        session.initialized, session.startMMR, session.wins, session.losses = false, 0, 0, 0
+        save_session(nil, nil, nil, nil)
+        return
+    end
+
+    local stored_id = db["x"][DB_KEY]["session_steam_id"]
+    if stored_id ~= steam or db["x"][DB_KEY]["session_start_mmr"] == nil then
+        session.startMMR, session.wins, session.losses, session.initialized = mmr, 0, 0, true
+        save_session(mmr, steam, 0, 0)
+    else
+        session.startMMR = db["x"][DB_KEY]["session_start_mmr"]
+        session.wins = db["x"][DB_KEY]["session_wins"] or 0
+        session.losses = db["x"][DB_KEY]["session_losses"] or 0
+        session.initialized = true
+    end
+end
 
 function MMRTracker.ResetSession()
-    session.initialized = false
-    session.startMMR = 0
-    session.wins = 0
-    session.losses = 0
-    session.weekStart = GetWeekStart()
-    state.lastMMR = 0
-    state.mmr_diff = 0
-
     InitDB()
-    local mmr = Engine.GetMMRV2()
-    local steamid = GC.GetSteamID()
-    if mmr > 0 then
-        session.startMMR = mmr
-        session.initialized = true
-        db["x"][DB_KEY]["session_start_mmr"] = mmr
-        db["x"][DB_KEY]["session_steam_id"] = steamid
-        db["x"][DB_KEY]["session_wins"] = 0
-        db["x"][DB_KEY]["session_losses"] = 0
-        db["x"][DB_KEY]["session_week_start"] = session.weekStart
-    else
-        db["x"][DB_KEY]["session_start_mmr"] = nil
-        db["x"][DB_KEY]["session_steam_id"] = nil
-        db["x"][DB_KEY]["session_wins"] = nil
-        db["x"][DB_KEY]["session_losses"] = nil
-        db["x"][DB_KEY]["session_week_start"] = nil
-    end
-    db["x"][DB_KEY]["mmr"] = nil
-    db["x"][DB_KEY]["steam_id"] = nil
+    local mmr, steamid = Engine.GetMMRV2(), GC.GetSteamID()
+    state.lastMMR, state.mmr_diff = 0, 0
+    load_or_init_session(mmr, steamid)
+    db["x"][DB_KEY]["mmr"], db["x"][DB_KEY]["steam_id"] = nil, nil
 end
 
 function MMRTracker.OnGameThreadInit()
     InitDB()
-
-    local mmr = Engine.GetMMRV2()
-    local steamid = GC.GetSteamID()
-    local currentWeekStart = GetWeekStart()
-
-    -- Carrega sessão salva
-    local savedWeekStart = db["x"][DB_KEY]["session_week_start"]
-    local savedMMR = db["x"][DB_KEY]["session_start_mmr"]
-    local savedWins = db["x"][DB_KEY]["session_wins"] or 0
-    local savedLosses = db["x"][DB_KEY]["session_losses"] or 0
-
-    -- Verifica se a sessão é da semana atual
-    if savedWeekStart and savedWeekStart == currentWeekStart and savedMMR and mmr > 0 then
-        -- Sessão válida: carrega dados salvos
-        session.startMMR = savedMMR
-        session.wins = savedWins
-        session.losses = savedLosses
-        session.weekStart = savedWeekStart
-        session.initialized = true
-    elseif mmr > 0 then
-        -- Nova semana ou primeira vez: reseta a sessão
-        session.startMMR = mmr
-        session.wins = 0
-        session.losses = 0
-        session.weekStart = currentWeekStart
-        session.initialized = true
-        db["x"][DB_KEY]["session_start_mmr"] = mmr
-        db["x"][DB_KEY]["session_steam_id"] = steamid
-        db["x"][DB_KEY]["session_wins"] = 0
-        db["x"][DB_KEY]["session_losses"] = 0
-        db["x"][DB_KEY]["session_week_start"] = currentWeekStart
+    local mmr, steamid = Engine.GetMMRV2(), GC.GetSteamID()
+    if db["x"][DB_KEY]["mmr"] and db["x"][DB_KEY]["steam_id"] == steamid then
+        state.mmr_diff = mmr - db["x"][DB_KEY]["mmr"]
     end
-
-    db["x"][DB_KEY]["mmr"] = mmr
-    db["x"][DB_KEY]["steam_id"] = steamid
-
+    load_or_init_session(mmr, steamid)
+    db["x"][DB_KEY]["mmr"], db["x"][DB_KEY]["steam_id"] = mmr, steamid
     state.lastMMR = mmr
-    state.mmr_diff = 0
 end
 
 local function GetRankInfo(mmr)
@@ -285,19 +183,21 @@ local function GetRankInfo(mmr)
 
     local current = { mmr = 0, name = "Herald", tier = 1 }
     local nextRank = nil
-    
-    -- Procura o rank atual: o último rank cujo MMR mínimo é <= ao MMR do jogador
-    for i = #rankTable, 1, -1 do
-        local data = rankTable[i]
-        if mmr >= data[1] then
-            current = { mmr = data[1], name = data[2], tier = data[3] }
-            -- Próximo rank é o seguinte na tabela, se existir
-            if i < #rankTable then
-                local next = rankTable[i + 1]
-                nextRank = { mmr = next[1], name = next[2], tier = next[3] }
+    for i, data in ipairs(rankTable) do
+        if mmr < data[1] then
+            nextRank = { mmr = data[1], name = data[2], tier = data[3] }
+            if i > 1 then
+                local prev = rankTable[i - 1]
+                current = { mmr = prev[1], name = prev[2], tier = prev[3] }
             end
             break
         end
+    end
+
+    -- Immortal: если цикл прошел без break (MMR >= 5600)
+    if not nextRank and #rankTable > 0 then
+        local last = rankTable[#rankTable]
+        current = { mmr = last[1], name = last[2], tier = last[3] }
     end
 
     return current, nextRank
@@ -321,7 +221,7 @@ local function HandleDrag(pos, size)
 end
 
 
--- [[ 4. RENDERING ]]
+-- [[ 4. ОТРИСОВКА ]]
 
 function MMRTracker.OnFrame()
     if not s_enable:Get() then
@@ -338,50 +238,30 @@ function MMRTracker.OnFrame()
     local pos = Vec2(s_x:Get(), s_y:Get())
     local myMMR = Engine.GetMMRV2()
 
-    -- Verifica se mudou de semana
-    local currentWeekStart = GetWeekStart()
-    if session.initialized and session.weekStart ~= currentWeekStart then
-        -- Nova semana: reseta sessão
-        MMRTracker.ResetSession()
-    end
-
-    if not session.initialized and myMMR > 0 then
-        InitDB()
-        local steamid = GC.GetSteamID()
-        session.startMMR = myMMR
-        session.wins = 0
-        session.losses = 0
-        session.weekStart = currentWeekStart
-        session.initialized = true
-        db["x"][DB_KEY]["session_start_mmr"] = myMMR
-        db["x"][DB_KEY]["session_steam_id"] = steamid
-        db["x"][DB_KEY]["session_wins"] = 0
-        db["x"][DB_KEY]["session_losses"] = 0
-        db["x"][DB_KEY]["session_week_start"] = currentWeekStart
-    end
+    if not session.initialized and myMMR > 0 then load_or_init_session(myMMR, GC.GetSteamID()) end
 
     local currentRank, nextRank = GetRankInfo(myMMR)
     local avgGain = s_avg_delta:Get()
 
     -- [[ РАСЧЕТ РАЗМЕРА И ОТСТУПОВ ]]
-    local pad_x = 6
-    local pad_y = 8
-    local gap = 4
+    local pad_x = 12
+    local pad_y = 12
+    local gap = 6
 
     -- 1. Высота блока Ранга
     local h_rank = 0
     if myMMR == 0 then
-        h_rank = 42
+        h_rank = 55
     elseif not nextRank then
-        h_rank = 28
+        h_rank = 35
     else
-        h_rank = 38 -- Name + Bar + Subtext
+        h_rank = 48 -- Name + Bar + Subtext
     end
 
     -- 2. Высота блока Статистики
     local h_stats = 0
     if session.initialized and session.startMMR > 0 then
-        h_stats = 16 -- Winrate line
+        h_stats = 20 -- Winrate line
     end
 
     -- Считает полную высоту
@@ -396,7 +276,7 @@ function MMRTracker.OnFrame()
     if dt > 0.1 then dt = 0.016 end
     state.ui_height = math.lerp(state.ui_height, total_h, dt * 10)
 
-    local size = Vec2(180, state.ui_height)
+    local size = Vec2(285, state.ui_height)
 
     -- Для OnKeyEvent
     state.panel_pos = pos
@@ -436,34 +316,33 @@ function MMRTracker.OnFrame()
     -- [[ 1. ОТРИСОВКА РАНГА ]]
     if myMMR == 0 then
         -- Uncalibrated
-        Render.Text(fonts.icon, 16, "\u{f059}", Vec2(contentX, pos.y + drawY), theme.accent)
-        Render.Text(fonts.main, 14, "Uncalibrated", Vec2(contentX + 24, pos.y + drawY), theme.text)
+        Render.Text(fonts.icon, 20, "\u{f059}", Vec2(contentX, pos.y + drawY), theme.accent)
+        Render.Text(fonts.main, 16, "Uncalibrated", Vec2(contentX + 30, pos.y + drawY), theme.text)
 
-        drawY = drawY + 20
+        drawY = drawY + 25
 
         local barStart = Vec2(contentX, pos.y + drawY)
-        Render.FilledRect(barStart, barStart + Vec2(contentW, 4), Color(0, 0, 0, 150), 2)
+        Render.FilledRect(barStart, barStart + Vec2(contentW, 6), Color(0, 0, 0, 150), 3)
 
-        drawY = drawY + 8
-        Render.Text(fonts.small, 11, "Play Ranked to unlock", Vec2(contentX, pos.y + drawY), theme.subtext)
+        drawY = drawY + 12
+        Render.Text(fonts.small, 12, "Play Ranked to unlock", Vec2(contentX, pos.y + drawY), theme.subtext)
 
         drawY = drawY + 20
     elseif not nextRank then
         -- Immortal
-        local rank_tier = mmr_to_rank_tier(myMMR)
-        local rank_tier_id = math.floor(rank_tier / 10)
-        local iconSize = 20
+        local rank_tier_id = math.floor(rank_icon_id(myMMR) / 10)
+        local iconSize = 24
 
         if s_rank_icon:Get() and rank_icon_cache[rank_tier_id] then
             Render.Image(rank_icon_cache[rank_tier_id], Vec2(contentX, pos.y + drawY), Vec2(iconSize, iconSize),
                 Color(255, 255, 255, 255))
         else
-            Render.Text(fonts.icon, 16, "\u{f091}", Vec2(contentX, pos.y + drawY), theme.accent)
+            Render.Text(fonts.icon, 20, "\u{f091}", Vec2(contentX, pos.y + drawY), theme.accent)
         end
 
-        Render.Text(fonts.main, 14, "Immortal", Vec2(contentX + 28, pos.y + drawY), theme.accent)
-        Render.Text(fonts.small, 12, tostring(myMMR),
-            Vec2(pos.x + size.x - pad_x - Render.TextSize(fonts.small, 12, tostring(myMMR)).x, pos.y + drawY + 1),
+        Render.Text(fonts.main, 16, "Immortal", Vec2(contentX + 35, pos.y + drawY), theme.accent)
+        Render.Text(fonts.small, 14, tostring(myMMR),
+            Vec2(pos.x + size.x - pad_x - Render.TextSize(fonts.small, 14, tostring(myMMR)).x, pos.y + drawY + 2),
             theme.text)
 
         drawY = drawY + h_rank
@@ -475,21 +354,19 @@ function MMRTracker.OnFrame()
         -- Icon + Names
         local iconW = 0
         if s_rank_icon:Get() then
-            local rank_tier = mmr_to_rank_tier(myMMR)
-            local rank_tier_id = math.floor(rank_tier / 10)
+            local rank_tier_id = math.floor(rank_icon_id(myMMR) / 10)
             if rank_icon_cache[rank_tier_id] == nil then
-                rank_icon_cache[rank_tier_id] = Render.LoadImage("panorama/images/rank_tier_icons/rank" ..
-                    tostring(rank_tier_id) .. "_psd.vtex_c")
+                rank_icon_cache[rank_tier_id] = Render.LoadImage("panorama/images/rank_tier_icons/rank" .. tostring(rank_tier_id) .. "_psd.vtex_c")
             end
             -- Fix icon alignment: center vertically with text
-            Render.Image(rank_icon_cache[rank_tier_id], Vec2(contentX, pos.y + drawY - 1), Vec2(18, 18),
+            Render.Image(rank_icon_cache[rank_tier_id], Vec2(contentX, pos.y + drawY - 2), Vec2(22, 22),
                 Color(255, 255, 255, 255))
-            iconW = 22
+            iconW = 28
         end
 
-        Render.Text(fonts.main, 13, curName, Vec2(contentX + iconW, pos.y + drawY), theme.text)
+        Render.Text(fonts.main, 15, curName, Vec2(contentX + iconW, pos.y + drawY), theme.text)
 
-        drawY = drawY + 18
+        drawY = drawY + 22
 
         -- Progress Bar
         local barStart = Vec2(contentX, pos.y + drawY)
@@ -498,16 +375,16 @@ function MMRTracker.OnFrame()
         local progress = myMMR - startRange
         local pct = math.max(0, math.min(1, progress / totalRange))
 
-        Render.FilledRect(barStart, barStart + Vec2(contentW, 4), Color(0, 0, 0, 150), 2)
+        Render.FilledRect(barStart, barStart + Vec2(contentW, 6), Color(0, 0, 0, 150), 3)
         if pct > 0 then
-            Render.FilledRect(barStart, barStart + Vec2(contentW * pct, 4), theme.bar, 2)
+            Render.FilledRect(barStart, barStart + Vec2(contentW * pct, 6), theme.bar, 3)
         end
 
-        drawY = drawY + 8
+        drawY = drawY + 10
 
         -- Subtext (MMR / Target ... Wins)
         local mmrStr = string.format("%d / %d", myMMR, targetVal)
-        Render.Text(fonts.small, 11, mmrStr, Vec2(contentX, pos.y + drawY), theme.subtext)
+        Render.Text(fonts.small, 12, mmrStr, Vec2(contentX, pos.y + drawY), theme.subtext)
 
         if s_calc_show:Get() then
             local needed = targetVal - myMMR
@@ -515,12 +392,12 @@ function MMRTracker.OnFrame()
                 local wins = math.ceil(needed / avgGain)
                 local dd = math.ceil(needed / (avgGain * 2))
                 local tStr = string.format("%d W (%d DD)", wins, dd)
-                local tSize = Render.TextSize(fonts.small, 11, tStr)
-                Render.Text(fonts.small, 11, tStr, Vec2(pos.x + size.x - pad_x - tSize.x, pos.y + drawY), theme.text)
+                local tSize = Render.TextSize(fonts.small, 12, tStr)
+                Render.Text(fonts.small, 12, tStr, Vec2(pos.x + size.x - pad_x - tSize.x, pos.y + drawY), theme.text)
             end
         end
 
-        drawY = drawY + 12
+        drawY = drawY + 15
     end
 
     -- [[ 2. СТАТИСТИКА ]]
@@ -530,7 +407,7 @@ function MMRTracker.OnFrame()
         -- Separator
         Render.FilledRect(Vec2(contentX, pos.y + drawY), Vec2(pos.x + size.x - pad_x, pos.y + drawY + 1),
             Color(255, 255, 255, 15))
-        drawY = drawY + 4
+        drawY = drawY + 6
 
         -- Session Winrate
         local totalGames = session.wins + session.losses
@@ -539,12 +416,12 @@ function MMRTracker.OnFrame()
             winrate = (session.wins / totalGames) * 100
         end
 
-        local wrStr = string.format("%.0f%% %dW/%dL", winrate, session.wins, session.losses)
+        local wrStr = string.format("Session WR: %.1f%% (%dW %dL)", winrate, session.wins, session.losses)
         local wrCol = theme.text
         if winrate >= 50 then wrCol = theme.win else wrCol = theme.loss end
         if totalGames == 0 then wrCol = theme.subtext end
 
-        Render.Text(fonts.small, 11, wrStr, Vec2(contentX, pos.y + drawY), wrCol)
+        Render.Text(fonts.small, 13, wrStr, Vec2(contentX, pos.y + drawY), wrCol)
 
         -- Session Diff (Right aligned)
         local sessStr = "0"
@@ -557,8 +434,8 @@ function MMRTracker.OnFrame()
             sessCol = theme.loss
         end
 
-        local sSize = Render.TextSize(fonts.small, 11, sessStr)
-        Render.Text(fonts.small, 11, sessStr, Vec2(pos.x + size.x - pad_x - sSize.x, pos.y + drawY), sessCol)
+        local sSize = Render.TextSize(fonts.small, 13, sessStr)
+        Render.Text(fonts.small, 13, sessStr, Vec2(pos.x + size.x - pad_x - sSize.x, pos.y + drawY), sessCol)
     end
 end
 

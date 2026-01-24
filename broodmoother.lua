@@ -84,8 +84,8 @@ end
 local Config = {
     UI = {
         TabName = "Heroes",
-        ScriptName = "Herois Addons",
-        ScriptID = "brood_alfeev",
+        ScriptName = "Hero List",
+        ScriptID = "Broodmother",
         Icons = {
             Main = "\u{f188}",
             Soul = "\u{f06e}",
@@ -124,13 +124,13 @@ local Config = {
 
 local function InitializeUI()
     local tab = Menu.Create(Config.UI.TabName, Config.UI.ScriptName, Config.UI.ScriptID)
-    tab:Icon(Config.UI.Icons.Main)
 
-    local mainGroup = tab:Create(Config.UI.Groups.Main):Create("Principal")
-    local spiderGroup = tab:Create(Config.UI.Groups.SpiderControl):Create("Controle de Aranhas")
-    local itemsGroup = tab:Create(Config.UI.Groups.Items):Create("Itens")
-    local webGroup = tab:Create(Config.UI.Groups.WebHelper):Create("Teias")
-    local stackGroup = tab:Create(Config.UI.Groups.AutoStack):Create("Auto-Stack")
+    local mainSettings = tab:Create("Main Settings")
+    local mainGroup = mainSettings:Create(Config.UI.Groups.Main)
+    local spiderGroup = mainSettings:Create(Config.UI.Groups.SpiderControl)
+    local itemsGroup = mainSettings:Create(Config.UI.Groups.Items)
+    local webGroup = mainSettings:Create(Config.UI.Groups.WebHelper)
+    local stackGroup = mainSettings:Create(Config.UI.Groups.AutoStack)
 
     return {
         Enabled = mainGroup:Switch("Ativar Script", true, Config.UI.Icons.Main),

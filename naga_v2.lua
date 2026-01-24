@@ -14,8 +14,8 @@ end
 local Config = {
     UI = {
         TabName = "Heroes",
-        ScriptName = "Herois Addons",
-        ScriptID = "naga_illusions",
+        ScriptName = "Hero List",
+        ScriptID = "Naga Siren",
         Icons = {
             Main = "\u{f6b6}",
             Rush = "\u{f554}",
@@ -71,16 +71,16 @@ local Config = {
 
 local function InitializeUI()
     local tab = Menu.Create(Config.UI.TabName, Config.UI.ScriptName, Config.UI.ScriptID)
-    tab:Icon(Config.UI.Icons.Main)
-    local mainGroup = tab:Create(Config.UI.Groups.Main):Create("Group")
-    local illusionGroup = tab:Create(Config.UI.Groups.Illusions):Create("Group")
-    local settingsGroup = tab:Create(Config.UI.Groups.Settings):Create("Main settings")
-    local baitGroup = tab:Create(Config.UI.Groups.AutoBait):Create("Auto Bait")
-    local followGroup = tab:Create(Config.UI.Groups.AutoFollow):Create("Auto Follow")
-    local chaseGroup = tab:Create(Config.UI.Groups.AutoChase):Create("Auto Chase")
-    local splitGroup = tab:Create(Config.UI.Groups.AutoSplit):Create("Auto Split")
-    local runAwayGroup = tab:Create(Config.UI.Groups.RunAway):Create("Illusions Run Away")
-    local surroundGroup = tab:Create(Config.UI.Groups.Surround):Create("Surround Enemy")
+    local mainSettings = tab:Create("Main Settings")
+    local mainGroup = mainSettings:Create(Config.UI.Groups.Main)
+    local illusionGroup = mainSettings:Create(Config.UI.Groups.Illusions)
+    local settingsGroup = mainSettings:Create(Config.UI.Groups.Settings)
+    local baitGroup = mainSettings:Create(Config.UI.Groups.AutoBait)
+    local followGroup = mainSettings:Create(Config.UI.Groups.AutoFollow)
+    local chaseGroup = mainSettings:Create(Config.UI.Groups.AutoChase)
+    local splitGroup = mainSettings:Create(Config.UI.Groups.AutoSplit)
+    local runAwayGroup = mainSettings:Create(Config.UI.Groups.RunAway)
+    local surroundGroup = mainSettings:Create(Config.UI.Groups.Surround)
     return {
         AutoRush = {
             Enabled = mainGroup:Switch("Mirror Image automático para ilusões", true, Config.UI.Icons.Rush),

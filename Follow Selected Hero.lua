@@ -12,11 +12,11 @@ local function BuildUI()
     if built then return end
 
     -- Use same menu pattern as other scripts (3-arg Create + double Create)
-    local tab = Menu.Create("Heroes", "Herois Addons", "Auto_iO")
-    tab:Icon("\u{f554}") -- walking icon
+    local tab = Menu.Create("Heroes", "Hero List", "Io")
 
     -- Main controls
-    local group = tab:Create("Main"):Create("Controles")
+    local mainSettings = tab:Create("Main Settings")
+    local group = mainSettings:Create("Auto Follow")
     ui.enabled = group:Switch("Ativar", true, "\u{f011}")
     ui.team = group:Combo("Time do Alvo", {"Aliados", "Inimigos"}, 0)
     -- Default to "None" so script does not follow anyone until the user explicitly selects
@@ -40,7 +40,7 @@ local function BuildUI()
     ui.min_allies = group:Slider("Mínimo de Aliados no Grupo", 1, 5, 2, "%d")
 
     -- Io Assistant (new menu for Io-only features)
-    local ioTab = tab:Create("Assistente Io"):Create("Tether")
+    local ioTab = mainSettings:Create("Tether Settings")
     ui.io_enabled = ioTab:Switch("Ativar Auto Tether do Io", true, "\u{f0c1}") -- link icon
     ui.io_use_follow_target = ioTab:Switch("Usar Alvo de Seguimento (Aliados)", true, "\u{f058}")
 

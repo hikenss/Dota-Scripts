@@ -6188,19 +6188,25 @@ local function UseDefensiveItemsOnAllies(myHero, targetHero)
 
             local distance = (myPos - allyPos):Length()
 
-            -- Critério simples: HP < 25% E tem inimigo próximo (500 range)
+            -- Critério simples: HP < 30% E tem inimigo próximo (500 range)
             local allyHP = Entity.GetHealth(targetHero)
             local allyMaxHP = Entity.GetMaxHealth(targetHero)
             local allyHPPercent = (allyHP / allyMaxHP) * 100
             local enemiesNearAlly = CountEnemiesNearAlly(targetHero, 500)
 
-            if allyHPPercent >= 25 or enemiesNearAlly < 1 then
+            if allyHPPercent >= 30 or enemiesNearAlly < 1 then
                 goto continue_earth_grip
             end
 
             -- Range baseado no nível da skill: 550/600/650/700 base, 825/900/975/1050 com Aghanim
             local gripLevel = Ability.GetLevel(grip)
-            local hasAghanim = NPC.HasItem(myHero, "item_aghanims_shard", true)
+            if not gripLevel or gripLevel < 1 then
+                goto continue_earth_grip
+            end
+            
+            -- Tenta detectar Aghanim Shard de múltiplas formas
+            local hasAghanim = NPC.HasItem(myHero, "item_aghanims_shard", true) or 
+                               NPC.HasModifier(myHero, "modifier_item_aghanims_shard")
 
             
 
@@ -6211,10 +6217,14 @@ local function UseDefensiveItemsOnAllies(myHero, targetHero)
             
 
             local gripRange = hasAghanim and aghanimRanges[gripLevel] or baseRanges[gripLevel]
-
             
+            if not gripRange then
+                gripRange = 550
+            end
 
-            if Ability.IsCastable(grip, myMana) and distance <= gripRange then
+            -- Tenta castar se estiver no range correto da skill (+100 margem para segurança)
+
+            if Ability.IsCastable(grip, myMana) and distance <= (gripRange + 100) then
 
                 Ability.CastTarget(grip, targetHero)
 

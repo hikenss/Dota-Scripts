@@ -15,8 +15,8 @@ end
 local Config = {
     UI = {
         TabName = "Heroes",
-        ScriptName = "Herois Addons",
-        ScriptID = "pl_illusions",
+        ScriptName = "Hero List",
+        ScriptID = "Phantom Lancer",
         Icons = {
             Main = "\u{f6b6}",
             Rush = "\u{f554}",
@@ -66,15 +66,15 @@ local Config = {
 
 local function InitializeUI()
     local tab = Menu.Create(Config.UI.TabName, Config.UI.ScriptName, Config.UI.ScriptID)
-    tab:Icon(Config.UI.Icons.Main)
-    local mainGroup = tab:Create(Config.UI.Groups.Main):Create("Grupo Principal")
-    local illusionGroup = tab:Create(Config.UI.Groups.Illusions):Create("Ilusões")
-    local settingsGroup = tab:Create(Config.UI.Groups.Settings):Create("Configurações Principais")
-    local baitGroup = tab:Create(Config.UI.Groups.AutoBait):Create("Isca Automática")
-    local followGroup = tab:Create(Config.UI.Groups.AutoFollow):Create("Seguir Automático")
-    local chaseGroup = tab:Create(Config.UI.Groups.AutoChase):Create("Perseguir Automático")
-    local splitGroup = tab:Create(Config.UI.Groups.AutoSplit):Create("Ataque Dividido Automático")
-    local runAwayGroup = tab:Create(Config.UI.Groups.RunAway):Create("Fuga das Ilusões")
+    local mainSettings = tab:Create("Main Settings")
+    local mainGroup = mainSettings:Create(Config.UI.Groups.Main)
+    local illusionGroup = mainSettings:Create(Config.UI.Groups.Illusions)
+    local settingsGroup = mainSettings:Create(Config.UI.Groups.Settings)
+    local baitGroup = mainSettings:Create(Config.UI.Groups.AutoBait)
+    local followGroup = mainSettings:Create(Config.UI.Groups.AutoFollow)
+    local chaseGroup = mainSettings:Create(Config.UI.Groups.AutoChase)
+    local splitGroup = mainSettings:Create(Config.UI.Groups.AutoSplit)
+    local runAwayGroup = mainSettings:Create(Config.UI.Groups.RunAway)
     return {
         AutoRush = {
             Enabled = mainGroup:Switch("Phantom Rush automático para ilusões", true, Config.UI.Icons.Rush),

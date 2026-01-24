@@ -250,19 +250,17 @@ end
 -- ============================================================================
 local CourierPanelModule = {
     ui = {},
-    panel_size = Vec2(120, 45),
+    panel_size = Vec2(160, 55),
     font = nil,
     dragging = false,
-    drag_offset = Vec2(0, 0),
-    drag_start_pos = nil
+    drag_offset = Vec2(0, 0)
 }
 
 function CourierPanelModule:Init(courier_group)
-    self.font = Render.LoadFont("Arial", 11, Enum.FontCreate.FONTFLAG_OUTLINE)
+    self.font = Render.LoadFont("Arial", 14, Enum.FontCreate.FONTFLAG_OUTLINE)
     self.ui.pos_x = courier_group:Slider("Panel Position X", 0, Render.ScreenSize().x, Render.ScreenSize().x * 0.85, "%.0f")
     self.ui.pos_y = courier_group:Slider("Panel Position Y", 0, Render.ScreenSize().y, Render.ScreenSize().y * 0.85, "%.0f")
 end
-
 
 function CourierPanelModule:OnDraw()
     local local_hero_on_draw = Heroes.GetLocal()
@@ -276,15 +274,13 @@ function CourierPanelModule:OnDraw()
     local panel_pos = Vec2(self.ui.pos_x:Get(), self.ui.pos_y:Get())
     local panel_end_pos = panel_pos + self.panel_size
     local rounding = 6.0
-    local mousePos = Input.GetCursorPos()
     
-    -- Drag logic
     if Input.IsKeyDown(Enum.ButtonCode.KEY_MOUSE1) then
+        local mousePos = Input.GetCursorPos()
         if not self.dragging then
              if Input.IsCursorInRect(panel_pos.x, panel_pos.y, self.panel_size.x, self.panel_size.y) then
                  self.dragging = true
                  self.drag_offset = panel_pos - mousePos
-                 self.drag_start_pos = mousePos
              end
         else
              local newPos = mousePos + self.drag_offset
@@ -294,20 +290,16 @@ function CourierPanelModule:OnDraw()
              panel_end_pos = panel_pos + self.panel_size
         end
     else
-        -- Reset dragging state when mouse is released
-        if self.dragging then
-            self.dragging = false
-            -- Don't reset drag_start_pos here, wait for next frame
-        end
+        self.dragging = false
     end
     
     Render.FilledRect(panel_pos, panel_end_pos, Color(30, 35, 40, 240), rounding)
     Render.OutlineGradient(panel_pos, panel_end_pos, Color(0, 0, 0, 200), Color(0, 0, 0, 200), Color(0, 0, 0, 200), Color(0, 0, 0, 200), rounding, Enum.DrawFlags.None, 1.0)
-    Render.Text(self.font, 11, "Courier:", panel_pos + Vec2(8, 3), Color(200, 200, 200, 255))
+    Render.Text(self.font, 14, "Courier Delivery:", panel_pos + Vec2(10, 5), Color(200, 200, 200, 255))
     
-    local switch_rect_start = panel_pos + Vec2(8, 20)
-    local switch_width = self.panel_size.x - 16
-    local switch_height = 20
+    local switch_rect_start = panel_pos + Vec2(10, 25)
+    local switch_width = self.panel_size.x - 20
+    local switch_height = 22
     local switch_rect_end = switch_rect_start + Vec2(switch_width, switch_height)
     
     local is_hero_pref = (courier_target_preference == 1)
@@ -320,32 +312,15 @@ function CourierPanelModule:OnDraw()
     Render.FilledRect(active_start, active_end, Color(60, 100, 160, 255), 4.0)
     Render.OutlineGradient(active_start, active_end, Color(100, 150, 220, 255), Color(100, 150, 220, 255), Color(100, 150, 220, 255), Color(100, 150, 220, 255), 4.0, Enum.DrawFlags.None, 1.0)
     
-    local hero_text_size = Render.TextSize(self.font, 11, "HERO")
-    local bear_text_size = Render.TextSize(self.font, 11, "BEAR")
+    local hero_text_size = Render.TextSize(self.font, 14, "HERO")
+    local bear_text_size = Render.TextSize(self.font, 14, "BEAR")
     
-    Render.Text(self.font, 11, "HERO", switch_rect_start + Vec2((switch_width/2 - hero_text_size.x)/2, 3), is_hero_pref and Color(255,255,255,255) or Color(100,100,100,255))
-    Render.Text(self.font, 11, "BEAR", switch_rect_start + Vec2(switch_width/2 + (switch_width/2 - bear_text_size.x)/2, 3), not is_hero_pref and Color(255,255,255,255) or Color(100,100,100,255))
+    Render.Text(self.font, 14, "HERO", switch_rect_start + Vec2((switch_width/2 - hero_text_size.x)/2, 4), is_hero_pref and Color(255,255,255,255) or Color(100,100,100,255))
+    Render.Text(self.font, 14, "BEAR", switch_rect_start + Vec2(switch_width/2 + (switch_width/2 - bear_text_size.x)/2, 4), not is_hero_pref and Color(255,255,255,255) or Color(100,100,100,255))
     
-    -- Handle switch toggle
     if Input.IsCursorInRect(switch_rect_start.x, switch_rect_start.y, switch_width, switch_height) and Input.IsKeyDownOnce(Enum.ButtonCode.KEY_MOUSE1) then
-        -- Check if this was a drag or a click
-        local was_dragging = false
-        if self.drag_start_pos then
-            local drag_distance = (mousePos - self.drag_start_pos):Length()
-            was_dragging = drag_distance >= 5  -- 5 pixels threshold
-        end
-        
-        -- Only toggle if it wasn't a drag
-        if not was_dragging then
-            courier_target_preference = (courier_target_preference == 1) and 2 or 1
-        end
+        courier_target_preference = (courier_target_preference == 1) and 2 or 1
     end
-    
-    -- Reset drag_start_pos after processing click
-    if not Input.IsKeyDown(Enum.ButtonCode.KEY_MOUSE1) then
-        self.drag_start_pos = nil
-    end
-end
 end
 
 function CourierPanelModule:OnGameEnd()
@@ -495,12 +470,11 @@ end
 -- MENU INITIALIZATION
 -- ============================================================================
 do
-    local main_tab = Menu.Create("Scripts", "Other", "Bear AI")
+    local main_tab = Menu.Create("Heroes", "Hero List", "Lone Druid")
     if main_tab then
-        main_tab:Icon("\u{f52d}")
-        local main_group = main_tab:Create("Main")
+        local main_group = main_tab:Create("Main Settings")
         
-        local settings_group = main_group:Create("Main Settings")
+        local settings_group = main_group:Create("Bear AI")
         agent_script.ui.enable = settings_group:Switch(
             "Enable AI for Bear", true,
             "panorama/images/heroes/icons/npc_dota_hero_lone_druid_png.vtex_c"
@@ -559,9 +533,6 @@ do
         agent_script.ui.force_patrol_key = keybind_group:Bind("Force Aggressive Patrol", Enum.ButtonCode.KEY_NONE)
         agent_script.ui.force_patrol_key:ToolTip("When pressed, immediately forces bear into aggressive patrol mode, overriding current state.\nPress again to return to normal AI behavior.")
         
-        agent_script.ui.emergency_retreat_key = keybind_group:Bind("Emergency Retreat", Enum.ButtonCode.KEY_NONE)
-        agent_script.ui.emergency_retreat_key:ToolTip("Hold to make bear retreat to fountain immediately")
-        
         local attack_items_group = main_group:Create("Attack Items")
         agent_script.ui.item_multiselect = attack_items_group:MultiSelect("Bear uses:", {
             {"item_diffusa", "panorama/images/items/diffusal_blade_png.vtex_c", true},
@@ -571,8 +542,7 @@ do
             {"item_harpoon", "panorama/images/items/harpoon_png.vtex_c", true},
             {"item_abyssal_blade", "panorama/images/items/abyssal_blade_png.vtex_c", true},
             {"item_mask_of_madness", "panorama/images/items/mask_of_madness_png.vtex_c", true},
-            {"item_black_king_bar", "panorama/images/items/black_king_bar_png.vtex_c", true},
-            {"item_phase_boots", "panorama/images/items/phase_boots_png.vtex_c", true}
+            {"item_black_king_bar", "panorama/images/items/black_king_bar_png.vtex_c", true}
         }, true)
         agent_script.ui.item_multiselect:ToolTip("Select items that the bear will use in combat.")
         
@@ -610,320 +580,7 @@ do
             CourierPanelModule.ui.pos_x:Disabled(not enabled)
             CourierPanelModule.ui.pos_y:Disabled(not enabled)
         end, true)
-        
-        local bodyblock_group = main_group:Create("Bodyblock")
-        agent_script.ui.enable_bodyblock = bodyblock_group:Switch("Enable Auto Bodyblock", true, "\u{f52d}")
-        agent_script.ui.enable_bodyblock:ToolTip("Bear will automatically try to bodyblock fleeing enemies")
-        
-        agent_script.ui.bodyblock_ping_threshold = bodyblock_group:Slider("Ping Threshold", 50, 300, 150, "%d ms")
-        agent_script.ui.bodyblock_ping_threshold:ToolTip("Bodyblock disabled above this ping to avoid prediction issues")
-        
-        agent_script.ui.bodyblock_key = bodyblock_group:Bind("Force Bodyblock Key", Enum.ButtonCode.KEY_NONE)
-        agent_script.ui.bodyblock_key:ToolTip("Hold to force bodyblock on nearest enemy (overrides other actions)")
-        
-        local split_attack_group = main_group:Create("Split Attack")
-        agent_script.ui.enable_split_attack = split_attack_group:Switch("Enable Smart Target Distribution", true, "\u{f0e8}")
-        agent_script.ui.enable_split_attack:ToolTip("Bear will switch targets if multiple enemies are nearby to avoid overkill")
-        
-        agent_script.ui.split_search_radius = split_attack_group:Slider("Search Radius", 800, 2000, 1200, "%d")
-        agent_script.ui.split_search_radius:ToolTip("Range to search for alternative targets")
-        
-        agent_script.ui.split_min_enemies = split_attack_group:Slider("Min Enemies to Split", 2, 5, 2, "%d")
-        agent_script.ui.split_min_enemies:ToolTip("Minimum number of enemies needed to activate split logic")
-        
-        local priority_group = main_group:Create("Priority Targets")
-        agent_script.ui.enable_priority_targets = priority_group:Switch("Auto-Attack Priority Units", true, "\u{f140}")
-        agent_script.ui.enable_priority_targets:ToolTip("Bear will automatically prioritize important units like wards, tombstone, phoenix egg, etc")
-        
-        agent_script.ui.priority_search_radius = priority_group:Slider("Priority Search Radius", 600, 1500, 1200, "%d")
-        agent_script.ui.priority_search_radius:ToolTip("Range to search for priority targets")
     end
-end
-
--- ============================================================================
--- BODYBLOCK SYSTEM
--- ============================================================================
-local bodyblock_state = {
-    active = false,
-    target = nil,
-    last_order = 0,
-    force_bodyblock = false
-}
-
-local function ExecuteBodyblock(agent)
-    if not agent_script.ui.enable_bodyblock:Get() then return false end
-    
-    -- Check ping threshold
-    if NetChannel and NetChannel.GetAvgLatency then
-        local ping = NetChannel.GetAvgLatency(Enum.Flow.FLOW_OUTGOING) * 1000
-        if ping > agent_script.ui.bodyblock_ping_threshold:Get() then
-            return false
-        end
-    end
-    
-    local current_time = os.clock()
-    local bear = agent.unit
-    local bear_pos = Entity.GetAbsOrigin(bear)
-    
-    -- Check for force bodyblock key
-    local force_key = agent_script.ui.bodyblock_key:Get()
-    local force_active = false
-    if force_key and force_key ~= Enum.ButtonCode.KEY_NONE and force_key ~= Enum.ButtonCode.BUTTON_CODE_INVALID then
-        force_active = Input.IsKeyDown(force_key)
-    end
-    
-    if not force_active and not bodyblock_state.force_bodyblock then
-        return false
-    end
-    
-    bodyblock_state.force_bodyblock = force_active
-    
-    -- Find target
-    local target = nil
-    if not force_active and bodyblock_state.active and bodyblock_state.target and Entity.IsAlive(bodyblock_state.target) then
-        target = bodyblock_state.target
-    else
-        -- Find nearest fleeing enemy
-        local enemies = Heroes.InRadius(bear_pos, 1200, Entity.GetTeamNum(bear), Enum.TeamType.TEAM_ENEMY)
-        local min_dist = 99999
-        
-        for _, enemy in ipairs(enemies) do
-            if Entity.IsAlive(enemy) and not NPC.IsIllusion(enemy) and NPC.IsVisible(enemy) then
-                local enemy_pos = Entity.GetAbsOrigin(enemy)
-                local dist = bear_pos:Distance(enemy_pos)
-                
-                -- Check if enemy is running (moving away)
-                if NPC.IsRunning(enemy) and dist < min_dist then
-                    min_dist = dist
-                    target = enemy
-                end
-            end
-        end
-    end
-    
-    if not target then
-        bodyblock_state.active = false
-        bodyblock_state.target = nil
-        return false
-    end
-    
-    bodyblock_state.active = true
-    bodyblock_state.target = target
-    
-    -- Throttle orders
-    if current_time - bodyblock_state.last_order < 0.1 then
-        return true
-    end
-    
-    local enemy_pos = Entity.GetAbsOrigin(target)
-    local enemy_dir = Entity.GetRotation(target):GetForward()
-    local enemy_speed = NPC.GetMoveSpeed(target)
-    local to_bear = (bear_pos - enemy_pos):Normalized()
-    
-    -- Dynamic distance based on enemy speed
-    local dynamic_distance = (enemy_speed < 250) and 76.5 or 80
-    local predict_time = 0.18
-    local predict_pos = enemy_pos + enemy_dir * enemy_speed * predict_time
-    
-    -- Calculate angle to bear
-    local angle_to_bear = math.atan2(to_bear.y, to_bear.x) - math.atan2(enemy_dir.y, enemy_dir.x)
-    if angle_to_bear > math.pi then angle_to_bear = angle_to_bear - 2*math.pi end
-    if angle_to_bear < -math.pi then angle_to_bear = angle_to_bear + 2*math.pi end
-    
-    local block_pos
-    if math.abs(angle_to_bear) > math.pi/2 then
-        -- Bear is behind, intercept from side
-        local side_angle = angle_to_bear > 0 and math.pi/2 or -math.pi/2
-        local side_dir = Vector(
-            enemy_dir.x * math.cos(side_angle) - enemy_dir.y * math.sin(side_angle),
-            enemy_dir.x * math.sin(side_angle) + enemy_dir.y * math.cos(side_angle),
-            0
-        )
-        block_pos = enemy_pos + side_dir * dynamic_distance * 1.5 + enemy_dir * dynamic_distance
-    else
-        -- Bear ahead, block directly
-        block_pos = predict_pos + enemy_dir * dynamic_distance
-    end
-    
-    agent:MoveTo(block_pos)
-    agent.thought = "Bodyblocking target!"
-    bodyblock_state.last_order = current_time
-    
-    return true
-end
-
--- ============================================================================
--- SPLIT ATTACK SYSTEM
--- ============================================================================
-local split_attack_state = {
-    last_check = 0,
-    alternative_target = nil,
-    check_interval = 0.5
-}
-
-local function FindAlternativeTarget(agent, current_target)
-    if not agent_script.ui.enable_split_attack:Get() then return nil end
-    
-    local current_time = os.clock()
-    if current_time - split_attack_state.last_check < split_attack_state.check_interval then
-        return split_attack_state.alternative_target
-    end
-    
-    split_attack_state.last_check = current_time
-    
-    local bear_pos = Entity.GetAbsOrigin(agent.unit)
-    local search_radius = agent_script.ui.split_search_radius:Get()
-    local min_enemies = agent_script.ui.split_min_enemies:Get()
-    
-    -- Get all enemies in radius
-    local enemies = Heroes.InRadius(bear_pos, search_radius, Entity.GetTeamNum(agent.unit), Enum.TeamType.TEAM_ENEMY)
-    
-    if #enemies < min_enemies then
-        split_attack_state.alternative_target = nil
-        return nil
-    end
-    
-    -- Check if current target is low HP
-    if current_target and Entity.IsAlive(current_target) then
-        local current_hp = Entity.GetHealth(current_target)
-        local current_max_hp = Entity.GetMaxHealth(current_target)
-        local hp_percent = (current_hp / current_max_hp) * 100
-        
-        -- If target is low HP (< 30%), keep attacking
-        if hp_percent < 30 then
-            split_attack_state.alternative_target = nil
-            return nil
-        end
-        
-        -- Check if we're alone on this target
-        local allies_on_target = 0
-        if my_hero then
-            local hero_target = Entity.GetAttackTarget and Entity.GetAttackTarget(my_hero)
-            if hero_target == current_target then
-                allies_on_target = allies_on_target + 1
-            end
-        end
-        
-        -- If multiple allies attacking same target and there are other enemies, switch
-        if allies_on_target >= 1 then
-            -- Find best alternative
-            local best_target = nil
-            local best_score = -1
-            
-            for _, enemy in ipairs(enemies) do
-                if enemy ~= current_target and Entity.IsAlive(enemy) and not NPC.IsIllusion(enemy) and NPC.IsVisible(enemy) then
-                    local enemy_pos = Entity.GetAbsOrigin(enemy)
-                    local dist = bear_pos:Distance(enemy_pos)
-                    
-                    -- Calculate score: closer is better, lower HP is better
-                    local hp = Entity.GetHealth(enemy)
-                    local max_hp = Entity.GetMaxHealth(enemy)
-                    local hp_percent = (hp / max_hp) * 100
-                    
-                    local score = 1000 - dist * 0.5 - hp_percent * 2
-                    
-                    -- Bonus for low HP targets
-                    if hp_percent < 50 then
-                        score = score + 200
-                    end
-                    
-                    if score > best_score then
-                        best_score = score
-                        best_target = enemy
-                    end
-                end
-            end
-            
-            split_attack_state.alternative_target = best_target
-            return best_target
-        end
-    end
-    
-    split_attack_state.alternative_target = nil
-    return nil
-end
-
--- ============================================================================
--- PRIORITY TARGETS SYSTEM
--- ============================================================================
-local priority_targets = {
-    last_check = 0,
-    current_priority = nil,
-    check_interval = 0.3
-}
-
-local IMPORTANT_UNITS = {
-    ["npc_dota_healing_ward"] = true,
-    ["npc_dota_weaver_swarm"] = true,
-    ["npc_dota_shadow_shaman_serpent_ward"] = true,
-    ["npc_dota_rattletrap_cog"] = true,
-    ["npc_dota_ward_base"] = true,
-    ["npc_dota_phoenix_sun"] = true,
-    ["npc_dota_tombstone"] = true,
-    ["npc_dota_unit_tombstone4"] = true,
-}
-
-local function IsImportantUnit(unit_name)
-    if IMPORTANT_UNITS[unit_name] then return true end
-    if string.find(unit_name, "npc_dota_shadow_shaman_ward_") then return true end
-    if string.find(unit_name, "npc_dota_unit_tombstone%d*$") then return true end
-    return false
-end
-
-local function FindPriorityTarget(agent)
-    if not agent_script.ui.enable_priority_targets:Get() then return nil end
-    
-    local current_time = os.clock()
-    if current_time - priority_targets.last_check < priority_targets.check_interval then
-        return priority_targets.current_priority
-    end
-    
-    priority_targets.last_check = current_time
-    
-    local bear_pos = Entity.GetAbsOrigin(agent.unit)
-    local search_radius = agent_script.ui.priority_search_radius:Get()
-    
-    local all_npcs = NPCs.GetAll()
-    local important_units = {}
-    
-    -- Find all important units
-    for _, npc in ipairs(all_npcs) do
-        local unit_name = NPC.GetUnitName(npc)
-        if IsImportantUnit(unit_name) and Entity.IsAlive(npc) and not Entity.IsDormant(npc) then
-            local npc_pos = Entity.GetAbsOrigin(npc)
-            local dist = bear_pos:Distance(npc_pos)
-            
-            if dist < search_radius and not Entity.IsSameTeam(npc, agent.unit) then
-                table.insert(important_units, {unit = npc, dist = dist})
-            end
-        end
-    end
-    
-    -- Also check for heroes with healing salve
-    if my_hero then
-        local enemies = Heroes.InRadius(bear_pos, search_radius, Entity.GetTeamNum(agent.unit), Enum.TeamType.TEAM_ENEMY)
-        for _, enemy in ipairs(enemies) do
-            if Entity.IsAlive(enemy) and not NPC.IsIllusion(enemy) then
-                if NPC.HasModifier(enemy, "modifier_healing_salve") or 
-                   NPC.HasModifier(enemy, "modifier_flask_healing") or
-                   NPC.HasModifier(enemy, "modifier_bottle_regeneration") then
-                    local dist = bear_pos:Distance(Entity.GetAbsOrigin(enemy))
-                    table.insert(important_units, {unit = enemy, dist = dist, is_hero_healing = true})
-                end
-            end
-        end
-    end
-    
-    if #important_units == 0 then
-        priority_targets.current_priority = nil
-        return nil
-    end
-    
-    -- Find closest priority target
-    table.sort(important_units, function(a, b) return a.dist < b.dist end)
-    
-    priority_targets.current_priority = important_units[1].unit
-    return important_units[1].unit
 end
 
 -- ============================================================================
@@ -961,11 +618,7 @@ function Agent.new(unit)
         hover_target_pos = nil,
         hover_expiry_time = 0,
         -- New field for Patrol Throttling
-        last_patrol_target = nil,
-        -- Order throttling (from Naga)
-        last_move_order = 0,
-        last_attack_order = 0,
-        last_position_target = nil
+        last_patrol_target = nil
     }, Agent)
 end
 
@@ -985,15 +638,6 @@ function Agent:UseAbilityOrItem(name, target, is_item)
 end
 
 function Agent:Attack(target)
-    local current_time = os.clock()
-    
-    -- Throttle attack orders to prevent spam
-    if current_time - self.last_attack_order < 0.3 then
-        return
-    end
-    
-    self.last_attack_order = current_time
-    
     Player.PrepareUnitOrders(
         local_player,
         Enum.UnitOrder.DOTA_UNIT_ORDER_ATTACK_TARGET,
@@ -1006,21 +650,6 @@ function Agent:Attack(target)
 end
 
 function Agent:MoveTo(position)
-    local current_time = os.clock()
-    
-    -- Throttle move orders and check if position changed significantly
-    if self.last_position_target then
-        local dist_change = position:Distance(self.last_position_target)
-        
-        -- Only issue new move order if position changed enough or enough time passed
-        if dist_change < 100 and (current_time - self.last_move_order < 0.5) then
-            return
-        end
-    end
-    
-    self.last_move_order = current_time
-    self.last_position_target = position
-    
     Player.PrepareUnitOrders(
         local_player,
         Enum.UnitOrder.DOTA_UNIT_ORDER_MOVE_TO_POSITION,
@@ -1406,6 +1035,15 @@ function Actions.ExecuteLANE_HARASS(agent)
 
     -- 5. Handle Active Retreat (Ignored if Defending)
     if not is_defending and current_time < agent.retreat_until then
+        -- Safety: cancel retreat early if no one is hitting and no creeps are targeting the bear
+        if creep_aggro_count == 0 and not is_being_attacked_by_hero then
+            agent.retreat_until = 0
+            agent.retreat_type = "NONE"
+            agent:MoveTo(druid_pos)
+            agent.thought = "Retreat canceled (no aggro)"
+            return true
+        end
+
         local fountain_pos = FOUNTAIN_LOCATIONS[my_team]
         if fountain_pos then
              agent:MoveTo(fountain_pos)
@@ -1585,60 +1223,16 @@ function Actions.ExecuteLANE_HARASS(agent)
                 agent.thought = "CS: " .. action_type .. " (Execute)"
                 return true
             elseif action_type == "PREPARE" then
+                -- Move closer but STRICTLY DO NOT ATTACK
                 local creep_pos = Entity.GetAbsOrigin(best_creep)
-                local creep_hp = Entity.GetHealth(best_creep)
-                local creep_max_hp = Entity.GetMaxHealth(best_creep)
-                local creep_hp_percent = (creep_hp / creep_max_hp) * 100
-                
-                -- NOVA LÓGICA: Se estiver apanhando MUITO (3+ creeps OU herói recente), ataca
-                if creep_aggro_count >= 3 then
-                    agent:Attack(best_creep)
-                    agent.thought = "CS: Emergency Hit (Heavy Aggro)"
-                    return true
-                end
-                
-                -- Se apanhou de herói recentemente E tem creeps batendo, ataca
-                if (current_time - agent.last_hero_hit_time < 1.5) and agent.recent_hero_hits > 0 and creep_aggro_count >= 1 then
-                    agent:Attack(best_creep)
-                    agent.thought = "CS: Emergency Hit (Hero+Creeps)"
-                    return true
-                end
-                
-                -- Se creep tem mais de 50% HP, fica se movimentando aleatoriamente (hovering)
-                if creep_hp_percent > 50 then
-                    -- Verifica se precisa de novo ponto de hover
-                    local needs_new_hover = false
-                    if not agent.hover_target_pos then 
-                        needs_new_hover = true
-                    elseif current_time > agent.hover_expiry_time then 
-                        needs_new_hover = true
-                    elseif bear_pos:Distance(agent.hover_target_pos) < 50 then 
-                        needs_new_hover = true
-                    end
-                    
-                    if needs_new_hover then
-                        -- Cria ponto aleatório ao redor da posição do druid
-                        local rx = math.random(-150, 150)
-                        local ry = math.random(-150, 150)
-                        local new_pos = druid_pos + Vector(rx, ry, 0)
-                        
-                        agent.hover_target_pos = new_pos
-                        agent.hover_expiry_time = current_time + math.random(15, 25) / 10  -- 1.5 a 2.5 segundos
-                        agent:MoveTo(new_pos)
-                        agent.thought = "CS: Hovering (>50% HP)"
-                    end
+                if bear_pos:Distance(creep_pos) > 150 then
+                    agent:MoveTo(creep_pos)
+                    agent.thought = "CS: Positioning (Wait)"
                 else
-                    -- Creep tem <= 50% HP, aproxima para dar last hit
-                    agent.hover_target_pos = nil
-                    
-                    if bear_pos:Distance(creep_pos) > 150 then
-                        agent:MoveTo(creep_pos)
-                        agent.thought = "CS: Closing in (<50% HP)"
-                    else
-                        agent.thought = "CS: Ready for last hit..."
-                    end
+                    agent:HoldPosition()
+                    agent.thought = "CS: Waiting for HP drop..."
                 end
-                
+                agent.hover_target_pos = nil
                 return true
             end
         end
@@ -1808,15 +1402,6 @@ function Actions.ExecuteFIGHTING(agent)
         action_taken = true 
     end
 
-    -- Phase Boots (for chasing or closing distance)
-    if not action_taken and distance > attack_range and distance <= 800 and
-       agent_script.ui.item_multiselect:Get("item_phase_boots") and 
-       not NPC.HasModifier(agent.unit, "modifier_phase_boots_active") and 
-       agent:UseAbilityOrItem("item_phase_boots", nil, true) then
-        agent.thought = "Using Phase (Chase)"
-        action_taken = true 
-    end
-
     -- Auto-skill on entangle
     if agent_script.ui.auto_skill_on_entangle:Get() and 
        NPC.HasModifier(target, "modifier_lone_druid_spirit_bear_entangle_effect") then
@@ -1880,6 +1465,17 @@ end
 
 function Actions.ExecuteFARMING(agent)
     local target = agent.target
+    local bear_pos = Entity.GetAbsOrigin(agent.unit)
+    local creep_aggro_count = 0
+    local my_team = Entity.GetTeamNum(agent.unit)
+    
+    -- Count attacking creeps to avoid heavy aggro
+    local nearby_creeps = NPCs.InRadius(bear_pos, 800, my_team, Enum.TeamType.TEAM_ENEMY)
+    for _, unit in ipairs(nearby_creeps) do
+        if NPC.IsCreep(unit) and IsTargetingUnit(unit, agent.unit) then
+            creep_aggro_count = creep_aggro_count + 1
+        end
+    end
     
     if not target or not Entity.IsAlive(target) then
         agent.state = STATES.FOLLOWING
@@ -1887,6 +1483,39 @@ function Actions.ExecuteFARMING(agent)
         agent.target = nil
         agent.target_score = 0
         return false
+    end
+    
+    -- If too much creep aggro, retreat briefly then continue farming
+    if creep_aggro_count >= 2 then
+        local druid_pos = Entity.GetAbsOrigin(my_hero)
+        agent:MoveTo(druid_pos)
+        agent.thought = string.format("Farm: Deaggro (%d creeps)", creep_aggro_count)
+        agent.retreat_until = GlobalVars.GetCurTime() + 0.5
+        return true
+    end
+    
+    -- Try to kill low hp creeps first for efficiency
+    local target_hp_percent = (Entity.GetHealth(target) / Entity.GetMaxHealth(target)) * 100
+    if target_hp_percent > 20 then
+        -- Look for lower HP creeps nearby to last-hit
+        local best_creep = target
+        local best_hp_percent = target_hp_percent
+        
+        local nearby_enemy_creeps = NPCs.InRadius(bear_pos, 600, my_team, Enum.TeamType.TEAM_ENEMY)
+        for _, creep in ipairs(nearby_enemy_creeps) do
+            if NPC.IsCreep(creep) and Entity.IsAlive(creep) then
+                local creep_hp_percent = (Entity.GetHealth(creep) / Entity.GetMaxHealth(creep)) * 100
+                if creep_hp_percent < best_hp_percent and creep_hp_percent < 40 then
+                    best_creep = creep
+                    best_hp_percent = creep_hp_percent
+                end
+            end
+        end
+        
+        if best_creep ~= target then
+            agent.target = best_creep
+            target = best_creep
+        end
     end
     
     agent:Attack(target)
@@ -1950,6 +1579,27 @@ function CalculateTargetScore(agent, target)
     local score = 0
     local d = Entity.GetAbsOrigin(agent.unit):Distance(Entity.GetAbsOrigin(target))
     
+    -- Creeps: prioritize by HP and distance
+    if NPC.IsCreep(target) then
+        local target_hp = Entity.GetHealth(target)
+        local target_max_hp = Entity.GetMaxHealth(target)
+        local hp_percent = (target_hp / target_max_hp) * 100
+        
+        -- Low HP creeps get high priority for last-hitting
+        if hp_percent < 30 then
+            score = score + 500
+        elseif hp_percent < 50 then
+            score = score + 300
+        else
+            score = score + 100
+        end
+        
+        -- Closer creeps slightly preferred
+        score = score - (d / 100) * 2
+        return score
+    end
+    
+    -- Hero priority
     local h = Entity.GetIndex(target)
     if threat_list[h] and GlobalVars.GetCurTime() < threat_list[h] then
         score = score + 200
@@ -1999,16 +1649,12 @@ function CalculateTargetScore(agent, target)
 end
 
 function FindBestHeroTarget(agent)
-    -- First check for priority targets (wards, tombstone, etc)
-    local priority_target = FindPriorityTarget(agent)
-    if priority_target then
-        agent.thought = "Priority Target: " .. NPC.GetUnitName(priority_target)
-        return priority_target, 10000  -- Very high score for priority
-    end
-    
     local potential_targets = {}
     local max_range = GetMaxCombatRange()
+    local bear_pos = Entity.GetAbsOrigin(agent.unit)
+    local my_team = Entity.GetTeamNum(agent.unit)
     
+    -- Include heroes
     for _, hero in pairs(Heroes.GetAll()) do
         if not Entity.IsSameTeam(hero, my_hero) and 
            Entity.IsAlive(hero) and 
@@ -2016,6 +1662,17 @@ function FindBestHeroTarget(agent)
            not NPC.IsIllusion(hero) and 
            Entity.GetAbsOrigin(my_hero):Distance(Entity.GetAbsOrigin(hero)) <= max_range then
             table.insert(potential_targets, hero)
+        end
+    end
+    
+    -- Include low-hp creeps for farming/finishing
+    local nearby_creeps = NPCs.InRadius(bear_pos, 600, my_team, Enum.TeamType.TEAM_ENEMY)
+    for _, creep in ipairs(nearby_creeps) do
+        if NPC.IsCreep(creep) and Entity.IsAlive(creep) then
+            local creep_hp_percent = (Entity.GetHealth(creep) / Entity.GetMaxHealth(creep)) * 100
+            if creep_hp_percent < 35 then  -- Only low HP creeps
+                table.insert(potential_targets, creep)
+            end
         end
     end
     
@@ -2027,15 +1684,6 @@ function FindBestHeroTarget(agent)
                 best_score, best_target = current_score, candidate
             end
         end
-        
-        -- Check for split attack alternative
-        if best_target then
-            local alternative = FindAlternativeTarget(agent, best_target)
-            if alternative then
-                return alternative, best_score - 50  -- Slightly lower score but still good
-            end
-        end
-        
         return best_target, best_score
     end
     
@@ -2179,27 +1827,6 @@ function agent_script.OnUpdate()
         
         if Actions.ExecuteSAVING_LOGIC(agent) then
             agent.next_action_time = current_time + 0.5
-            goto continue_loop
-        end
-        
-        -- Check for emergency retreat key
-        local retreat_key = agent_script.ui.emergency_retreat_key:Get()
-        if retreat_key and retreat_key ~= Enum.ButtonCode.KEY_NONE and retreat_key ~= Enum.ButtonCode.BUTTON_CODE_INVALID then
-            if Input.IsKeyDown(retreat_key) then
-                local team = Entity.GetTeamNum(agent.unit)
-                local fountain_pos = FOUNTAIN_LOCATIONS[team]
-                if fountain_pos then
-                    agent:MoveTo(fountain_pos)
-                    agent.thought = "EMERGENCY RETREAT!"
-                    agent.next_action_time = current_time + 0.1
-                    goto continue_loop
-                end
-            end
-        end
-        
-        -- Check for bodyblock (high priority)
-        if ExecuteBodyblock(agent) then
-            agent.next_action_time = current_time + 0.1
             goto continue_loop
         end
         

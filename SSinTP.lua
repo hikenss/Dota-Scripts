@@ -282,6 +282,15 @@ local pending_ss = {} -- {t, pos, targets={entityIdx,...}}
 local enemy_movement_history = {} -- [entity_index] = {positions = {}, times = {}, velocities = {}}
 local last_auto_ss_cast = 0
 local auto_ss_target = nil
+local immunity_exit_tracking = {} -- Rastreamento de saída de imunidade
+
+-- TP Tracker integrado (FOG detection)
+local tp_tracker_data = {
+  start_particles = {},
+  end_particles = {},
+  teleports = {},
+  fog_teleports = {}
+}
 
 local TELEPORT_END_HINTS = {
   "particles/items2_fx/teleport_end",
@@ -421,7 +430,8 @@ end
 local BLINK_ITEMS = {"item_blink","item_overwhelming_blink","item_swift_blink","item_arcane_blink"}
 local PUSH_ITEMS = {"item_force_staff","item_hurricane_pike"}
 
-local function HasReadyItem(unit, name)\n  local it = NPC.GetItem(unit, name, true)
+local function HasReadyItem(unit, name)
+  local it = NPC.GetItem(unit, name, true)
   if not it then return false end
   return Ability.IsCastable(it, NPC.GetMana(unit))
 end
@@ -526,6 +536,19 @@ end
 -- ============ PARTICLES ============
 function M.OnParticleCreate(p)
   if not AutoUseEnabled() or not p or not p.fullName then return end
+  
+  -- TP Tracker para FOG
+  if p.fullName and p.fullName:lower():find("teleport_end") then
+    local entity = p.entity
+    if entity and Entity.IsHero(entity) then
+      local me = Heroes.GetLocal()
+      if me and not Entity.IsSameTeam(entity, me) then
+        tp_tracker_data.end_particles[p.index] = entity
+        log("TP END particle detected for enemy at index %d", p.index)
+      end
+    end
+  end
+  
   if not isTeleportEnd(p.fullName) then return end
   tp_particles[p.index] = {
     pos = nil,
@@ -538,6 +561,29 @@ end
 
 function M.OnParticleUpdate(p)
   if not AutoUseEnabled() or not p or not p.index then return end
+  
+  -- TP Tracker para FOG
+  if tp_tracker_data.end_particles[p.index] then
+    if p.controlPoint == 0 and p.position then
+      local entity = tp_tracker_data.end_particles[p.index]
+      local me = Heroes.GetLocal()
+      if me and entity and Entity.IsAlive(entity) then
+        local myTeam = Entity.GetTeamNum(me)
+        local enemyTeam = (myTeam == 2) and 3 or 2
+        if Entity.GetTeamNum(entity) == enemyTeam then
+          table.insert(tp_tracker_data.fog_teleports, {
+            entity = entity,
+            dest = p.position,
+            time = GameRules.GetGameTime(),
+            processed = false
+          })
+          log("FOG TP detected: %s -> %s", NPC.GetUnitName(entity) or "?", tostring(p.position))
+        end
+      end
+      tp_tracker_data.end_particles[p.index] = nil
+    end
+  end
+  
   local info = tp_particles[p.index]
   if not info then return end
   if p.controlPoint == 0 and p.position then
@@ -696,6 +742,43 @@ function M.OnUpdate()
 
   local ss = EnsureSunStrikeInvoked(me)
   if not ss then return end
+
+  -- Processa FOG teleports
+  do
+    local now = GameRules.GetGameTime()
+    local delay = AbilityDelaySeconds(ss)
+    local cpoint = CastPoint(ss)
+    local myTeam = Entity.GetTeamNum(me)
+    
+    for i = #tp_tracker_data.fog_teleports, 1, -1 do
+      local fog_tp = tp_tracker_data.fog_teleports[i]
+      
+      if not fog_tp.entity or not Entity.IsAlive(fog_tp.entity) or (now - fog_tp.time > 10) then
+        table.remove(tp_tracker_data.fog_teleports, i)
+      elseif not fog_tp.processed then
+        local entity = fog_tp.entity
+        local dest = fog_tp.dest
+        
+        if dest and not casted_for[Entity.GetIndex(entity)] then
+          -- Verifica se deve caspar na posição
+          local okToCast = not InDanger(me) and ManaOK(me) and CanExecute(ss)
+          
+          if okToCast and not IsUnhittable(entity) then
+            local lethal = (not IsProtectedFromDeath(entity)) and canKillWithSunStrike(me, ss, entity)
+            local significant = willDealSignificantDamage(me, ss, entity, ui.tp_damage_threshold:Get())
+            
+            if lethal or significant then
+              if TryCastSS(me, dest) then
+                casted_for[Entity.GetIndex(entity)] = true
+                log("FOG SS on %s at %s", NPC.GetUnitName(entity) or "?", tostring(dest))
+                fog_tp.processed = true
+              end
+            end
+          end
+        end
+      end
+    end
+  end
 
   for id, tp in pairs(active_teleports) do
     if tp.dest and not casted_for[id] then

@@ -3,10 +3,8 @@
 	Bloqueia automaticamente Orchid, Hex, Dagon e outros
 ]]
 
--- Menu usando API padrão
-local menu = Menu.Create("Heroes", "Herois Addons", "AM_Counterspell")
-menu:Icon("\u{f0e7}")
-local menuGroup = menu:Create("Configurações"):Create("Auto-Cast")
+local menu = Menu.Create("Heroes", "Hero List", "Anti Mage")
+local menuGroup = menu:Create("Main Settings"):Create("Auto Counterspell")
 local ui = {}
 ui.enable = menuGroup:Switch("Ativar Auto Counterspell", true, "\u{f0e7}")
 ui.enable_bind = menuGroup:Bind("Tecla de Toggle", Enum.ButtonCode.KEY_NONE)

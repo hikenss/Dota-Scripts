@@ -424,7 +424,8 @@ function CourierUltimate.OnUpdate()
             if name and (name == "npc_dota_courier" or name:find("courier")) then
                 local team = Entity.GetTeamNum(npc)
                 if team ~= myTeam then
-                    tracked[Entity.GetIndex(npc)] = {team = team, time = GameRules.GetGameTime()}
+                    local owner = getCourierOwnerHero(npc)
+                    tracked[Entity.GetIndex(npc)] = {team = team, time = GameRules.GetGameTime(), owner = owner}
                 end
             end
         end
@@ -435,12 +436,15 @@ function CourierUltimate.OnUpdate()
         if not tracked[id] and time - data.time < 2 then
             -- Só adicionar se não existe já um timer para este courier
             if not CourierUltimate.State.deadCouriers[id] then
-                local owner = nil
-                for i = 1, Heroes.Count() do
-                    local h = Heroes.Get(i)
-                    if h and Entity.GetTeamNum(h) == data.team then
-                        owner = h
-                        break
+                local owner = data.owner
+                if not owner then
+                    -- Fallback: attempt to resolve owner now if we failed while alive
+                    for i = 1, Heroes.Count() do
+                        local h = Heroes.Get(i)
+                        if h and Entity.GetTeamNum(h) == data.team then
+                            owner = h
+                            break
+                        end
                     end
                 end
                 
