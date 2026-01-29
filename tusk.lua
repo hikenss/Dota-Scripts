@@ -16,7 +16,6 @@ ui.global_switch = group:Switch("Ativar Combo", false)
 ui.hotkey = group:Bind("Tecla para Combo", Enum.ButtonCode.KEY_NONE, "⌨")
 ui.min_distance = group:Slider("Distância mínima do inimigo ao aliado para chutar", 100, 800, 800)
 ui.max_distance = group:Slider("Distância máxima do inimigo ao aliado para chutar", 1400, 2200, 2000)
-ui.use_walrus_punch = group:Switch("Usar Walrus Punch após Snowball", true)
 ui.ally_selector = nil
 
 -- Linken breaker items
@@ -368,12 +367,6 @@ my_script.OnUpdate = function()
             return
         end
         
-        -- Check if kick landed
-        if NPC.HasModifier(combo_target_enemy, "modifier_tusk_walrus_kick_air_time") then
-            script_state = "SNOWBALLING"
-            return
-        end
-        
         local kick = NPC.GetAbility(hero, "tusk_walrus_kick")
         local current_time = GlobalVars.GetCurTime()
         
@@ -393,14 +386,13 @@ my_script.OnUpdate = function()
                     kick, 
                     Enum.PlayerOrderIssuer.DOTA_ORDER_ISSUER_HERO_ONLY, 
                     hero)
-                kick_attempt_time = current_time
-            end
-        elseif (current_time - kick_attempt_time) > 0.1 then
-            -- Fallback to snowball if kick failed
-            local snowball = NPC.GetAbility(hero, "tusk_snowball")
-            if snowball and Ability.IsReady(snowball) and Entity.GetAbsOrigin(hero):Distance(Entity.GetAbsOrigin(combo_target_enemy)) <= 1400 then
+                
+                -- Immediately go to snowball without waiting
                 script_state = "SNOWBALLING"
             end
+        elseif (current_time - kick_attempt_time) > 0.3 then
+            -- Timeout - reset if kick failed
+            reset_state()
         end
         
     elseif script_state == "SNOWBALLING" then
@@ -411,8 +403,7 @@ my_script.OnUpdate = function()
         
         -- Check if already in snowball
         if NPC.HasModifier(hero, "modifier_tusk_snowball_movement") then
-            script_state = "WAITING_SNOWBALL_END"
-            snowball_cast_time = GlobalVars.GetCurTime()
+            reset_state()
             return
         end
         
@@ -427,35 +418,6 @@ my_script.OnUpdate = function()
         else
             reset_state()
         end
-        
-    elseif script_state == "WAITING_SNOWBALL_END" then
-        -- Wait for snowball to finish
-        if not NPC.HasModifier(hero, "modifier_tusk_snowball_movement") then
-            -- Snowball finished, use Walrus Punch if enabled
-            if ui.use_walrus_punch and ui.use_walrus_punch:Get() and is_target_valid(combo_target_enemy) then
-                script_state = "USING_WALRUS_PUNCH"
-            else
-                reset_state()
-            end
-        end
-        
-    elseif script_state == "USING_WALRUS_PUNCH" then
-        if not is_target_valid(combo_target_enemy) then
-            reset_state()
-            return
-        end
-        
-        local walrus_punch = NPC.GetAbility(hero, "tusk_walrus_punch")
-        if walrus_punch and Ability.IsReady(walrus_punch) then
-            local punch_range = Ability.GetCastRange(walrus_punch) + NPC.GetCastRangeBonus(hero)
-            local distance = Entity.GetAbsOrigin(hero):Distance(Entity.GetAbsOrigin(combo_target_enemy))
-            
-            if distance <= punch_range then
-                Ability.CastTarget(walrus_punch, combo_target_enemy)
-            end
-        end
-        
-        reset_state()
     end
 end
 
