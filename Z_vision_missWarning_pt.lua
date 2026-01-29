@@ -1,12 +1,230 @@
 local Z_vision_missWarning={}
 local v1={}
 
+-- ============================================================================
+-- MÓDULO DE ASSISTÊNCIA (ALERTAS DE AJUDA)
+-- ============================================================================
+
+local assistModule = {}
+
+-- Armazenar alertas recentes
+local recentAlerts = {}
+local lastAssistUpdateTime = 0
+
+-- Verifica se o herói possui scroll de TP
+local function hasTPScroll(heroIndex)
+    for i = 0, 16 do
+        local item = NPC.GetItemByIndex(heroIndex, i)
+        if item and Ability.GetName(item) == "item_tpscroll" then
+            return true
+        end
+    end
+    return false
+end
+
+-- Verifica se o herói possui botas de viagem
+local function hasTravelBoots(heroIndex)
+    return NPC.GetItem(heroIndex, "item_travel_boots") or NPC.GetItem(heroIndex, "item_travel_boots_2")
+end
+
+-- Encontra a torre aliada mais próxima
+local function getNearestAllyTower(allyTeam, position)
+    local nearestTower, minDistance = nil, 99999
+    
+    for _, tower in ipairs(Towers.GetAll()) do
+        if Entity.IsAlive(tower) and Entity.IsSameTeam(tower, allyTeam) then
+            local distance = (Entity.GetAbsOrigin(tower) - position):Length()
+            if distance < minDistance then
+                minDistance = distance
+                nearestTower = tower
+            end
+        end
+    end
+    
+    return nearestTower, minDistance
+end
+
+-- Verifica se há criação aliada próxima
+local function hasNearbyAllyCreep(allyTeam, position)
+    local heroPos = position
+    
+    for _, creep in ipairs(NPCs.GetAll(Enum.UnitTypeFlags.TYPE_CREEP | Enum.UnitTypeFlags.TYPE_STRUCTURE)) do
+        if Entity.IsAlive(creep) and Entity.IsSameTeam(creep, allyTeam) and not NPC.IsWard(creep) then
+            if (Entity.GetAbsOrigin(creep) - heroPos):Length() <= 1300 then
+                return true
+            end
+        end
+    end
+    
+    return false
+end
+
+-- Verifica se o aliado está em desvantagem de vida
+local function isLowHealth(hero1, hero2)
+    local health1Percent = Entity.GetHealth(hero1) / Entity.GetMaxHealth(hero1) * 100
+    local health2Percent = Entity.GetHealth(hero2) / Entity.GetMaxHealth(hero2) * 100
+    
+    if health1Percent < 50.0 and health2Percent > (health1Percent + 15) and Hero.GetRecentDamage(hero1) > 0 then
+        return true
+    end
+    return false
+end
+
+-- Envia alerta de ajuda para o chat
+local function sendHelpAlert(hero)
+    Chat.Print("ConsoleChat", string.format(
+        "<font color='#00aaff'>[Assist]</font> <font color='#ff4d4d'>%s</font> precisa de ajuda!",
+        GameLocalizer.FindNPC(NPC.GetUnitName(hero))
+    ))
+    recentAlerts[Entity.GetIndex(hero)] = GlobalVars.GetCurTime()
+end
+
+-- Função principal de atualização do módulo de assistência
+assistModule.OnUpdate = function()
+    if not assistSettingsEnable:Get() or not Engine.IsInGame() then
+        return
+    end
+    
+    local currentTime = GlobalVars.GetCurTime()
+    
+    -- Atualizar a cada 1 segundo
+    if currentTime < lastAssistUpdateTime + 1.0 then
+        return
+    end
+    lastAssistUpdateTime = currentTime
+    
+    -- Obter herói local
+    local localHero = Heroes.GetLocal()
+    if not localHero then
+        return
+    end
+    
+    local teamNum = Entity.GetTeamNum(localHero)
+    local hasTP = hasTPScroll(localHero)
+    local hasTravelBoot = hasTravelBoots(localHero)
+    
+    -- Analisar cada herói aliado
+    for _, ally in ipairs(Heroes.GetAll()) do
+        -- Verificações básicas
+        if Entity.GetTeamNum(ally) ~= teamNum then goto continue end
+        if ally == localHero then goto continue end
+        if not Entity.IsAlive(ally) then goto continue end
+        if NPC.IsIllusion(ally) then goto continue end
+        
+        -- Verificar se alerta já foi enviado recentemente
+        if recentAlerts[Entity.GetIndex(ally)] and currentTime < recentAlerts[Entity.GetIndex(ally)] + 15.0 then
+            goto continue
+        end
+        
+        -- Não alertar se está muito próximo
+        if Entity.GetAbsOrigin(localHero):Distance(Entity.GetAbsOrigin(ally)) <= 1600 then
+            goto continue
+        end
+        
+        local allyPos = Entity.GetAbsOrigin(ally)
+        local enemiesNear = Heroes.InRadius(allyPos, 1600, teamNum, Enum.TeamType.TEAM_ENEMY)
+        local enemyCount = #enemiesNear
+        
+        if enemyCount == 0 then
+            goto continue
+        end
+        
+        local alliesNear = Heroes.InRadius(allyPos, 1600, teamNum, Enum.TeamType.TEAM_FRIEND)
+        local allyCount = #alliesNear
+        
+        local nearestTower, towerDistance = getNearestAllyTower(localHero, allyPos)
+        
+        -- Decisão com base em alcance de TP
+        if towerDistance <= 2000 then
+            if not hasTP then
+                goto continue
+            end
+            
+            -- Situação crítica: 2v2 com vantagem inimiga
+            if enemyCount == 2 and allyCount == 2 then
+                local isAllyLow = false
+                local isAllyTakingDamage = false
+                local isEnemyNearTower = false
+                
+                for _, teammate in ipairs(alliesNear) do
+                    if (Entity.GetHealth(teammate) / Entity.GetMaxHealth(teammate) * 100) < 55.0 then
+                        isAllyLow = true
+                    end
+                    if Hero.GetRecentDamage(teammate) > 0 then
+                        isAllyTakingDamage = true
+                    end
+                end
+                
+                for _, enemy in ipairs(enemiesNear) do
+                    if (Entity.GetAbsOrigin(enemy) - Entity.GetAbsOrigin(nearestTower)):Length() < 900 then
+                        isEnemyNearTower = true
+                        break
+                    end
+                end
+                
+                if isAllyLow and isAllyTakingDamage and isEnemyNearTower then
+                    sendHelpAlert(ally)
+                    goto continue
+                end
+            end
+            
+            -- Situação de desvantagem numérica
+            if enemyCount > allyCount and (Entity.GetHealth(ally) / Entity.GetMaxHealth(ally) * 100) < 65.0 then
+                sendHelpAlert(ally)
+                goto continue
+            end
+            
+            -- 1v1 com desvantagem de vida
+            if enemyCount == 1 and allyCount == 1 and isLowHealth(ally, enemiesNear[1]) then
+                sendHelpAlert(ally)
+                goto continue
+            end
+        else
+            -- Alcance de botas de viagem
+            if not hasTravelBoot then
+                goto continue
+            end
+            
+            if not hasNearbyAllyCreep(localHero, ally) then
+                goto continue
+            end
+            
+            -- Situação de desvantagem numérica
+            if enemyCount > allyCount then
+                sendHelpAlert(ally)
+                goto continue
+            end
+            
+            -- 1v1 com desvantagem de vida
+            if enemyCount == 1 and allyCount == 1 and isLowHealth(ally, enemiesNear[1]) then
+                sendHelpAlert(ally)
+                goto continue
+            end
+        end
+        
+        ::continue::
+    end
+end
+
+-- Limpar alertas quando o jogo termina
+assistModule.OnGameEnd = function()
+    recentAlerts = {}
+end
+
+-- ============================================================================
+-- FIM DO MÓDULO DE ASSISTÊNCIA
+-- ============================================================================
+
 -- Menu em Português
 local v2=Menu.Create("Scripts","Outros","Aviso de Sumiço")
 v2:Icon("\u{E02E}")
 local v3=v2:Create("Principal"):Create("Aviso de Sumiço")
 v1.enable=v3:Switch("Ativar",true,"\u{E0B7}")
 v1.multiMonitorEnable=v3:Switch("Tratar ilusões fortes como heróis (Beta)",false,"\u{E21A}")
+
+-- Menu para o módulo de assistência
+local assistMenu=v2:Create("Principal"):Create("Alertas de Ajuda")
+assistSettingsEnable=assistMenu:Switch("Ativar alertas de ajuda",true,"\u{E0B7}")
 
 local v6=v2:Create("Principal"):Create("Configurações de Exibição")
 v1.missDrawTime=v6:Slider("Exibir após sumir (segundos)",0.1,15,0.5,"%.1f s")
@@ -179,6 +397,14 @@ function Z_vision_missWarning.OnUpdate()
     if (Heroes.GetLocal()==nil) then return end
     v20=GameRules.GetGameTime()
     v29(v20)
+    
+    -- Executar módulo de assistência
+    assistModule.OnUpdate()
+end
+
+function Z_vision_missWarning.OnGameEnd()
+    -- Limpar alertas do módulo de assistência
+    assistModule.OnGameEnd()
 end
 
 function Z_vision_missWarning.OnDraw()
