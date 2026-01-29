@@ -1,5 +1,5 @@
 --========================================================
--- ESEuphoriaAddons Pro v8.2 (Ally-Directed Smash 2.0)
+-- ESAurora
 --========================================================
 
 local TargetLock = require("TargetLock")
@@ -10,66 +10,47 @@ local CONFIG_NAME = "ESEuphoriaAddons2"
 
 -- ========= MENU =========
 local hero_tab = Menu.Find("Heroes", "Hero List", "Earth Spirit")
-local euphor_tab = hero_tab:Create("EuphoriaAddon 2.0 ⚡")
+local euphor_tab = hero_tab:Create("ESAurora")
 
-local main_group    = euphor_tab:Create("Principal")
-local ability_group = euphor_tab:Create("Habilidades")
-local items_group   = euphor_tab:Create("Itens")
-local delay_group   = euphor_tab:Create("Atrasos")
-local save_group    = euphor_tab:Create("Push Simples")
+local main_group    = euphor_tab:Create("Main")
+local items_group   = euphor_tab:Create("Items")
+local delay_group   = euphor_tab:Create("Delays")
+local save_group    = euphor_tab:Create("Simple Push")
 
 local ui = {}
-ui.enable   = main_group:Switch("Ativar Script", true, "\u{f013}")
-ui.hotkey   = main_group:Bind("Tecla Smash (segurar)", Enum.ButtonCode.KEY_G, "\u{f11c}")
-ui.mode     = main_group:Combo("Modo", {"Básico", "Avançado", "Pro"}, 1, "\u{f0ad}")
-ui.debug    = main_group:Switch("Prints de Debug", false, "\u{f188}")
-ui.use_move = main_group:Switch("Permitir Movimento Manual", true, "\u{f0b2}")
-ui.min_dist = main_group:Slider("Distância Mínima para Smash", 150, 300, 200, "%d")
-ui.target_prio = main_group:Combo("Prioridade de Alvo",
-    {"Menor HP%", "Mais Próximo", "Score de DPS"}, 0, "\u{f140}")
-ui.retreat_after_smash = main_group:Switch("Recuar com Roll Após Smash", true, "\u{f2f1}")
-ui.file_logging = main_group:Switch("Gravar Log em Arquivo", false, "\u{f0f6}")
-ui.prefer_roll = main_group:Switch("Preferir Início com Rolling", true, "\u{f1b2}")
+ui.enable   = main_group:Switch("Enable Script", true)
+ui.hotkey   = main_group:Bind("Smash Key (hold)", Enum.ButtonCode.KEY_G)
+ui.target_prio = main_group:Combo("Target Priority",
+    {"Lowest HP%", "Closest", "DPS Score"}, 0)
+ui.ally_mode = main_group:Combo("Ally Selection", {"Closest Ally", "Strongest Ally", "Ally with Lowest HP", "Ally on Cursor"}, 0)
+ui.ally_lock = main_group:Switch("Lock Ally During Combo", true)
+ui.min_dist = main_group:Slider("Min Distance for Smash", 150, 300, 200, "%d")
+ui.ally_max_range = main_group:Slider("Max Ally Range", 300, 2500, 1200, "%d")
+ui.use_move = main_group:Switch("Allow Manual Movement", true)
+ui.retreat_after_smash = main_group:Switch("Retreat with Roll After Smash", true)
+ui.prefer_roll = main_group:Switch("Prefer Start with Rolling", true)
+ui.debug    = main_group:Switch("Debug Prints", false)
+ui.file_logging = main_group:Switch("Save Log to File", false)
 
--- Push simples
-ui.save_enable  = save_group:Switch("Ativar Push Simples", true)
-ui.save_hotkey  = save_group:Bind("Push + Roll (segurar)", Enum.ButtonCode.KEY_H)
-ui.save_cursor_range = save_group:Slider("Range do Cursor", 200, 800, 400, "%d")
-ui.save_target_mode = save_group:Combo("Alvo do Push", {"Apenas Inimigos", "Apenas Aliados", "Qualquer"}, 0)
+-- Simple push
+ui.save_enable  = save_group:Switch("Enable Simple Push", true)
+ui.save_hotkey  = save_group:Bind("Push + Roll (hold)", Enum.ButtonCode.KEY_H)
+ui.save_cursor_range = save_group:Slider("Cursor Range", 200, 800, 400, "%d")
+ui.save_target_mode = save_group:Combo("Push Target", {"Enemies Only", "Allies Only", "Any"}, 0)
 
--- Salvar aliado
-local grip_group = euphor_tab:Create("Salvar Aliado (Grip)")
-ui.grip_enable = grip_group:Switch("Ativar Salvar Aliado", true)
-ui.grip_hotkey = grip_group:Bind("Puxar Aliado (segurar)", Enum.ButtonCode.KEY_K)
+-- Save ally
+local grip_group = euphor_tab:Create("Save Ally (Grip)")
+ui.grip_enable = grip_group:Switch("Enable Save Ally", true)
+ui.grip_hotkey = grip_group:Bind("Pull Ally (hold)", Enum.ButtonCode.KEY_K)
 
--- Ally-directed preferences
-local ally_group = euphor_tab:Create("Direção de Aliado")
-ui.ally_mode = ally_group:Combo("Seleção de Aliado", {"Aliado Mais Próximo", "Aliado Mais Forte", "Aliado com Menor HP", "Aliado no Cursor"}, 0)
-ui.ally_lock = ally_group:Switch("Travar Aliado Durante Combo", true)
-ui.ally_max_range = ally_group:Slider("Alcance Máx do Aliado", 300, 2500, 1200, "%d")
-
-ui.enchant  = ability_group:Switch("Usar Enchant Remnant (Aghanim)", true,
-    "panorama/images/spellicons/earth_spirit_petrify_png.vtex_c")
-
-ui.use_bkb   = items_group:Switch("Auto BKB", true, "panorama/images/items/black_king_bar_png.vtex_c")
-ui.smart_bkb = items_group:Switch("Smart BKB (apenas vs disables)", true, "\u{f0e7}")
-ui.linken_breaker = items_group:Switch("Auto Quebrador de Linken", true, "panorama/images/items/sphere_png.vtex_c")
-ui.linken_breaker_items = items_group:MultiSelect("Itens para Quebrar Linken", {
-    {"Urn of Shadows", "panorama/images/items/urn_of_shadows_png.vtex_c", true},
-    {"Spirit Vessel", "panorama/images/items/spirit_vessel_png.vtex_c", true},
+ui.linken_breaker = items_group:Switch("Auto Linken Breaker", true)
+ui.linken_breaker_items = items_group:MultiSelect("Items to Break Linken", {
     {"Force Staff", "panorama/images/items/force_staff_png.vtex_c", true},
     {"Heaven's Halberd", "panorama/images/items/heavens_halberd_png.vtex_c", true},
     {"Rod of Atos", "panorama/images/items/rod_of_atos_png.vtex_c", true},
     {"Orchid", "panorama/images/items/orchid_png.vtex_c", true},
     {"Bloodthorn", "panorama/images/items/bloodthorn_png.vtex_c", true},
     {"Eul's Scepter", "panorama/images/items/cyclone_png.vtex_c", true}
-}, true)
-ui.chain_cc  = items_group:MultiSelect("Itens de Controle em Cadeia", {
-    {"Rod of Atos", "panorama/images/items/rod_of_atos_png.vtex_c", true},
-    {"Eul’s Scepter", "panorama/images/items/cyclone_png.vtex_c", true},
-    {"Scythe of Vyse", "panorama/images/items/sheepstick_png.vtex_c", false},
-    {"Orchid", "panorama/images/items/orchid_png.vtex_c", false},
-    {"Nullifier", "panorama/images/items/nullifier_png.vtex_c", false}
 }, true)
 
 -- ========= CONFIG PERSISTENCE FUNCTIONS =========
@@ -82,7 +63,6 @@ local function SaveConfig()
     -- Main settings
     pcall(function() Config.WriteInt(CONFIG_NAME, "enable", ui.enable:Get() and 1 or 0) end)
     pcall(function() Config.WriteInt(CONFIG_NAME, "hotkey", ui.hotkey:Get()) end)
-    pcall(function() Config.WriteInt(CONFIG_NAME, "mode", ui.mode:Get()) end)
     pcall(function() Config.WriteInt(CONFIG_NAME, "debug", ui.debug:Get() and 1 or 0) end)
     pcall(function() Config.WriteInt(CONFIG_NAME, "use_move", ui.use_move:Get() and 1 or 0) end)
     pcall(function() Config.WriteInt(CONFIG_NAME, "min_dist", ui.min_dist:Get()) end)
@@ -106,12 +86,9 @@ local function SaveConfig()
     pcall(function() Config.WriteInt(CONFIG_NAME, "ally_lock", ui.ally_lock:Get() and 1 or 0) end)
     pcall(function() Config.WriteInt(CONFIG_NAME, "ally_max_range", ui.ally_max_range:Get()) end)
     
-    -- Abilities
-    pcall(function() Config.WriteInt(CONFIG_NAME, "enchant", ui.enchant:Get() and 1 or 0) end)
+
     
     -- Items
-    pcall(function() Config.WriteInt(CONFIG_NAME, "use_bkb", ui.use_bkb:Get() and 1 or 0) end)
-    pcall(function() Config.WriteInt(CONFIG_NAME, "smart_bkb", ui.smart_bkb:Get() and 1 or 0) end)
     pcall(function() Config.WriteInt(CONFIG_NAME, "linken_breaker", ui.linken_breaker:Get() and 1 or 0) end)
     
     -- Linken breaker items (MultiSelect - save as bitmask)
@@ -124,18 +101,6 @@ local function SaveConfig()
             end
         end
         Config.WriteInt(CONFIG_NAME, "linken_breaker_items", linken_breaker_mask)
-    end)
-    
-    -- Chain CC items (MultiSelect - save as bitmask)
-    pcall(function()
-        local chain_cc_mask = 0
-        local chain_cc_items = {"Rod of Atos", "Eul's Scepter", "Scythe of Vyse", "Orchid", "Nullifier"}
-        for i, name in ipairs(chain_cc_items) do
-            if ui.chain_cc:Get(name) then
-                chain_cc_mask = chain_cc_mask + (2 ^ (i - 1))
-            end
-        end
-        Config.WriteInt(CONFIG_NAME, "chain_cc", chain_cc_mask)
     end)
     
     print("[ESEuphoriaAddons2] Config saved!")
@@ -154,9 +119,6 @@ local function LoadConfig()
         
         local hotkey = Config.ReadInt(CONFIG_NAME, "hotkey", Enum.ButtonCode.KEY_G)
         if hotkey ~= 0 then ui.hotkey:Set(hotkey) end
-        
-        local mode = Config.ReadInt(CONFIG_NAME, "mode", 1)
-        ui.mode:Set(mode)
         
         local debug_val = Config.ReadInt(CONFIG_NAME, "debug", 0)
         ui.debug:Set(debug_val == 1)
@@ -209,17 +171,9 @@ local function LoadConfig()
         local ally_max_range = Config.ReadInt(CONFIG_NAME, "ally_max_range", 1200)
         ui.ally_max_range:Set(ally_max_range)
         
-        -- Abilities
-        local enchant = Config.ReadInt(CONFIG_NAME, "enchant", 1)
-        ui.enchant:Set(enchant == 1)
+
         
         -- Items
-        local use_bkb = Config.ReadInt(CONFIG_NAME, "use_bkb", 1)
-        ui.use_bkb:Set(use_bkb == 1)
-        
-        local smart_bkb = Config.ReadInt(CONFIG_NAME, "smart_bkb", 1)
-        ui.smart_bkb:Set(smart_bkb == 1)
-        
         local linken_breaker = Config.ReadInt(CONFIG_NAME, "linken_breaker", 1)
         ui.linken_breaker:Set(linken_breaker == 1)
         
@@ -232,15 +186,6 @@ local function LoadConfig()
             ui.linken_breaker_items:SetValue(name, enabled)
         end
         
-        -- Chain CC items (MultiSelect - load from bitmask)
-        local chain_cc_mask = Config.ReadInt(CONFIG_NAME, "chain_cc", 3) -- default: Atos + Euls
-        local chain_cc_items = {"Rod of Atos", "Eul's Scepter", "Scythe of Vyse", "Orchid", "Nullifier"}
-        for i, name in ipairs(chain_cc_items) do
-            local bit = 2 ^ (i - 1)
-            local enabled = (chain_cc_mask % (bit * 2)) >= bit
-            ui.chain_cc:SetValue(name, enabled)
-        end
-        
         print("[ESEuphoriaAddons2] Config loaded!")
     end)
 end
@@ -249,7 +194,6 @@ local function SetupConfigCallbacks()
     -- Main settings callbacks
     ui.enable:SetCallback(function() SaveConfig() end)
     ui.hotkey:SetCallback(function() SaveConfig() end)
-    ui.mode:SetCallback(function() SaveConfig() end)
     ui.debug:SetCallback(function() SaveConfig() end)
     ui.use_move:SetCallback(function() SaveConfig() end)
     ui.min_dist:SetCallback(function() SaveConfig() end)
@@ -273,15 +217,11 @@ local function SetupConfigCallbacks()
     ui.ally_lock:SetCallback(function() SaveConfig() end)
     ui.ally_max_range:SetCallback(function() SaveConfig() end)
     
-    -- Abilities callbacks
-    ui.enchant:SetCallback(function() SaveConfig() end)
+
     
     -- Items callbacks
-    ui.use_bkb:SetCallback(function() SaveConfig() end)
-    ui.smart_bkb:SetCallback(function() SaveConfig() end)
     ui.linken_breaker:SetCallback(function() SaveConfig() end)
     ui.linken_breaker_items:SetCallback(function() SaveConfig() end)
-    ui.chain_cc:SetCallback(function() SaveConfig() end)
 end
 
 -- ========= LOAD CONFIG AND SETUP CALLBACKS =========
@@ -297,7 +237,7 @@ local function Log(msg)
 end
 local function FileLog(msg)
     if not ui.file_logging:Get() then return end
-    local path = "earth_spirit_euphoria.log"
+    local path = "c:\\Users\\edcfa\\Downloads\\Umbrela\\scripts\\earth_spirit_euphoria.log"
     local f = io.open(path, "a")
     if f then
         f:write(string.format("[%0.2f] %s\n", GameRules.GetGameTime(), msg))
@@ -334,13 +274,13 @@ local function GetItem(hero, names)
     return nil
 end
 
--- Quebrador de Linkens: encontra e retorna um item habilitado que quebra Linken's Sphere
+-- Linken Breaker: find and return an enabled item that breaks Linken's Sphere
 local linken_breaker_items_raw = {"item_urn_of_shadows", "item_spirit_vessel", "item_force_staff", 
                                    "item_heavens_halberd", "item_rod_of_atos", "item_orchid", "item_bloodthorn", "item_cyclone"}
 local function FindLinkenBreakerItem(myHero)
     if not ui.linken_breaker:Get() or not ui.linken_breaker_items then return nil end
     
-    -- Mapa de nomes localizados para nomes internos do item
+    -- Map of display names to internal item names
     local item_map = {
         ["Urn of Shadows"] = "item_urn_of_shadows",
         ["Spirit Vessel"] = "item_spirit_vessel",
@@ -352,7 +292,7 @@ local function FindLinkenBreakerItem(myHero)
         ["Eul's Scepter"] = "item_cyclone"
     }
     
-    -- Verifica quais itens estão habilitados no menu
+    -- Check which items are enabled in the menu
     for display_name, item_name in pairs(item_map) do
         if ui.linken_breaker_items:Get(display_name) then
             local item = GetItem(myHero, item_name)
@@ -362,6 +302,16 @@ local function FindLinkenBreakerItem(myHero)
         end
     end
     return nil
+end
+
+local function CanBreakLinkenAtDistance(myHero, enemy)
+    local breakerItem = FindLinkenBreakerItem(myHero)
+    if not breakerItem then return false end
+    
+    local dist = (Entity.GetAbsOrigin(myHero) - Entity.GetAbsOrigin(enemy)):Length2D()
+    local itemRange = Ability.GetCastRange(breakerItem)
+    
+    return dist <= itemRange
 end
 
 local function GetAbility(hero, name)
@@ -398,7 +348,7 @@ end
 -- ========= TARGET SELECTOR =========
 local locked_target = nil
 local function FindEnemyTarget(myHero, force_new)
-    -- Não busca target durante push mode
+    -- Don't search for target during push mode
     if pushModeActive then return nil end
     
     if combo_active and locked_target and Entity.IsAlive(locked_target) then
@@ -406,15 +356,15 @@ local function FindEnemyTarget(myHero, force_new)
     end
     if force_new then locked_target = nil end
     
-    -- Usa método simples e eficiente
+    -- Use simple and efficient method
     local target = TargetLock.GetBestTarget()
     
-    -- Fallback para método manual se necessário
+    -- Fallback to manual method if necessary
     if not target then
         target = TargetLock.FindTarget(1200)
     end
     
-    -- Valida se alvo é atacável
+    -- Validate if target is attackable
     if target and not TargetLock.IsValidTarget(target) then
         target = nil
     end
@@ -432,7 +382,7 @@ local debug_last = ""
 local roll_travel = 0
 local roll_started_at = 0
 
--- Earth Spirit: rastreia quando colocou Remnant e precisa rolar
+-- Earth Spirit: track when Remnant was placed and needs to roll
 local earthSpiritPending = {
     active = false,
     time = 0,
@@ -442,8 +392,9 @@ local roll_target_point = nil
 local approach_roll_active = false
 local action_cd_until = 0
 local gate_deadline = 0
+local last_roll_remnant_time = 0  -- Track when remnant was created for rolling approach
 
--- Estado simplificado não precisa de máquina de estados
+-- Simplified state doesn't need state machine
 local first_update_done = false
 local function CountEnemiesNear(pos, radius, myHero)
     local c = 0
@@ -458,7 +409,7 @@ local function GetFountainPos(team)
     return team == 2 and Vector(-7000,-7000,512) or Vector(7000,7000,512)
 end
 
--- Estado do push para escape
+-- Push state for escape
 local pushEscapeState = {active = false, pushTime = 0, pushDir = nil, target = nil}
 local pushModeActive = false
 local shouldRollEscape = false
@@ -467,18 +418,18 @@ local lastPushSmashTime = 0
 local pushSmashDir = nil
 local prevGripKeyState = false
 
--- IA: Detecta se aliado está em perigo
+-- AI: Detect if ally is in danger
 local function IsAllyInDanger(ally, myHero)
     local dangerScore = 0
     local allyPos = Entity.GetAbsOrigin(ally)
     local hpPercent = (Entity.GetHealth(ally) / Entity.GetMaxHealth(ally)) * 100
     
-    -- 1. HP baixo (peso alto)
-    if hpPercent <= ui.grip_hp_threshold:Get() then
+    -- 1. Low HP (high weight)
+    if hpPercent <= 30 then
         dangerScore = dangerScore + 50
     end
     
-    -- 2. Cercado por inimigos
+    -- 2. Surrounded by enemies
     local enemiesNear = 0
     local alliesNear = 0
     for _, hero in pairs(Heroes.GetAll()) do
@@ -497,12 +448,12 @@ local function IsAllyInDanger(ally, myHero)
         dangerScore = dangerScore + 30
     end
     
-    -- 3. Stunado/Silenciado
+    -- 3. Stunned/Silenced
     if NPC.IsStunned(ally) or NPC.IsSilenced(ally) then
         dangerScore = dangerScore + 40
     end
     
-    -- 4. Longe da fonte (mais perigoso)
+    -- 4. Far from fountain (more dangerous)
     local fountain = GetFountainPos(Entity.GetTeamNum(ally))
     local distToFountain = (allyPos - fountain):Length2D()
     if distToFountain > 5000 then
@@ -519,7 +470,7 @@ local lastGripMoveTime = 0
 local function SaveAllyWithGrip(myHero, grip)
     local myPos = Entity.GetAbsOrigin(myHero)
     local cursorPos = Input.GetWorldCursorPos()
-    local GRIP_RANGE = 1100  -- Range máximo do Grip
+    local GRIP_RANGE = 1100  -- Max Grip range
     local now = GameRules.GetGameTime()
     
     if not cursorPos then
@@ -527,14 +478,14 @@ local function SaveAllyWithGrip(myHero, grip)
         return
     end
     
-    -- Se não tem aliado travado, procura um novo baseado no cursor
+    -- If no locked ally, search for a new one based on cursor
     if not locked_ally or not Entity.IsAlive(locked_ally) then
         local bestAlly, minDistToCursor = nil, 9999
         for _, ally in pairs(Heroes.GetAll()) do
             if ally ~= myHero and IsValidHero(ally) and Entity.IsSameTeam(myHero, ally) then
                 local allyPos = Entity.GetAbsOrigin(ally)
                 local distToCursor = (allyPos - cursorPos):Length2D()
-                -- Pega o aliado mais próximo do cursor
+                -- Get the closest ally to cursor
                 if distToCursor < minDistToCursor then
                     bestAlly = ally
                     minDistToCursor = distToCursor
@@ -545,17 +496,17 @@ local function SaveAllyWithGrip(myHero, grip)
     end
     
     if not locked_ally then 
-        FileLog("GRIP: nenhum aliado encontrado")
+        FileLog("GRIP: no ally found")
         return 
     end
     
     local allyPos = Entity.GetAbsOrigin(locked_ally)
     local distToMe = (allyPos - myPos):Length2D()
     
-    -- Se aliado está FORA do range, mover perto dele
+    -- If ally is OUT of range, move closer to them
     if distToMe > GRIP_RANGE then
         if ui.use_move:Get() and now >= lastGripMoveTime then
-            -- Move para o aliado usando PrepareUnitOrders (mesma mecânica do combo)
+            -- Move to ally using PrepareUnitOrders (same mechanic as combo)
             Player.PrepareUnitOrders(Players.GetLocal(),
                 Enum.UnitOrder.DOTA_UNIT_ORDER_MOVE_TO_POSITION,
                 0,
@@ -567,26 +518,26 @@ local function SaveAllyWithGrip(myHero, grip)
                 true
             )
             lastGripMoveTime = now + 0.15
-            FileLog(string.format("GRIP: perseguindo aliado (dist=%.1f range=%.1f)", distToMe, GRIP_RANGE))
+            FileLog(string.format("GRIP: chasing ally (dist=%.1f range=%.1f)", distToMe, GRIP_RANGE))
         end
         return
     end
     
-    -- Aliado está em range, tenta puxar
+    -- Ally is in range, try to pull
     if grip and CanCast(myHero, grip) then
         Ability.CastTarget(grip, locked_ally)
-        FileLog(string.format("GRIP: salvando %s (dist=%.1f)", 
+        FileLog(string.format("GRIP: saving %s (dist=%.1f)", 
             Entity.GetUnitName(locked_ally), distToMe))
     else
         if not grip then
-            FileLog("GRIP: habilidade nil")
+            FileLog("GRIP: ability nil")
         else
-            FileLog("GRIP: habilidade indisponível (CD/Mana)")
+            FileLog("GRIP: ability unavailable (CD/Mana)")
         end
     end
 end
 
--- Conta inimigos e aliados próximos
+-- Count nearby enemies and allies
 local function CountNearbyHeroes(pos, radius)
     local enemies, allies = 0, 0
     local myHero = Heroes.GetLocal()
@@ -605,7 +556,7 @@ local function CountNearbyHeroes(pos, radius)
     return enemies, allies
 end
 
--- Push inteligente: executa smash direto no cursor
+-- Smart push: execute smash directly on cursor
 local function SimpleCursorPush(myHero, smash)
     local cursorPos = Input.GetWorldCursorPos()
     if not cursorPos then 
@@ -630,12 +581,12 @@ local function SimpleCursorPush(myHero, smash)
         return
     end
     
-    -- Direção: do cursor para a fonte inimiga
+    -- Direction: from cursor to enemy fountain
     local pushDir = (cursorPos - Entity.GetAbsOrigin(myHero)):Normalized()
     
     Ability.CastPosition(smash, cursorPos)
     
-    -- STOP para não atacar depois
+    -- STOP to not attack after
     Player.PrepareUnitOrders(Players.GetLocal(),
         Enum.UnitOrder.DOTA_UNIT_ORDER_STOP,
         0,
@@ -658,7 +609,7 @@ end
 local function IsRolling(unit)
     return NPC.HasModifier(unit, "modifier_earth_spirit_rolling_boulder")
 end
--- Predição usando TargetLock
+-- Prediction using TargetLock
 local function PredictEnemyPos(enemy, now)
     if not enemy then return nil end
     return TargetLock.PredictPosition(enemy, 0.5, nil)
@@ -741,6 +692,11 @@ end
 
 -- ========= COMBO =========
 local combo_active, combo_state, combo_time = false, 0, 0
+local last_remnant_time = 0  -- Control to avoid creating multiple remnants
+local last_blink_time = 0  -- Control to avoid blink loop
+local last_linken_break_time = 0  -- Control to ensure Linken break before smash
+local last_grip_time = 0  -- Control to use Grip after smash
+local smash_executed = false  -- Flag to indicate smash was executed
 local smash_enemy = nil
 local lastAutoSaveTime = 0
 
@@ -770,29 +726,29 @@ function EuphoriaAddon2.OnUpdate()
     local grip    = GetAbility(myHero, "earth_spirit_geomagnetic_grip")
     local has_aghs = enchant and Ability.GetLevel(enchant) > 0
     
-    -- Salvar aliado com Grip (hold key - segurar)
+    -- Save ally with Grip (hold key)
     if ui.grip_enable:Get() and IsKeyDown(ui.grip_hotkey:Get()) then
         if grip and (not castTimers["grip_cooldown"] or now >= castTimers["grip_cooldown"]) then
             SaveAllyWithGrip(myHero, grip)
             castTimers["grip_cooldown"] = now + 0.5
-            FileLog("GRIP: ativado (hold)")
+            FileLog("GRIP: activated (hold)")
         end
     else
-        -- Limpa aliado travado quando solta a tecla
+        -- Clear locked ally when releasing key
         if locked_ally then
             locked_ally = nil
-            FileLog("GRIP: aliado destravädo")
+            FileLog("GRIP: ally unlocked")
         end
     end
 
-    -- Push simples pelo cursor (key press)
+    -- Simple push by cursor (key press)
     local pushKeyDown = IsKeyDown(ui.save_hotkey:Get())
     
-    -- H = segura para mover até alvo, tenta smash continuamente, rola apenas se smash em CD
+    -- H = hold to move to target, try smash continuously, roll only if smash on CD
     if ui.save_enable:Get() and pushKeyDown then
         local cursorPos = Input.GetWorldCursorPos()
         if cursorPos then
-            -- Busca herói mais próximo do Earth Spirit baseado no modo
+            -- Search for hero closest to Earth Spirit based on mode
             local myPos = Entity.GetAbsOrigin(myHero)
             local targetMode = ui.save_target_mode:Get()
             local nearestTarget = nil
@@ -804,11 +760,11 @@ function EuphoriaAddon2.OnUpdate()
                     local isAlly = Entity.IsSameTeam(myHero, h)
                     local validTarget = false
                     
-                    if targetMode == 0 and isEnemy then -- Apenas Inimigos
+                    if targetMode == 0 and isEnemy then -- Enemies Only
                         validTarget = true
-                    elseif targetMode == 1 and isAlly then -- Apenas Aliados
+                    elseif targetMode == 1 and isAlly then -- Allies Only
                         validTarget = true
-                    elseif targetMode == 2 then -- Qualquer
+                    elseif targetMode == 2 then -- Any
                         validTarget = true
                     end
                     
@@ -822,41 +778,41 @@ function EuphoriaAddon2.OnUpdate()
                 end
             end
             
-            -- Se tem alvo
+            -- If has target
             if nearestTarget then
                 local targetPos = Entity.GetAbsOrigin(nearestTarget)
                 local distToTarget = (targetPos - myPos):Length2D()
                 
-                -- Se está perto (<=100), tenta fazer smash
+                -- If close (<=100), try to smash
                 if distToTarget <= 100 and smash then
-                    -- Tenta fazer smash continuamente enquanto está próximo
+                    -- Try smash continuously while close
                     if CanCast(myHero, smash) and (now - lastPushSmashTime) >= 0.5 then
-                        -- Direção: sempre do alvo para o cursor (empurra na direção do cursor)
+                        -- Direction: always from target to cursor (push towards cursor)
                         local pushDir = (cursorPos - targetPos):Normalized()
-                        -- Posiciona o smash à frente do alvo na direção do cursor
+                        -- Position smash ahead of target towards cursor
                         local smashPos = targetPos + pushDir * 150
                         Ability.CastPosition(smash, smashPos)
                         lastPushSmashTime = now
                         pushSmashDir = pushDir
-                        FileLog("PUSH: Boulder Smash executado")
+                        FileLog("PUSH: Boulder Smash executed")
                         
-                        -- Agenda retreat com remnant após 0.3s
+                        -- Schedule retreat with remnant after 0.3s
                         if ui.retreat_after_smash:Get() and rolling and CanCast(myHero, rolling) then
                             pushEscapeState.active = true
                             pushEscapeState.pushTime = now + 0.3
                             pushEscapeState.pushDir = pushDir
-                            FileLog("PUSH: Retreat agendado após smash")
+                            FileLog("PUSH: Retreat scheduled after smash")
                         end
                     elseif not CanCast(myHero, smash) then
-                        -- Smash em CD = rola para escapar APENAS se não tiver retreat pendente
+                        -- Smash on CD = roll to escape ONLY if no retreat pending
                         if not pushEscapeState.active and rolling and CanCast(myHero, rolling) and (now - lastPushSmashTime) >= 0.5 then
                             local rollPos
                             
-                            -- Se modo é aliado (1) OU qualquer (2) E tem aliado próximo, rola em cima do aliado
+                            -- If mode is ally (1) OR any (2) AND has nearby ally, roll on top of ally
                             if (targetMode == 1 or targetMode == 2) and nearestTarget and Entity.IsSameTeam(myHero, nearestTarget) then
                                 local allyPos = Entity.GetAbsOrigin(nearestTarget)
                                 rollPos = allyPos
-                            -- Senão, escapa na direção oposta ao inimigo mais próximo
+                            -- Otherwise, escape in opposite direction from nearest enemy
                             else
                                 local nearestEnemy = nil
                                 local minDistEnemy = 9999
@@ -880,11 +836,11 @@ function EuphoriaAddon2.OnUpdate()
                             if rollPos then
                                 Ability.CastPosition(rolling, rollPos)
                                 lastPushSmashTime = now
-                                FileLog("PUSH: Roll executado (smash em CD)")
+                                FileLog("PUSH: Roll executed (smash on CD)")
                             end
                         end
                     end
-                -- Se está longe (>100), aproxima primeiro
+                -- If far (>100), approach first
                 elseif distToTarget > 100 then
                     Player.PrepareUnitOrders(Players.GetLocal(),
                         Enum.UnitOrder.DOTA_UNIT_ORDER_MOVE_TO_POSITION,
@@ -896,20 +852,20 @@ function EuphoriaAddon2.OnUpdate()
                         false,
                         true
                     )
-                    FileLog("PUSH: Aproximando do alvo")
+                    FileLog("PUSH: Approaching target")
                 end
             end
         end
     end
     prevPushKeyState = pushKeyDown
 
-    -- Push Escape: Executa retreat com remnant após smash
+    -- Push Escape: Execute retreat with remnant after smash
     if pushEscapeState.active and now >= pushEscapeState.pushTime then
         if rolling and CanCast(myHero, rolling) and pushEscapeState.pushDir then
             local myPos2 = Entity.GetAbsOrigin(myHero)
             local retreat_point = myPos2 + pushEscapeState.pushDir * 700
             
-            -- Usa remnant antes de rolar se tiver charge e mana para os dois casts
+            -- Use remnant before rolling if has charge and mana for both casts
             local hasRemnant = false
             if stoneRemnant and Ability.GetLevel(stoneRemnant) > 0 then
                 local remnantCharges = Ability.GetCurrentCharges and Ability.GetCurrentCharges(stoneRemnant) or 0
@@ -925,25 +881,25 @@ function EuphoriaAddon2.OnUpdate()
                 local remnantPos = myPos2 + pushEscapeState.pushDir * 200
                 Ability.CastPosition(stoneRemnant, remnantPos)
                 earthSpiritPending = { active = true, time = now, escapePos = retreat_point }
-                FileLog(string.format("PUSH RETREAT: remnant criado -> roll pendente para (%.0f,%.0f)", retreat_point.x, retreat_point.y))
+                FileLog(string.format("PUSH RETREAT: remnant created -> roll pending to (%.0f,%.0f)", retreat_point.x, retreat_point.y))
             else
                 Ability.CastPosition(rolling, retreat_point)
-                FileLog(string.format("PUSH RETREAT: roll direto -> (%.0f,%.0f)", retreat_point.x, retreat_point.y))
+                FileLog(string.format("PUSH RETREAT: direct roll -> (%.0f,%.0f)", retreat_point.x, retreat_point.y))
             end
         end
         pushEscapeState.active = false
     end
 
 
-    -- EARTH SPIRIT: Usa Rolling Boulder apos colocar Stone Remnant
+    -- EARTH SPIRIT: Use Rolling Boulder after placing Stone Remnant
     if earthSpiritPending.active then
         local heroName = NPC.GetUnitName(myHero)
         if heroName == "npc_dota_hero_earth_spirit" then
             local elapsed = now - earthSpiritPending.time
-            -- Timeout apos 1.0 segundos
+            -- Timeout after 1.0 seconds
             if elapsed >= 1.0 then
                 earthSpiritPending.active = false
-            -- Tenta a partir de 0.05s ate conseguir (ou ate 0.5s fallback)
+            -- Try from 0.05s until success (or up to 0.5s fallback)
             elseif elapsed >= 0.05 then
                 if rolling and Ability.IsCastable(rolling, NPC.GetMana(myHero)) then
                     Ability.CastPosition(rolling, earthSpiritPending.escapePos)
@@ -959,7 +915,7 @@ function EuphoriaAddon2.OnUpdate()
     end
     
 
-    -- Combo hold logic (bloqueado durante push escape)
+    -- Combo hold logic (blocked during push escape)
     local holding = IsKeyDown(ui.hotkey:Get())
     if holding and not combo_active and not pushModeActive then
         combo_active, combo_state = true, 0
@@ -970,8 +926,8 @@ function EuphoriaAddon2.OnUpdate()
         retreat_pending = false
         retreat_dir = nil
         approach_roll_active = false
-        earthSpiritPending.active = false  -- Limpa qualquer roll pendente ao iniciar combo
-        FileLog("Combo START alvo="..(smash_enemy and Entity.GetUnitName(smash_enemy) or "nil"))
+        -- DON'T clear earthSpiritPending here - let the system execute roll after remnant
+        FileLog("Combo START target="..(smash_enemy and Entity.GetUnitName(smash_enemy) or "nil"))
         local allyStart = FindPreferredAlly(myHero, false)
         FileLog("Ally SELECT="..(allyStart and Entity.GetUnitName(allyStart) or "auto"))
     elseif (not holding) and combo_active then
@@ -980,6 +936,7 @@ function EuphoriaAddon2.OnUpdate()
         locked_ally = nil
         TargetLock.ClearLock()
         DebugPrint("Combo stop")
+        return  -- Para a execução quando solta a tecla
     end
     
     -- Bloqueia combo se push mode está ativo
@@ -987,187 +944,179 @@ function EuphoriaAddon2.OnUpdate()
         return
     end
 
-    if (not combo_active) then return end
-    if (not smash_enemy) or (not Entity.IsAlive(smash_enemy)) then return end
+    -- Se não está ativo OU não tem alvo válido, para aqui
+    if not combo_active then return end
+    if not smash_enemy or not Entity.IsAlive(smash_enemy) then 
+        FileLog("Combo stopped: no valid target")
+        return 
+    end
     local myPos, enemyPos = Entity.GetAbsOrigin(myHero), Entity.GetAbsOrigin(smash_enemy)
     local dist = (myPos - enemyPos):Length2D()
 
     local pref_ally = FindPreferredAlly(myHero, false)
 
     if combo_state == 0 then
-        -- Preferir Rolling se configurado e disponível
-        if ui.prefer_roll:Get() and rolling and dist > ui.min_dist:Get() and dist < 1200 then
-            if not CanCast(myHero, rolling) then FileLog("STATE0 ROLL prefer blocked: cooldown/mana") end
-            if not CanCast(myHero, rolling) then
-                -- fall through to other options
-            elseif CanCast(myHero, rolling) then
-            local myPosIn = Entity.GetAbsOrigin(myHero)
-            local predicted = PredictEnemyPos(smash_enemy, now)
-            local dirIn = (predicted - myPosIn)
-            local lenIn = dirIn:Length2D()
-            if lenIn > 1 then
-                TryCast("roll_in", 0, function()
-                    -- Usa remnant antes de rolar se tiver charge e mana para os dois casts
-                    local hasRemnant = false
-                    if stoneRemnant and Ability.GetLevel(stoneRemnant) > 0 then
-                        local remnantCharges = Ability.GetCurrentCharges and Ability.GetCurrentCharges(stoneRemnant) or 0
-                        local myMana = NPC.GetMana(myHero)
-                        local remnantCost = Ability.GetManaCost and Ability.GetManaCost(stoneRemnant) or 0
-                        local boulderCost = Ability.GetManaCost and Ability.GetManaCost(rolling) or 0
-                        if remnantCharges > 0 and myMana >= (remnantCost + boulderCost) and Ability.IsCastable(stoneRemnant, myMana) then
-                            hasRemnant = true
-                        end
-                    end
-                    
-                    if hasRemnant then
-                        local myPosInCast = Entity.GetAbsOrigin(myHero)
-                        local dirToRoll = (predicted - myPosInCast):Normalized()
-                        local remnantPos = myPosInCast + dirToRoll * 200
-                        Ability.CastPosition(stoneRemnant, remnantPos)
-                        earthSpiritPending = { active = true, time = now, escapePos = predicted }
-                    else
-                        Ability.CastPosition(rolling, predicted)
-                    end
-                end)
-                DebugPrint(string.format("STATE0: ROLL prefer -> predicted(%.1f,%.1f) len=%.1f", predicted.x, predicted.y, lenIn))
-                FileLog(string.format("STATE0 ROLL prefer target=(%.0f,%.0f) travel=%.0f", predicted.x, predicted.y, lenIn))
-                roll_travel = lenIn
-                roll_started_at = now
-                roll_target_point = predicted
-                local roll_time = math.max(0.6, lenIn / 600.0 + 0.35)
-                combo_time, combo_state = now + roll_time, 1
-                approach_roll_active = true
+        FileLog(string.format("STATE0: dist=%.1f rolling=%s canRoll=%s blink=%s preferRoll=%s holding=%s", 
+            dist, tostring(rolling~=nil), tostring(rolling and CanCast(myHero, rolling)), 
+            tostring(blink~=nil), tostring(ui.prefer_roll:Get()), tostring(holding)))
+        
+        -- If VERY FAR (>1600), just approach walking - NEVER try abilities
+        if dist > 1600 then
+            if ui.use_move:Get() and not IsRolling(myHero) then
+                SmoothChase(myHero, smash_enemy, ui.min_dist:Get())
                 action_cd_until = now + 0.05
-                gate_deadline = now + math.min(1.6, roll_time + 0.9)
+            end
+            FileLog(string.format("STATE0: TOO FAR dist=%.1f - WALKING", dist))
+        -- First check if close enough to do smash directly
+        elseif dist <= ui.min_dist:Get() + 40 and smash and CanCast(myHero, smash) then
+            local pref_ally0 = FindPreferredAlly(myHero, false)
+            local dir0 = pref_ally0 and DirectionTowardsAlly(smash_enemy, pref_ally0) or nil
+            if not dir0 then
+                local bestScore, bestDir = -9999, nil
+                for i = 0, 15 do
+                    local angle = (math.pi * 2 / 16) * i
+                    local d    = Vector(math.cos(angle), math.sin(angle), 0)
+                    local startPos = Entity.GetAbsOrigin(smash_enemy)
+                    local endPos   = startPos + d * 600
+                    local score = 0
+                    local myPos2 = Entity.GetAbsOrigin(myHero)
+                    if (endPos - myPos2):Length2D() < (startPos - myPos2):Length2D() then score = score + 30 end
+                    if score > bestScore then bestScore, bestDir = score, d end
+                end
+                dir0 = bestDir
+            end
+            if dir0 and smash and CanCast(myHero, smash) then
+                local fastOk = TryCast("smash_fast", 0, function() Ability.CastPosition(smash, Entity.GetAbsOrigin(smash_enemy) + dir0 * 300) end)
+                if fastOk then
+                    FileLog(string.format("STATE0 FAST_SMASH dir=(%.2f,%.2f) dist=%.1f", dir0.x, dir0.y, dist))
+                    combo_state, combo_time = 2, now + 0.15
+                else
+                    FileLog("STATE0 FAST_SMASH TryCast locked")
+                    combo_state = 1
+                end
             else
                 combo_state = 1
-                FileLog("STATE0 ROLL prefer skipped: lenIn<=1")
+                FileLog("STATE0 FAST_SMASH dir_nil_or_unavailable -> state=1")
             end
+        -- Se preferir rolling E dist 1200-1600: usa rolling COM remnant para alcance máximo
+        elseif ui.prefer_roll:Get() and rolling and CanCast(myHero, rolling) and dist > 1200 and dist <= 1600 then
+            local myPosIn = Entity.GetAbsOrigin(myHero)
+            local predicted = PredictEnemyPos(smash_enemy, now)
+            local lenIn = (predicted - myPosIn):Length2D()
+            
+            -- Usa remnant antes de rolar se tiver mana
+            local hasRemnant = false
+            if stoneRemnant and Ability.GetLevel(stoneRemnant) > 0 then
+                local remnantCharges = Ability.GetCurrentCharges and Ability.GetCurrentCharges(stoneRemnant) or 0
+                local myMana = NPC.GetMana(myHero)
+                local remnantCost = Ability.GetManaCost and Ability.GetManaCost(stoneRemnant) or 0
+                local boulderCost = Ability.GetManaCost and Ability.GetManaCost(rolling) or 0
+                local timeSinceLastRemnant = now - last_remnant_time
+                if remnantCharges > 0 and myMana >= (remnantCost + boulderCost) and Ability.IsCastable(stoneRemnant, myMana) and timeSinceLastRemnant >= 0.8 then
+                    hasRemnant = true
+                end
             end
-        elseif blink and Ability.IsReady(blink) and dist > 250 and dist < 1200 then
-            TryCast("blink", 100, function() Ability.CastPosition(blink, enemyPos) end)
-            combo_time, combo_state = now+0.15,1
-            DebugPrint(string.format("STATE0: blink -> state=1 t=%.2f dist=%.1f", combo_time, dist))
+            
+            if hasRemnant then
+                local myPosInCast = Entity.GetAbsOrigin(myHero)
+                local dirToRoll = (predicted - myPosInCast):Normalized()
+                local remnantPos = myPosInCast + dirToRoll * 200
+                Ability.CastPosition(stoneRemnant, remnantPos)
+                earthSpiritPending = { active = true, time = now, escapePos = predicted }
+                last_remnant_time = now + 3.5  -- Longer cooldown to prevent kicking remnant after roll
+                last_roll_remnant_time = now  -- Track this remnant was for rolling
+                FileLog(string.format("REMNANT PLACED for LONG roll dist=%.1f", dist))
+            else
+                Ability.CastPosition(rolling, predicted)
+                FileLog(string.format("ROLLING (no remnant) dist=%.1f", dist))
+            end
+            
+            -- SEMPRE seta estado 1 imediatamente, igual ao blink
+            combo_time, combo_state = now + 0.08, 1
+            approach_roll_active = true
+            action_cd_until = now + 0.05
+            DebugPrint(string.format("STATE0: LONG ROLL dist=%.1f -> predicted(%.1f,%.1f)", dist, predicted.x, predicted.y))
+            FileLog(string.format("STATE0 LONG ROLL target=(%.0f,%.0f) travel=%.0f", predicted.x, predicted.y, lenIn))
+        -- Se preferir rolling E dist 300-1200: usa rolling SEM remnant
+        elseif ui.prefer_roll:Get() and rolling and CanCast(myHero, rolling) and dist >= 300 and dist <= 1200 then
+            local myPosIn = Entity.GetAbsOrigin(myHero)
+            local predicted = PredictEnemyPos(smash_enemy, now)
+            local lenIn = (predicted - myPosIn):Length2D()
+            
+            -- Usa remnant antes de rolar se tiver mana
+            local hasRemnant = false
+            if stoneRemnant and Ability.GetLevel(stoneRemnant) > 0 then
+                local remnantCharges = Ability.GetCurrentCharges and Ability.GetCurrentCharges(stoneRemnant) or 0
+                local myMana = NPC.GetMana(myHero)
+                local remnantCost = Ability.GetManaCost and Ability.GetManaCost(stoneRemnant) or 0
+                local boulderCost = Ability.GetManaCost and Ability.GetManaCost(rolling) or 0
+                local timeSinceLastRemnant = now - last_remnant_time
+                if remnantCharges > 0 and myMana >= (remnantCost + boulderCost) and Ability.IsCastable(stoneRemnant, myMana) and timeSinceLastRemnant >= 0.8 then
+                    hasRemnant = true
+                end
+            end
+            
+            if hasRemnant then
+                local myPosInCast = Entity.GetAbsOrigin(myHero)
+                local dirToRoll = (predicted - myPosInCast):Normalized()
+                local remnantPos = myPosInCast + dirToRoll * 200
+                Ability.CastPosition(stoneRemnant, remnantPos)
+                earthSpiritPending = { active = true, time = now, escapePos = predicted }
+                last_remnant_time = now + 3.5  -- Longer cooldown to prevent kicking remnant after roll
+                last_roll_remnant_time = now  -- Track this remnant was for rolling
+            else
+                Ability.CastPosition(rolling, predicted)
+            end
+            
+            -- SEMPRE seta estado 1 imediatamente, igual ao blink
+            combo_time, combo_state = now + 0.08, 1
+            approach_roll_active = true
+            action_cd_until = now + 0.05
+            DebugPrint(string.format("STATE0: ROLL prefer -> predicted(%.1f,%.1f) dist=%.1f", predicted.x, predicted.y, dist))
+            FileLog(string.format("STATE0 ROLL prefer target=(%.0f,%.0f) travel=%.0f", predicted.x, predicted.y, lenIn))
+        -- If NOT prefer rolling: try blink before rolling
+        elseif (not ui.prefer_roll:Get()) and blink and Ability.IsReady(blink) and dist > 250 and dist < 1200 and (now - last_blink_time) >= 1.0 then
+            TryCast("blink", 100, function() 
+                Ability.CastPosition(blink, enemyPos)
+            end)
+            last_blink_time = now
+            combo_time, combo_state = now+0.08,1
+            DebugPrint(string.format("STATE0: BLINK -> state=1 t=%.2f dist=%.1f", combo_time, dist))
             FileLog(string.format("STATE0 BLINK dist=%.1f", dist))
             
             -- Marca que usou blink (não precisa criar remnant depois)
             approach_roll_active = false
             earthSpiritPending.active = false  -- Cancela qualquer roll pendente
             action_cd_until = now + 0.05
-        elseif rolling and CanCast(myHero, rolling) and dist > ui.min_dist:Get() and dist < 1200 then
-            -- Inicia com Rolling Boulder para aproximar com direção precisa ao alvo
-            local myPosIn = Entity.GetAbsOrigin(myHero)
-            local predicted = PredictEnemyPos(smash_enemy, now)
-            local dirIn   = (predicted - myPosIn)
-            local lenIn   = dirIn:Length2D()
-            if lenIn > 1 then
-                TryCast("roll_in", 0, function()
-                    -- Usa remnant antes de rolar se tiver charge e mana para os dois casts
-                    local hasRemnant = false
-                    if stoneRemnant and Ability.GetLevel(stoneRemnant) > 0 then
-                        local remnantCharges = Ability.GetCurrentCharges and Ability.GetCurrentCharges(stoneRemnant) or 0
-                        local myMana = NPC.GetMana(myHero)
-                        local remnantCost = Ability.GetManaCost and Ability.GetManaCost(stoneRemnant) or 0
-                        local boulderCost = Ability.GetManaCost and Ability.GetManaCost(rolling) or 0
-                        if remnantCharges > 0 and myMana >= (remnantCost + boulderCost) and Ability.IsCastable(stoneRemnant, myMana) then
-                            hasRemnant = true
-                        end
-                    end
-                    
-                    if hasRemnant then
-                        local myPosInCast = Entity.GetAbsOrigin(myHero)
-                        local dirToRoll = (predicted - myPosInCast):Normalized()
-                        local remnantPos = myPosInCast + dirToRoll * 200
-                        Ability.CastPosition(stoneRemnant, remnantPos)
-                        earthSpiritPending = { active = true, time = now, escapePos = predicted }
-                    else
-                        Ability.CastPosition(rolling, predicted)
-                    end
-                end)
-                DebugPrint(string.format("Rolling IN predicted: len=%.1f -> (%.1f,%.1f)", lenIn, predicted.x, predicted.y))
-                debug_last = string.format("roll_in predicted (%.1f,%.1f)", predicted.x, predicted.y)
-                FileLog(string.format("ROLL IN travel=%.1f target=(%.0f,%.0f)", lenIn, predicted.x, predicted.y))
-                roll_travel = lenIn
-                roll_started_at = now
-                roll_target_point = predicted
-                local roll_time = math.max(0.6, lenIn / 600.0 + 0.35) -- tempo dinamico: velocidade ~600 + margem
-                combo_time, combo_state = now + roll_time, 1 -- espera tempo suficiente
-                DebugPrint(string.format("Rolling IN ETA=%.2fs start=%.2f", roll_time, roll_started_at))
-                FileLog(string.format("ROLL ETA=%.2f", roll_time))
-                approach_roll_active = true
-                action_cd_until = now + 0.05
-                gate_deadline = now + math.min(1.6, roll_time + 0.9)
-            else
-                combo_state = 1
-                DebugPrint("Rolling IN: len too small -> state=1")
-                FileLog("ROLL IN skipped: too close")
-            end
         elseif harpoon and Ability.IsReady(harpoon) and dist > 300 and dist < 1300 then
             TryCast("harpoon", 200, function() Ability.CastTarget(harpoon,smash_enemy) end)
             combo_time, combo_state = now+0.3,1
             DebugPrint("STATE0: harpoon -> state=1")
             FileLog("STATE0 HARPOON")
             action_cd_until = now + 0.05
-        elseif ui.use_move:Get() and dist > ui.min_dist:Get() then
+        -- If no ability can be used but is far, approach
+        elseif ui.use_move:Get() then
             if not IsRolling(myHero) then
                 SmoothChase(myHero, smash_enemy, ui.min_dist:Get())
                 action_cd_until = now + 0.05
             end
             DebugPrint("STATE0: chase")
-            FileLog("STATE0 CHASE")
+            FileLog("STATE0 CHASE (no abilities in range)")
         else
-            if dist <= ui.min_dist:Get() + 40 and smash and CanCast(myHero, smash) then
-                -- Tentativa imediata de Smash se já está perto
-                local pref_ally0 = FindPreferredAlly(myHero, false)
-                local dir0 = pref_ally0 and DirectionTowardsAlly(smash_enemy, pref_ally0) or nil
-                if not dir0 then
-                    local bestScore, bestDir = -9999, nil
-                    for i = 0, 15 do
-                        local angle = (math.pi * 2 / 16) * i
-                        local d    = Vector(math.cos(angle), math.sin(angle), 0)
-                        local startPos = Entity.GetAbsOrigin(smash_enemy)
-                        local endPos   = startPos + d * 600
-                        local score = 0
-                        local myPos2 = Entity.GetAbsOrigin(myHero)
-                        if (endPos - myPos2):Length2D() < (startPos - myPos2):Length2D() then score = score + 30 end
-                        if score > bestScore then bestScore, bestDir = score, d end
-                    end
-                    dir0 = bestDir
-                end
-                if not smash then FileLog("STATE0 FAST_SMASH smash nil") end
-                if smash and not CanCast(myHero, smash) then FileLog("STATE0 FAST_SMASH not castable (cd/mana)") end
-                if dir0 and smash and CanCast(myHero, smash) then
-                    local fastOk = TryCast("smash_fast", 0, function() Ability.CastPosition(smash, Entity.GetAbsOrigin(smash_enemy) + dir0 * 300) end)
-                    if fastOk then
-                        FileLog(string.format("STATE0 FAST_SMASH dir=(%.2f,%.2f) dist=%.1f", dir0.x, dir0.y, dist))
-                        combo_state, combo_time = 2, now + 0.15
-                    else
-                        FileLog("STATE0 FAST_SMASH TryCast locked")
-                        combo_state = 1
-                    end
-                else
-                    combo_state = 1
-                    FileLog("STATE0 FAST_SMASH dir_nil_or_unavailable -> state=1")
-                end
-            else
-                combo_state = 1
-                DebugPrint("STATE0: ready -> state=1")
-                FileLog("STATE0 READY -> 1")
-            end
+            -- Se não pode mover, vai para state 1 (espera)
+            combo_state = 1
+            DebugPrint("STATE0: no move allowed -> state=1")
+            FileLog("STATE0 NO MOVE -> 1")
         end
 
     elseif combo_state == 1 and now >= combo_time then
-        FileLog("STATE1 ENTER")
-        if ui.enchant:Get() and has_aghs and enchant then
-            TryCast("enchant", 150, function() Ability.CastTarget(enchant, smash_enemy) end)
-            DebugPrint("STATE1: enchant")
-            FileLog("STATE1 ENCHANT")
-        end
+        FileLog(string.format("STATE1 ENTER (now=%.2f combo_time=%.2f)", now, combo_time))
         combo_state, combo_time = 2, now+0.12
         DebugPrint("STATE1: -> state=2")
-        FileLog("STATE1 -> 2")
+        FileLog(string.format("STATE1 -> 2 (next at %.2f)", combo_time))
 
     elseif combo_state == 2 and now >= combo_time then
+        FileLog(string.format("STATE2 ENTER (now=%.2f combo_time=%.2f)", now, combo_time))
         -- Garantir que a rolagem terminou e estamos de frente ao inimigo (com timeout)
         if approach_roll_active and roll_started_at > 0 then
             local myPosCheck = Entity.GetAbsOrigin(myHero)
@@ -1187,12 +1136,12 @@ function EuphoriaAddon2.OnUpdate()
                     toRollTarget, enemyDist, dot, tostring(rollingNow), gate_deadline, now))
                 local pass = false
                 if rollingNow then
-                    pass = (toRollTarget <= 200 and dot >= 0.75) or (now >= gate_deadline)
+                    pass = (toRollTarget <= 300 and dot >= 0.65) or (now >= gate_deadline)
                 else
-                    pass = (enemyDist <= 275 and dot >= 0.65) or (now >= gate_deadline)
+                    pass = (enemyDist <= 350 and dot >= 0.50) or (now >= gate_deadline)
                 end
                 if not pass then
-                    if dot < 0.75 and toRollTarget <= 250 then
+                    if dot < 0.65 and toRollTarget <= 300 then
                         Player.PrepareUnitOrders(Players.GetLocal(),
                             Enum.UnitOrder.DOTA_UNIT_ORDER_MOVE_TO_POSITION,
                             0,
@@ -1243,21 +1192,26 @@ function EuphoriaAddon2.OnUpdate()
                 DebugPrint("Ally-directed dir towards "..Entity.GetUnitName(pref_ally))
             end
             if dir then
-                -- Verifica e quebra Linken's Sphere se o inimigo estiver protegido
                 local enemyPos = Entity.GetAbsOrigin(smash_enemy)
+                
+                -- Check and break Linken's Sphere if enemy is protected
                 if NPC.IsLinkensProtected(smash_enemy) then
                     local breakerItem = FindLinkenBreakerItem(myHero)
                     if breakerItem then
-                        TryCast("linken_breaker", 0, function()
+                        local castOk = TryCast("linken_breaker", 0, function()
                             Ability.CastTarget(breakerItem, smash_enemy)
                         end)
-                        FileLog("STATE2 LINKEN BREAKER cast no inimigo")
-                        combo_time = now + 0.2  -- Aguarda quebra de Linken
-                        return
+                        if castOk then
+                            FileLog("STATE2 LINKEN BREAKER cast no inimigo")
+                            last_linken_break_time = now
+                            combo_time = now + 0.4  -- Aguarda quebra de Linken completar
+                            smash_executed = false  -- Reset flag
+                            return
+                        end
                     end
                 end
                 
-                -- Verifica se há aliado próximo na posição do smash_enemy (evita empurrar aliado)
+                -- Check if there's an ally near smash_enemy position (avoid pushing ally)
                 local hasAllyNear = false
                 for _, ally in pairs(Heroes.GetAll()) do
                     if ally ~= myHero and IsValidHero(ally) and Entity.IsSameTeam(myHero, ally) then
@@ -1270,7 +1224,7 @@ function EuphoriaAddon2.OnUpdate()
                     end
                 end
                 
-                -- Verifica se há remnant próximo ao inimigo (evita chutar remnant em vez do herói)
+                -- Check if there's a remnant near enemy (avoid kicking remnant instead of hero)
                 local hasRemnantNear = false
                 if not hasAllyNear then
                     for i = 1, NPCs.Count() do
@@ -1279,9 +1233,16 @@ function EuphoriaAddon2.OnUpdate()
                             local npcName = NPC.GetUnitName(npc)
                             if npcName == "npc_dota_earth_spirit_stone" then
                                 local distToEnemy = (Entity.GetAbsOrigin(npc) - enemyPos):Length2D()
-                                if distToEnemy <= 150 then
+                                local npcPos = Entity.GetAbsOrigin(npc)
+                                local distToHero = (npcPos - Entity.GetAbsOrigin(myHero)):Length2D()
+                                
+                                -- Block if remnant was created for rolling within last 4 seconds
+                                local recentRollRemnant = last_roll_remnant_time > 0 and (now - last_roll_remnant_time) < 4.0
+                                
+                                if distToEnemy <= 150 or (recentRollRemnant and distToHero <= 600) then
                                     hasRemnantNear = true
-                                    FileLog(string.format("STATE2 smash BLOCKED: remnant próximo ao inimigo (dist=%.1f)", distToEnemy))
+                                    FileLog(string.format("STATE2 smash BLOCKED: remnant dist_enemy=%.1f dist_hero=%.1f rollRemnant=%s age=%.2f", 
+                                        distToEnemy, distToHero, tostring(recentRollRemnant), now - last_roll_remnant_time))
                                     break
                                 end
                             end
@@ -1297,13 +1258,17 @@ function EuphoriaAddon2.OnUpdate()
                     if castOk then
                         Log(string.format("Smash dir=(%.2f,%.2f) enemy=%s ally=%s", dir.x, dir.y, Entity.GetUnitName(smash_enemy), pref_ally and Entity.GetUnitName(pref_ally) or "nil"))
                         FileLog(string.format("SMASH cast dir=(%.2f,%.2f) enemy=%s ally=%s", dir.x, dir.y, Entity.GetUnitName(smash_enemy), pref_ally and Entity.GetUnitName(pref_ally) or "nil"))
-                        -- SÓ configura retreat se o smash foi realmente executado
+                        smash_executed = true  -- Mark that smash was executed
+                        -- ONLY set retreat if smash was actually executed
                         if ui.retreat_after_smash:Get() and rolling and CanCast(myHero, rolling) then
                             retreat_dir = dir
                             retreat_pending = true
-                            DebugPrint("STATE2: retreat pending (smash executado com sucesso)")
+                            DebugPrint("STATE2: retreat pending (smash executed successfully)")
                             FileLog("RETREAT queued (smash OK)")
                         end
+                        -- Aguarda próximo frame para executar Grip
+                        combo_time = now + 0.05
+                        return
                     else
                         FileLog("STATE2 smash TryCast locked (delay timer) - SEM RETREAT")
                     end
@@ -1312,6 +1277,8 @@ function EuphoriaAddon2.OnUpdate()
                 FileLog("STATE2 dir nil (no ally/fallback)")
             end
         end
+        -- Reset smash_executed
+        smash_executed = false
         if retreat_pending and ui.retreat_after_smash:Get() then
             combo_state, combo_time = 3, now+0.25
             DebugPrint("STATE2: -> state=3 (retreat)")
@@ -1343,12 +1310,12 @@ function EuphoriaAddon2.OnUpdate()
                 local remnantPos = myPos2 + dirToRoll * 200
                 Ability.CastPosition(stoneRemnant, remnantPos)
                 earthSpiritPending = { active = true, time = now, escapePos = retreat_point }
-                FileLog(string.format("RETREAT remnant criado -> roll pendente para (%.0f,%.0f)", retreat_point.x, retreat_point.y))
+                FileLog(string.format("RETREAT remnant created -> roll pending to (%.0f,%.0f)", retreat_point.x, retreat_point.y))
             else
                 TryCast("roll_out", 0, function() Ability.CastPosition(rolling, retreat_point) end)
-                FileLog(string.format("RETREAT roll direto -> (%.0f,%.0f)", retreat_point.x, retreat_point.y))
+                FileLog(string.format("RETREAT direct roll -> (%.0f,%.0f)", retreat_point.x, retreat_point.y))
             end
-            DebugPrint("Rolling Boulder retirada -> aliado")
+            DebugPrint("Rolling Boulder retreat -> ally")
         end
         retreat_pending = false
         retreat_dir = nil
