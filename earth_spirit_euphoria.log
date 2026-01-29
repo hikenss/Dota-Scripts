@@ -41835,3 +41835,3331 @@
 [2303.10] STATE0: dist=673.9 rolling=true canRoll=false blink=true preferRoll=false holding=true
 [2303.10] STATE0 CHASE (no abilities in range)
 [2303.13] GRIP: aliado destravädo
+[2408.80] Combo START alvo=npc_dota_hero_monkey_king
+[2408.80] Ally SELECT=npc_dota_hero_largo
+[2408.80] STATE0: dist=814.8 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2408.80] STATE0 BLINK PREFERRED dist=814.8
+[2408.83] GRIP: aliado destravädo
+[2408.87] GRIP: aliado destravädo
+[2408.90] GRIP: aliado destravädo
+[2408.90] STATE1 ENTER (now=2408.90 combo_time=2408.88)
+[2408.90] STATE1 -> 2 (next at 2409.02)
+[2408.93] GRIP: aliado destravädo
+[2408.97] GRIP: aliado destravädo
+[2409.00] GRIP: aliado destravädo
+[2409.03] GRIP: aliado destravädo
+[2409.03] STATE2 ENTER (now=2409.03 combo_time=2409.02)
+[2409.03] STATE2 LINKEN BREAKER cast no inimigo
+[2409.07] GRIP: aliado destravädo
+[2409.10] GRIP: aliado destravädo
+[2409.13] GRIP: aliado destravädo
+[2409.17] GRIP: aliado destravädo
+[2409.20] GRIP: aliado destravädo
+[2409.23] GRIP: aliado destravädo
+[2409.27] GRIP: aliado destravädo
+[2409.30] GRIP: aliado destravädo
+[2409.33] GRIP: aliado destravädo
+[2409.37] GRIP: aliado destravädo
+[2409.40] GRIP: aliado destravädo
+[2409.43] GRIP: aliado destravädo
+[2409.47] GRIP: aliado destravädo
+[2409.47] STATE2 ENTER (now=2409.47 combo_time=2409.43)
+[2409.47] SMASH cast dir=(0.90,-0.43) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2409.47] RETREAT queued (smash OK)
+[2409.50] GRIP: aliado destravädo
+[2409.53] GRIP: aliado destravädo
+[2409.53] STATE2 ENTER (now=2409.53 combo_time=2409.52)
+[2409.53] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2409.53] STATE2.5 GRIP cast após smash (dist=58.0)
+[2409.57] GRIP: aliado destravädo
+[2409.60] GRIP: aliado destravädo
+[2409.63] GRIP: aliado destravädo
+[2409.67] GRIP: aliado destravädo
+[2409.70] GRIP: aliado destravädo
+[2409.70] STATE2 ENTER (now=2409.70 combo_time=2409.68)
+[2409.70] STATE2 smash not castable (cd/mana)
+[2409.70] STATE2 -> 3
+[2409.73] GRIP: aliado destravädo
+[2409.77] GRIP: aliado destravädo
+[2409.80] GRIP: aliado destravädo
+[2409.83] GRIP: aliado destravädo
+[2409.87] GRIP: aliado destravädo
+[2409.90] GRIP: aliado destravädo
+[2409.93] GRIP: aliado destravädo
+[2409.97] GRIP: aliado destravädo
+[2409.97] RETREAT remnant criado -> roll pendente para (-1192,734)
+[2409.97] STATE3 done -> 0
+[2410.00] GRIP: aliado destravädo
+[2410.00] STATE0: dist=364.8 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2410.00] ROLL IN dist=364.8 target=(-1493,860)
+[2410.03] GRIP: aliado destravädo
+[2410.07] GRIP: aliado destravädo
+[2410.10] GRIP: aliado destravädo
+[2410.10] STATE1 ENTER (now=2410.10 combo_time=2410.08)
+[2410.10] STATE1 -> 2 (next at 2410.22)
+[2410.13] GRIP: aliado destravädo
+[2410.17] GRIP: aliado destravädo
+[2410.20] GRIP: aliado destravädo
+[2410.27] GRIP: aliado destravädo
+[2410.27] STATE2 ENTER (now=2410.27 combo_time=2410.22)
+[2410.27] STATE2 smash not castable (cd/mana)
+[2410.27] STATE2 -> 0
+[2410.30] GRIP: aliado destravädo
+[2410.30] STATE0: dist=593.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2410.30] STATE0 CHASE (no abilities in range)
+[2410.33] GRIP: aliado destravädo
+[2410.33] STATE0: dist=623.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2410.33] STATE0 CHASE (no abilities in range)
+[2410.37] GRIP: aliado destravädo
+[2410.37] STATE0: dist=653.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2410.37] STATE0 CHASE (no abilities in range)
+[2410.40] GRIP: aliado destravädo
+[2410.40] STATE0: dist=683.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2410.40] STATE0 CHASE (no abilities in range)
+[2410.43] GRIP: aliado destravädo
+[2410.43] STATE0: dist=656.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2410.43] STATE0 CHASE (no abilities in range)
+[2410.47] GRIP: aliado destravädo
+[2410.47] STATE0: dist=681.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2410.47] STATE0 CHASE (no abilities in range)
+[2410.50] GRIP: aliado destravädo
+[2410.50] STATE0: dist=671.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2410.50] STATE0 CHASE (no abilities in range)
+[2410.53] GRIP: aliado destravädo
+[2410.53] STATE0: dist=656.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2410.53] STATE0 CHASE (no abilities in range)
+[2410.57] GRIP: aliado destravädo
+[2410.57] STATE0: dist=656.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2410.57] STATE0 CHASE (no abilities in range)
+[2410.60] GRIP: aliado destravädo
+[2410.60] STATE0: dist=656.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2410.60] STATE0 CHASE (no abilities in range)
+[2410.63] GRIP: aliado destravädo
+[2410.63] STATE0: dist=656.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2410.63] STATE0 CHASE (no abilities in range)
+[2410.67] GRIP: aliado destravädo
+[2410.67] STATE0: dist=656.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2410.67] STATE0 CHASE (no abilities in range)
+[2410.70] GRIP: aliado destravädo
+[2410.70] STATE0: dist=656.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2410.70] STATE0 CHASE (no abilities in range)
+[2410.73] GRIP: aliado destravädo
+[2410.73] STATE0: dist=656.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2410.73] STATE0 CHASE (no abilities in range)
+[2410.77] GRIP: aliado destravädo
+[2410.77] STATE0: dist=656.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2410.77] STATE0 CHASE (no abilities in range)
+[2410.80] GRIP: aliado destravädo
+[2410.80] STATE0: dist=656.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2410.80] STATE0 CHASE (no abilities in range)
+[2410.83] GRIP: aliado destravädo
+[2410.83] STATE0: dist=622.8 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2410.83] STATE0 CHASE (no abilities in range)
+[2410.87] GRIP: aliado destravädo
+[2410.87] STATE0: dist=569.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2410.87] STATE0 CHASE (no abilities in range)
+[2410.90] GRIP: aliado destravädo
+[2410.90] STATE0: dist=516.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2410.90] STATE0 CHASE (no abilities in range)
+[2410.93] GRIP: aliado destravädo
+[2410.93] STATE0: dist=462.8 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2410.93] STATE0 CHASE (no abilities in range)
+[2410.97] GRIP: aliado destravädo
+[2410.97] STATE0: dist=409.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2410.97] STATE0 CHASE (no abilities in range)
+[2411.00] GRIP: aliado destravädo
+[2411.00] STATE0: dist=356.2 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2411.00] STATE0 CHASE (no abilities in range)
+[2411.03] GRIP: aliado destravädo
+[2437.07] SCRIPT INIT OK
+[2437.07] Combo START alvo=npc_dota_hero_monkey_king
+[2437.07] Ally SELECT=npc_dota_hero_largo
+[2437.07] STATE0: dist=731.1 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2437.07] STATE0 BLINK PREFERRED dist=731.1
+[2437.17] GRIP: aliado destravädo
+[2437.17] STATE1 ENTER (now=2437.17 combo_time=2437.15)
+[2437.17] STATE1 -> 2 (next at 2437.29)
+[2437.23] GRIP: aliado destravädo
+[2437.27] GRIP: aliado destravädo
+[2437.30] GRIP: aliado destravädo
+[2437.60] Combo START alvo=npc_dota_hero_monkey_king
+[2437.60] Ally SELECT=npc_dota_hero_largo
+[2437.60] STATE0: dist=58.0 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2437.60] STATE0 FAST_SMASH dir=(0.99,0.14) dist=58.0
+[2437.63] GRIP: aliado destravädo
+[2437.67] GRIP: aliado destravädo
+[2437.70] GRIP: aliado destravädo
+[2437.73] GRIP: aliado destravädo
+[2437.77] GRIP: aliado destravädo
+[2437.77] STATE2 ENTER (now=2437.77 combo_time=2437.75)
+[2437.77] STATE2 LINKEN BREAKER cast no inimigo
+[2437.80] GRIP: aliado destravädo
+[2437.83] GRIP: aliado destravädo
+[2437.87] GRIP: aliado destravädo
+[2437.90] GRIP: aliado destravädo
+[2437.93] GRIP: aliado destravädo
+[2437.97] GRIP: aliado destravädo
+[2438.00] GRIP: aliado destravädo
+[2438.03] GRIP: aliado destravädo
+[2438.07] GRIP: aliado destravädo
+[2438.10] GRIP: aliado destravädo
+[2438.13] GRIP: aliado destravädo
+[2438.17] GRIP: aliado destravädo
+[2438.17] STATE2 ENTER (now=2438.17 combo_time=2438.17)
+[2438.17] STATE2 smash not castable (cd/mana)
+[2438.17] STATE2 -> 0
+[2438.20] GRIP: aliado destravädo
+[2438.20] STATE0: dist=49.0 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2438.20] STATE0 CHASE (no abilities in range)
+[2438.23] GRIP: aliado destravädo
+[2438.23] STATE0: dist=55.3 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2438.23] STATE0 CHASE (no abilities in range)
+[2438.27] GRIP: aliado destravädo
+[2438.27] STATE0: dist=63.9 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2438.27] STATE0 CHASE (no abilities in range)
+[2438.30] GRIP: aliado destravädo
+[2438.30] STATE0: dist=74.3 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2438.30] STATE0 CHASE (no abilities in range)
+[2438.33] GRIP: aliado destravädo
+[2438.33] STATE0: dist=82.8 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2438.33] STATE0 CHASE (no abilities in range)
+[2438.37] GRIP: aliado destravädo
+[2438.37] STATE0: dist=89.7 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2438.37] STATE0 CHASE (no abilities in range)
+[2438.40] GRIP: aliado destravädo
+[2438.40] STATE0: dist=94.9 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2438.40] STATE0 CHASE (no abilities in range)
+[2438.43] GRIP: aliado destravädo
+[2438.43] STATE0: dist=98.1 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2438.43] STATE0 CHASE (no abilities in range)
+[2438.47] GRIP: aliado destravädo
+[2438.47] STATE0: dist=99.1 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2438.47] STATE0 CHASE (no abilities in range)
+[2438.53] GRIP: aliado destravädo
+[2438.53] STATE0: dist=94.8 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2438.53] STATE0 CHASE (no abilities in range)
+[2438.57] GRIP: aliado destravädo
+[2438.57] STATE0: dist=90.1 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2438.57] STATE0 CHASE (no abilities in range)
+[2438.60] GRIP: aliado destravädo
+[2438.60] STATE0: dist=84.3 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2438.60] STATE0 CHASE (no abilities in range)
+[2438.63] GRIP: aliado destravädo
+[2438.63] STATE0: dist=78.2 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2438.63] STATE0 CHASE (no abilities in range)
+[2438.67] GRIP: aliado destravädo
+[2438.67] STATE0: dist=72.7 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2438.67] STATE0 CHASE (no abilities in range)
+[2438.70] GRIP: aliado destravädo
+[2438.70] STATE0: dist=68.9 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2438.70] STATE0 CHASE (no abilities in range)
+[2438.73] GRIP: aliado destravädo
+[2438.73] STATE0: dist=67.5 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2438.73] STATE0 CHASE (no abilities in range)
+[2438.80] GRIP: aliado destravädo
+[2438.80] STATE0: dist=72.2 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2438.80] STATE0 CHASE (no abilities in range)
+[2438.83] GRIP: aliado destravädo
+[2438.83] STATE0: dist=76.8 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2438.83] STATE0 CHASE (no abilities in range)
+[2438.87] GRIP: aliado destravädo
+[2438.87] STATE0: dist=81.8 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2438.87] STATE0 CHASE (no abilities in range)
+[2438.90] GRIP: aliado destravädo
+[2438.90] STATE0: dist=86.0 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2438.90] STATE0 CHASE (no abilities in range)
+[2438.93] GRIP: aliado destravädo
+[2438.93] STATE0: dist=89.1 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2438.93] STATE0 CHASE (no abilities in range)
+[2438.97] GRIP: aliado destravädo
+[2443.47] Combo START alvo=npc_dota_hero_monkey_king
+[2443.47] Ally SELECT=npc_dota_hero_largo
+[2443.47] STATE0: dist=742.9 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2443.47] STATE0 BLINK PREFERRED dist=742.9
+[2443.50] GRIP: aliado destravädo
+[2443.53] GRIP: aliado destravädo
+[2443.57] GRIP: aliado destravädo
+[2443.57] STATE1 ENTER (now=2443.57 combo_time=2443.55)
+[2443.57] STATE1 -> 2 (next at 2443.69)
+[2443.60] GRIP: aliado destravädo
+[2443.63] GRIP: aliado destravädo
+[2443.67] GRIP: aliado destravädo
+[2443.70] GRIP: aliado destravädo
+[2443.70] STATE2 ENTER (now=2443.70 combo_time=2443.69)
+[2443.70] STATE2 LINKEN BREAKER cast no inimigo
+[2443.73] GRIP: aliado destravädo
+[2443.77] GRIP: aliado destravädo
+[2443.80] GRIP: aliado destravädo
+[2443.83] GRIP: aliado destravädo
+[2443.87] GRIP: aliado destravädo
+[2443.90] GRIP: aliado destravädo
+[2443.93] GRIP: aliado destravädo
+[2443.97] GRIP: aliado destravädo
+[2444.00] GRIP: aliado destravädo
+[2444.03] GRIP: aliado destravädo
+[2444.07] GRIP: aliado destravädo
+[2444.10] GRIP: aliado destravädo
+[2444.13] GRIP: aliado destravädo
+[2444.13] STATE2 ENTER (now=2444.13 combo_time=2444.10)
+[2444.13] SMASH cast dir=(0.98,0.22) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2444.13] RETREAT queued (smash OK)
+[2444.17] GRIP: aliado destravädo
+[2444.20] GRIP: aliado destravädo
+[2444.20] STATE2 ENTER (now=2444.20 combo_time=2444.18)
+[2444.20] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2444.20] STATE2.5 GRIP cast após smash (dist=58.0)
+[2444.23] GRIP: aliado destravädo
+[2444.27] GRIP: aliado destravädo
+[2444.30] GRIP: aliado destravädo
+[2444.33] GRIP: aliado destravädo
+[2444.37] GRIP: aliado destravädo
+[2444.37] STATE2 ENTER (now=2444.37 combo_time=2444.35)
+[2444.37] SMASH cast dir=(0.98,0.22) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2444.37] RETREAT queued (smash OK)
+[2444.40] GRIP: aliado destravädo
+[2444.43] GRIP: aliado destravädo
+[2444.43] STATE2 ENTER (now=2444.43 combo_time=2444.42)
+[2444.43] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2444.43] STATE2 -> 3
+[2444.47] GRIP: aliado destravädo
+[2444.50] GRIP: aliado destravädo
+[2444.53] GRIP: aliado destravädo
+[2444.57] GRIP: aliado destravädo
+[2444.60] GRIP: aliado destravädo
+[2444.63] GRIP: aliado destravädo
+[2444.67] GRIP: aliado destravädo
+[2444.70] GRIP: aliado destravädo
+[2444.70] RETREAT remnant criado -> roll pendente para (-1009,772)
+[2444.70] STATE3 done -> 0
+[2444.73] GRIP: aliado destravädo
+[2444.73] STATE0: dist=168.9 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2444.73] STATE0 CHASE (no abilities in range)
+[2444.77] GRIP: aliado destravädo
+[2444.77] STATE0: dist=197.5 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2444.77] STATE0 CHASE (no abilities in range)
+[2444.80] GRIP: aliado destravädo
+[2444.80] STATE0: dist=226.5 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2444.80] STATE0 CHASE (no abilities in range)
+[2444.83] GRIP: aliado destravädo
+[2444.83] STATE0: dist=245.5 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2444.83] STATE0 CHASE (no abilities in range)
+[2444.87] GRIP: aliado destravädo
+[2444.87] STATE0: dist=274.8 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2444.87] STATE0 CHASE (no abilities in range)
+[2444.90] GRIP: aliado destravädo
+[2444.90] STATE0: dist=304.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2444.90] STATE0 CHASE (no abilities in range)
+[2444.93] GRIP: aliado destravädo
+[2444.93] STATE0: dist=334.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2444.93] STATE0 CHASE (no abilities in range)
+[2444.97] GRIP: aliado destravädo
+[2444.97] STATE0: dist=363.6 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2444.97] STATE0 CHASE (no abilities in range)
+[2445.00] GRIP: aliado destravädo
+[2445.00] STATE0: dist=393.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2445.00] STATE0 CHASE (no abilities in range)
+[2445.03] GRIP: aliado destravädo
+[2445.03] STATE0: dist=423.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2445.03] STATE0 CHASE (no abilities in range)
+[2445.07] GRIP: aliado destravädo
+[2445.07] STATE0: dist=452.9 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2445.07] STATE0 CHASE (no abilities in range)
+[2445.10] GRIP: aliado destravädo
+[2445.10] STATE0: dist=482.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2445.10] STATE0 CHASE (no abilities in range)
+[2445.13] GRIP: aliado destravädo
+[2445.13] STATE0: dist=512.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2445.13] STATE0 CHASE (no abilities in range)
+[2445.17] GRIP: aliado destravädo
+[2445.17] STATE0: dist=542.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2445.17] STATE0 CHASE (no abilities in range)
+[2445.20] GRIP: aliado destravädo
+[2445.20] STATE0: dist=572.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2445.20] STATE0 CHASE (no abilities in range)
+[2445.23] GRIP: aliado destravädo
+[2445.23] STATE0: dist=602.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2445.23] STATE0 CHASE (no abilities in range)
+[2445.27] GRIP: aliado destravädo
+[2445.27] STATE0: dist=632.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2445.27] STATE0 CHASE (no abilities in range)
+[2445.30] GRIP: aliado destravädo
+[2445.30] STATE0: dist=661.9 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2445.30] STATE0 CHASE (no abilities in range)
+[2445.33] GRIP: aliado destravädo
+[2445.33] STATE0: dist=691.9 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2445.33] STATE0 CHASE (no abilities in range)
+[2445.37] GRIP: aliado destravädo
+[2445.37] STATE0: dist=721.8 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2445.37] STATE0 CHASE (no abilities in range)
+[2445.40] GRIP: aliado destravädo
+[2445.40] STATE0: dist=754.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2445.40] STATE0 CHASE (no abilities in range)
+[2445.43] GRIP: aliado destravädo
+[2445.43] STATE0: dist=703.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2445.43] STATE0 CHASE (no abilities in range)
+[2445.47] GRIP: aliado destravädo
+[2445.47] STATE0: dist=748.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2445.47] STATE0 CHASE (no abilities in range)
+[2445.50] GRIP: aliado destravädo
+[2445.50] STATE0: dist=754.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2445.50] STATE0 CHASE (no abilities in range)
+[2445.53] GRIP: aliado destravädo
+[2445.53] STATE0: dist=721.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2445.53] STATE0 CHASE (no abilities in range)
+[2445.57] GRIP: aliado destravädo
+[2445.57] STATE0: dist=670.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2445.57] STATE0 CHASE (no abilities in range)
+[2445.60] GRIP: aliado destravädo
+[2445.60] STATE0: dist=618.9 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2445.60] STATE0 CHASE (no abilities in range)
+[2445.63] GRIP: aliado destravädo
+[2445.63] STATE0: dist=568.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2445.63] STATE0 CHASE (no abilities in range)
+[2445.67] GRIP: aliado destravädo
+[2445.67] STATE0: dist=517.6 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2445.67] STATE0 CHASE (no abilities in range)
+[2445.70] GRIP: aliado destravädo
+[2445.70] STATE0: dist=467.9 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2445.70] STATE0 CHASE (no abilities in range)
+[2445.73] GRIP: aliado destravädo
+[2445.73] STATE0: dist=419.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2445.73] STATE0 CHASE (no abilities in range)
+[2445.77] GRIP: aliado destravädo
+[2445.77] STATE0: dist=371.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2445.77] STATE0 CHASE (no abilities in range)
+[2445.80] GRIP: aliado destravädo
+[2445.80] STATE0: dist=325.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2445.80] STATE0 CHASE (no abilities in range)
+[2445.83] GRIP: aliado destravädo
+[2445.83] STATE0: dist=282.6 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2445.83] STATE0 CHASE (no abilities in range)
+[2445.87] GRIP: aliado destravädo
+[2445.87] STATE0: dist=243.6 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2445.87] STATE0 CHASE (no abilities in range)
+[2445.90] GRIP: aliado destravädo
+[2445.90] STATE0: dist=210.9 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2445.90] STATE0 CHASE (no abilities in range)
+[2445.93] GRIP: aliado destravädo
+[2450.57] Combo START alvo=npc_dota_hero_monkey_king
+[2450.57] Ally SELECT=npc_dota_hero_largo
+[2450.57] STATE0: dist=947.4 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2450.57] STATE0 BLINK PREFERRED dist=947.4
+[2450.60] GRIP: aliado destravädo
+[2450.63] GRIP: aliado destravädo
+[2450.67] GRIP: aliado destravädo
+[2450.67] STATE1 ENTER (now=2450.67 combo_time=2450.65)
+[2450.67] STATE1 -> 2 (next at 2450.79)
+[2450.70] GRIP: aliado destravädo
+[2450.73] GRIP: aliado destravädo
+[2450.77] GRIP: aliado destravädo
+[2450.80] GRIP: aliado destravädo
+[2450.80] STATE2 ENTER (now=2450.80 combo_time=2450.79)
+[2450.80] STATE2 LINKEN BREAKER cast no inimigo
+[2450.83] GRIP: aliado destravädo
+[2450.87] GRIP: aliado destravädo
+[2450.90] GRIP: aliado destravädo
+[2450.93] GRIP: aliado destravädo
+[2450.97] GRIP: aliado destravädo
+[2451.00] GRIP: aliado destravädo
+[2451.03] GRIP: aliado destravädo
+[2451.07] GRIP: aliado destravädo
+[2451.10] GRIP: aliado destravädo
+[2451.13] GRIP: aliado destravädo
+[2451.17] GRIP: aliado destravädo
+[2451.20] GRIP: aliado destravädo
+[2451.23] GRIP: aliado destravädo
+[2451.23] STATE2 ENTER (now=2451.23 combo_time=2451.20)
+[2451.23] SMASH cast dir=(-1.00,0.04) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2451.23] RETREAT queued (smash OK)
+[2451.27] GRIP: aliado destravädo
+[2451.30] GRIP: aliado destravädo
+[2451.30] STATE2 ENTER (now=2451.30 combo_time=2451.28)
+[2451.30] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2451.30] STATE2.5 GRIP cast após smash (dist=95.5)
+[2451.33] GRIP: aliado destravädo
+[2451.37] GRIP: aliado destravädo
+[2451.40] GRIP: aliado destravädo
+[2451.43] GRIP: aliado destravädo
+[2451.47] GRIP: aliado destravädo
+[2451.47] STATE2 ENTER (now=2451.47 combo_time=2451.45)
+[2451.47] SMASH cast dir=(-1.00,0.04) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2451.47] RETREAT queued (smash OK)
+[2451.50] GRIP: aliado destravädo
+[2451.53] GRIP: aliado destravädo
+[2451.53] STATE2 ENTER (now=2451.53 combo_time=2451.52)
+[2451.53] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2451.53] STATE2 -> 3
+[2451.57] GRIP: aliado destravädo
+[2451.60] GRIP: aliado destravädo
+[2451.63] GRIP: aliado destravädo
+[2451.67] GRIP: aliado destravädo
+[2451.70] GRIP: aliado destravädo
+[2451.73] GRIP: aliado destravädo
+[2451.77] GRIP: aliado destravädo
+[2451.80] GRIP: aliado destravädo
+[2451.80] RETREAT remnant criado -> roll pendente para (-884,692)
+[2451.80] STATE3 done -> 0
+[2451.83] GRIP: aliado destravädo
+[2451.83] STATE0: dist=95.5 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2451.83] STATE0 FAST_SMASH dir=(-1.00,0.04) dist=95.5
+[2451.87] GRIP: aliado destravädo
+[2451.90] GRIP: aliado destravädo
+[2451.93] GRIP: aliado destravädo
+[2451.97] GRIP: aliado destravädo
+[2452.00] GRIP: aliado destravädo
+[2452.00] STATE2 ENTER (now=2452.00 combo_time=2451.98)
+[2452.00] STATE2 smash not castable (cd/mana)
+[2452.00] STATE2 -> 0
+[2452.03] GRIP: aliado destravädo
+[2452.03] STATE0: dist=95.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2452.03] STATE0 CHASE (no abilities in range)
+[2452.07] GRIP: aliado destravädo
+[2452.07] STATE0: dist=95.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2452.07] STATE0 CHASE (no abilities in range)
+[2452.10] GRIP: aliado destravädo
+[2452.10] STATE0: dist=95.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2452.10] STATE0 CHASE (no abilities in range)
+[2452.13] GRIP: aliado destravädo
+[2452.13] STATE0: dist=95.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2452.13] STATE0 CHASE (no abilities in range)
+[2452.17] GRIP: aliado destravädo
+[2457.77] Combo START alvo=npc_dota_hero_monkey_king
+[2457.77] Ally SELECT=npc_dota_hero_largo
+[2457.77] STATE0: dist=767.5 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2457.77] STATE0 BLINK PREFERRED dist=767.5
+[2457.80] GRIP: aliado destravädo
+[2457.83] GRIP: aliado destravädo
+[2457.87] GRIP: aliado destravädo
+[2457.87] STATE1 ENTER (now=2457.87 combo_time=2457.85)
+[2457.87] STATE1 -> 2 (next at 2457.99)
+[2457.90] GRIP: aliado destravädo
+[2457.93] GRIP: aliado destravädo
+[2457.97] GRIP: aliado destravädo
+[2458.00] GRIP: aliado destravädo
+[2458.00] STATE2 ENTER (now=2458.00 combo_time=2457.99)
+[2458.00] STATE2 LINKEN BREAKER cast no inimigo
+[2458.03] GRIP: aliado destravädo
+[2458.07] GRIP: aliado destravädo
+[2458.10] GRIP: aliado destravädo
+[2458.13] GRIP: aliado destravädo
+[2458.17] GRIP: aliado destravädo
+[2458.20] GRIP: aliado destravädo
+[2458.23] GRIP: aliado destravädo
+[2458.27] GRIP: aliado destravädo
+[2458.30] GRIP: aliado destravädo
+[2458.33] GRIP: aliado destravädo
+[2458.37] GRIP: aliado destravädo
+[2458.40] GRIP: aliado destravädo
+[2458.43] GRIP: aliado destravädo
+[2458.43] STATE2 ENTER (now=2458.43 combo_time=2458.40)
+[2458.43] SMASH cast dir=(-1.00,0.04) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2458.43] RETREAT queued (smash OK)
+[2458.47] GRIP: aliado destravädo
+[2458.50] GRIP: aliado destravädo
+[2458.50] STATE2 ENTER (now=2458.50 combo_time=2458.48)
+[2458.50] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2458.50] STATE2.5 GRIP cast após smash (dist=58.0)
+[2458.53] GRIP: aliado destravädo
+[2458.57] GRIP: aliado destravädo
+[2458.60] GRIP: aliado destravädo
+[2458.63] GRIP: aliado destravädo
+[2458.67] GRIP: aliado destravädo
+[2458.67] STATE2 ENTER (now=2458.67 combo_time=2458.65)
+[2458.67] SMASH cast dir=(-1.00,0.04) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2458.67] RETREAT queued (smash OK)
+[2458.70] GRIP: aliado destravädo
+[2458.73] GRIP: aliado destravädo
+[2458.73] STATE2 ENTER (now=2458.73 combo_time=2458.72)
+[2458.73] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2458.73] STATE2 -> 3
+[2458.77] GRIP: aliado destravädo
+[2458.80] GRIP: aliado destravädo
+[2458.83] GRIP: aliado destravädo
+[2458.87] GRIP: aliado destravädo
+[2458.90] GRIP: aliado destravädo
+[2458.93] GRIP: aliado destravädo
+[2458.97] GRIP: aliado destravädo
+[2459.00] GRIP: aliado destravädo
+[2459.00] RETREAT remnant criado -> roll pendente para (-836,715)
+[2459.00] STATE3 done -> 0
+[2459.03] GRIP: aliado destravädo
+[2459.03] STATE0: dist=58.0 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2459.03] STATE0 FAST_SMASH dir=(-1.00,0.04) dist=58.0
+[2459.07] GRIP: aliado destravädo
+[2459.10] GRIP: aliado destravädo
+[2459.13] GRIP: aliado destravädo
+[2459.17] GRIP: aliado destravädo
+[2459.20] GRIP: aliado destravädo
+[2459.20] STATE2 ENTER (now=2459.20 combo_time=2459.18)
+[2459.20] STATE2 smash not castable (cd/mana)
+[2459.20] STATE2 -> 0
+[2459.23] GRIP: aliado destravädo
+[2459.23] STATE0: dist=58.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2459.23] STATE0 CHASE (no abilities in range)
+[2459.27] GRIP: aliado destravädo
+[2459.27] STATE0: dist=58.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2459.27] STATE0 CHASE (no abilities in range)
+[2459.30] GRIP: aliado destravädo
+[2459.30] STATE0: dist=58.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2459.30] STATE0 CHASE (no abilities in range)
+[2459.33] GRIP: aliado destravädo
+[2459.33] STATE0: dist=58.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2459.33] STATE0 CHASE (no abilities in range)
+[2459.37] GRIP: aliado destravädo
+[2459.37] STATE0: dist=58.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2459.37] STATE0 CHASE (no abilities in range)
+[2459.40] GRIP: aliado destravädo
+[2459.40] STATE0: dist=58.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2459.40] STATE0 CHASE (no abilities in range)
+[2459.43] GRIP: aliado destravädo
+[2459.43] STATE0: dist=58.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2459.43] STATE0 CHASE (no abilities in range)
+[2459.47] GRIP: aliado destravädo
+[2459.47] STATE0: dist=58.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2459.47] STATE0 CHASE (no abilities in range)
+[2459.50] GRIP: aliado destravädo
+[2459.50] STATE0: dist=58.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2459.50] STATE0 CHASE (no abilities in range)
+[2459.53] GRIP: aliado destravädo
+[2459.53] STATE0: dist=58.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2459.53] STATE0 CHASE (no abilities in range)
+[2459.57] GRIP: aliado destravädo
+[2464.73] Combo START alvo=npc_dota_hero_monkey_king
+[2464.73] Ally SELECT=npc_dota_hero_largo
+[2464.73] STATE0: dist=813.0 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2464.73] STATE0 BLINK PREFERRED dist=813.0
+[2464.77] GRIP: aliado destravädo
+[2464.80] GRIP: aliado destravädo
+[2464.83] GRIP: aliado destravädo
+[2464.83] STATE1 ENTER (now=2464.83 combo_time=2464.81)
+[2464.83] STATE1 -> 2 (next at 2464.95)
+[2464.87] GRIP: aliado destravädo
+[2464.90] GRIP: aliado destravädo
+[2464.93] GRIP: aliado destravädo
+[2464.97] GRIP: aliado destravädo
+[2464.97] STATE2 ENTER (now=2464.97 combo_time=2464.95)
+[2464.97] STATE2 LINKEN BREAKER cast no inimigo
+[2465.00] GRIP: aliado destravädo
+[2465.03] GRIP: aliado destravädo
+[2465.07] GRIP: aliado destravädo
+[2465.10] GRIP: aliado destravädo
+[2465.13] GRIP: aliado destravädo
+[2465.17] GRIP: aliado destravädo
+[2465.20] GRIP: aliado destravädo
+[2465.23] GRIP: aliado destravädo
+[2465.27] GRIP: aliado destravädo
+[2465.30] GRIP: aliado destravädo
+[2465.33] GRIP: aliado destravädo
+[2465.37] GRIP: aliado destravädo
+[2465.40] GRIP: aliado destravädo
+[2465.40] STATE2 ENTER (now=2465.40 combo_time=2465.37)
+[2465.40] SMASH cast dir=(-1.00,0.04) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2465.40] RETREAT queued (smash OK)
+[2465.43] GRIP: aliado destravädo
+[2465.47] GRIP: aliado destravädo
+[2465.47] STATE2 ENTER (now=2465.47 combo_time=2465.45)
+[2465.47] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2465.47] STATE2.5 GRIP cast após smash (dist=58.0)
+[2465.50] GRIP: aliado destravädo
+[2465.53] GRIP: aliado destravädo
+[2465.57] GRIP: aliado destravädo
+[2465.60] GRIP: aliado destravädo
+[2465.63] GRIP: aliado destravädo
+[2465.63] STATE2 ENTER (now=2465.63 combo_time=2465.62)
+[2465.63] SMASH cast dir=(-1.00,0.04) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2465.63] RETREAT queued (smash OK)
+[2465.67] GRIP: aliado destravädo
+[2465.70] GRIP: aliado destravädo
+[2465.70] STATE2 ENTER (now=2465.70 combo_time=2465.68)
+[2465.70] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2465.70] STATE2 -> 3
+[2465.73] GRIP: aliado destravädo
+[2465.77] GRIP: aliado destravädo
+[2465.80] GRIP: aliado destravädo
+[2465.83] GRIP: aliado destravädo
+[2465.87] GRIP: aliado destravädo
+[2465.90] GRIP: aliado destravädo
+[2465.93] GRIP: aliado destravädo
+[2465.97] GRIP: aliado destravädo
+[2465.97] RETREAT remnant criado -> roll pendente para (-836,647)
+[2465.97] STATE3 done -> 0
+[2466.00] GRIP: aliado destravädo
+[2466.00] STATE0: dist=146.3 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2466.00] STATE0 CHASE (no abilities in range)
+[2466.03] GRIP: aliado destravädo
+[2466.03] STATE0: dist=175.2 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2466.03] STATE0 CHASE (no abilities in range)
+[2466.07] GRIP: aliado destravädo
+[2466.07] STATE0: dist=204.5 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2466.07] STATE0 CHASE (no abilities in range)
+[2466.10] GRIP: aliado destravädo
+[2466.10] STATE0: dist=223.6 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2466.10] STATE0 CHASE (no abilities in range)
+[2466.13] GRIP: aliado destravädo
+[2466.13] STATE0: dist=253.2 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2466.13] STATE0 CHASE (no abilities in range)
+[2466.17] GRIP: aliado destravädo
+[2466.17] STATE0: dist=282.8 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2466.17] STATE0 CHASE (no abilities in range)
+[2466.20] GRIP: aliado destravädo
+[2466.20] STATE0: dist=312.6 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2466.20] STATE0 CHASE (no abilities in range)
+[2466.23] GRIP: aliado destravädo
+[2466.23] STATE0: dist=342.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2466.23] STATE0 CHASE (no abilities in range)
+[2466.27] GRIP: aliado destravädo
+[2466.27] STATE0: dist=372.2 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2466.27] STATE0 CHASE (no abilities in range)
+[2466.30] GRIP: aliado destravädo
+[2466.30] STATE0: dist=402.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2466.30] STATE0 CHASE (no abilities in range)
+[2466.33] GRIP: aliado destravädo
+[2466.33] STATE0: dist=431.9 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2466.33] STATE0 CHASE (no abilities in range)
+[2466.37] GRIP: aliado destravädo
+[2466.37] STATE0: dist=461.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2466.37] STATE0 CHASE (no abilities in range)
+[2466.40] GRIP: aliado destravädo
+[2466.40] STATE0: dist=491.6 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2466.40] STATE0 CHASE (no abilities in range)
+[2466.43] GRIP: aliado destravädo
+[2466.43] STATE0: dist=521.6 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2466.43] STATE0 CHASE (no abilities in range)
+[2466.47] GRIP: aliado destravädo
+[2466.47] STATE0: dist=551.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2466.47] STATE0 CHASE (no abilities in range)
+[2466.50] GRIP: aliado destravädo
+[2466.50] STATE0: dist=581.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2466.50] STATE0 CHASE (no abilities in range)
+[2466.53] GRIP: aliado destravädo
+[2466.53] STATE0: dist=611.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2466.53] STATE0 CHASE (no abilities in range)
+[2466.57] GRIP: aliado destravädo
+[2466.57] STATE0: dist=641.2 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2466.57] STATE0 CHASE (no abilities in range)
+[2466.60] GRIP: aliado destravädo
+[2466.60] STATE0: dist=671.2 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2466.60] STATE0 CHASE (no abilities in range)
+[2466.63] GRIP: aliado destravädo
+[2466.63] STATE0: dist=701.2 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2466.63] STATE0 CHASE (no abilities in range)
+[2466.67] GRIP: aliado destravädo
+[2466.67] STATE0: dist=731.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2466.67] STATE0 CHASE (no abilities in range)
+[2466.70] GRIP: aliado destravädo
+[2466.70] STATE0: dist=679.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2466.70] STATE0 CHASE (no abilities in range)
+[2466.73] GRIP: aliado destravädo
+[2466.73] STATE0: dist=727.6 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2466.73] STATE0 CHASE (no abilities in range)
+[2466.77] GRIP: aliado destravädo
+[2466.77] STATE0: dist=731.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2466.77] STATE0 CHASE (no abilities in range)
+[2466.80] GRIP: aliado destravädo
+[2466.80] STATE0: dist=731.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2466.80] STATE0 CHASE (no abilities in range)
+[2466.83] GRIP: aliado destravädo
+[2466.83] STATE0: dist=698.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2466.83] STATE0 CHASE (no abilities in range)
+[2466.87] GRIP: aliado destravädo
+[2466.87] STATE0: dist=646.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2466.87] STATE0 CHASE (no abilities in range)
+[2466.90] GRIP: aliado destravädo
+[2466.90] STATE0: dist=594.6 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2466.90] STATE0 CHASE (no abilities in range)
+[2466.93] GRIP: aliado destravädo
+[2466.93] STATE0: dist=543.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2466.93] STATE0 CHASE (no abilities in range)
+[2466.97] GRIP: aliado destravädo
+[2466.97] STATE0: dist=491.9 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2466.97] STATE0 CHASE (no abilities in range)
+[2467.00] GRIP: aliado destravädo
+[2467.00] STATE0: dist=441.2 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2467.00] STATE0 CHASE (no abilities in range)
+[2467.03] GRIP: aliado destravädo
+[2467.03] STATE0: dist=391.2 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2467.03] STATE0 CHASE (no abilities in range)
+[2467.07] GRIP: aliado destravädo
+[2467.07] STATE0: dist=342.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2467.07] STATE0 CHASE (no abilities in range)
+[2467.10] GRIP: aliado destravädo
+[2467.10] STATE0: dist=294.9 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2467.10] STATE0 CHASE (no abilities in range)
+[2467.13] GRIP: aliado destravädo
+[2467.13] STATE0: dist=250.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2467.13] STATE0 CHASE (no abilities in range)
+[2467.17] GRIP: aliado destravädo
+[2467.17] STATE0: dist=208.9 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2467.17] STATE0 CHASE (no abilities in range)
+[2467.20] GRIP: aliado destravädo
+[2467.20] STATE0: dist=80.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2467.20] STATE0 CHASE (no abilities in range)
+[2467.23] GRIP: aliado destravädo
+[2470.87] Combo START alvo=npc_dota_hero_monkey_king
+[2470.87] Ally SELECT=npc_dota_hero_largo
+[2470.87] STATE0: dist=846.2 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2470.87] STATE0 BLINK PREFERRED dist=846.2
+[2470.90] GRIP: aliado destravädo
+[2470.93] GRIP: aliado destravädo
+[2470.97] GRIP: aliado destravädo
+[2470.97] STATE1 ENTER (now=2470.97 combo_time=2470.95)
+[2470.97] STATE1 -> 2 (next at 2471.09)
+[2471.00] GRIP: aliado destravädo
+[2471.03] GRIP: aliado destravädo
+[2471.07] GRIP: aliado destravädo
+[2471.10] GRIP: aliado destravädo
+[2471.10] STATE2 ENTER (now=2471.10 combo_time=2471.09)
+[2471.10] STATE2 LINKEN BREAKER cast no inimigo
+[2471.13] GRIP: aliado destravädo
+[2471.17] GRIP: aliado destravädo
+[2471.20] GRIP: aliado destravädo
+[2471.23] GRIP: aliado destravädo
+[2471.27] GRIP: aliado destravädo
+[2471.30] GRIP: aliado destravädo
+[2471.33] GRIP: aliado destravädo
+[2471.37] GRIP: aliado destravädo
+[2471.40] GRIP: aliado destravädo
+[2471.43] GRIP: aliado destravädo
+[2471.47] GRIP: aliado destravädo
+[2471.50] GRIP: aliado destravädo
+[2471.53] GRIP: aliado destravädo
+[2471.53] STATE2 ENTER (now=2471.53 combo_time=2471.50)
+[2471.53] SMASH cast dir=(-0.94,-0.35) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2471.53] RETREAT queued (smash OK)
+[2471.57] GRIP: aliado destravädo
+[2471.60] GRIP: aliado destravädo
+[2471.60] STATE2 ENTER (now=2471.60 combo_time=2471.58)
+[2471.60] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2471.60] STATE2.5 GRIP cast após smash (dist=58.0)
+[2471.63] GRIP: aliado destravädo
+[2471.67] GRIP: aliado destravädo
+[2471.70] GRIP: aliado destravädo
+[2471.73] GRIP: aliado destravädo
+[2471.77] GRIP: aliado destravädo
+[2471.77] STATE2 ENTER (now=2471.77 combo_time=2471.75)
+[2471.77] SMASH cast dir=(-0.94,-0.35) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2471.77] RETREAT queued (smash OK)
+[2471.80] GRIP: aliado destravädo
+[2471.83] GRIP: aliado destravädo
+[2471.83] STATE2 ENTER (now=2471.83 combo_time=2471.82)
+[2471.83] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2471.83] STATE2 -> 3
+[2471.87] GRIP: aliado destravädo
+[2471.90] GRIP: aliado destravädo
+[2471.93] GRIP: aliado destravädo
+[2471.97] GRIP: aliado destravädo
+[2472.00] GRIP: aliado destravädo
+[2472.03] GRIP: aliado destravädo
+[2472.07] GRIP: aliado destravädo
+[2472.10] GRIP: aliado destravädo
+[2472.10] RETREAT remnant criado -> roll pendente para (-1496,496)
+[2472.10] STATE3 done -> 0
+[2472.13] GRIP: aliado destravädo
+[2472.13] STATE0: dist=197.4 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2472.13] STATE0 CHASE (no abilities in range)
+[2472.17] GRIP: aliado destravädo
+[2472.17] STATE0: dist=226.2 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2472.17] STATE0 CHASE (no abilities in range)
+[2472.20] GRIP: aliado destravädo
+[2472.20] STATE0: dist=245.1 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2472.20] STATE0 CHASE (no abilities in range)
+[2472.23] GRIP: aliado destravädo
+[2472.23] STATE0: dist=264.2 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2472.23] STATE0 CHASE (no abilities in range)
+[2472.27] GRIP: aliado destravädo
+[2472.27] STATE0: dist=293.6 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2472.27] STATE0 CHASE (no abilities in range)
+[2472.30] GRIP: aliado destravädo
+[2472.30] STATE0: dist=323.2 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2472.30] STATE0 CHASE (no abilities in range)
+[2472.33] GRIP: aliado destravädo
+[2472.33] STATE0: dist=352.8 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2472.33] STATE0 CHASE (no abilities in range)
+[2472.37] GRIP: aliado destravädo
+[2472.37] STATE0: dist=382.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2472.37] STATE0 CHASE (no abilities in range)
+[2472.40] GRIP: aliado destravädo
+[2472.40] STATE0: dist=412.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2472.40] STATE0 CHASE (no abilities in range)
+[2472.43] GRIP: aliado destravädo
+[2472.43] STATE0: dist=442.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2472.43] STATE0 CHASE (no abilities in range)
+[2472.47] GRIP: aliado destravädo
+[2472.47] STATE0: dist=471.8 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2472.47] STATE0 CHASE (no abilities in range)
+[2472.50] GRIP: aliado destravädo
+[2472.50] STATE0: dist=501.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2472.50] STATE0 CHASE (no abilities in range)
+[2472.53] GRIP: aliado destravädo
+[2472.53] STATE0: dist=531.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2472.53] STATE0 CHASE (no abilities in range)
+[2472.57] GRIP: aliado destravädo
+[2472.57] STATE0: dist=561.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2472.57] STATE0 CHASE (no abilities in range)
+[2472.60] GRIP: aliado destravädo
+[2472.60] STATE0: dist=591.2 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2472.60] STATE0 CHASE (no abilities in range)
+[2472.63] GRIP: aliado destravädo
+[2472.63] STATE0: dist=621.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2472.63] STATE0 CHASE (no abilities in range)
+[2472.67] GRIP: aliado destravädo
+[2472.67] STATE0: dist=651.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2472.67] STATE0 CHASE (no abilities in range)
+[2472.70] GRIP: aliado destravädo
+[2472.70] STATE0: dist=680.9 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2472.70] STATE0 CHASE (no abilities in range)
+[2472.73] GRIP: aliado destravädo
+[2472.73] STATE0: dist=710.9 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2472.73] STATE0 CHASE (no abilities in range)
+[2472.77] GRIP: aliado destravädo
+[2472.77] STATE0: dist=740.8 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2472.77] STATE0 CHASE (no abilities in range)
+[2472.80] GRIP: aliado destravädo
+[2472.80] STATE0: dist=770.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2472.80] STATE0 CHASE (no abilities in range)
+[2472.83] GRIP: aliado destravädo
+[2472.83] STATE0: dist=735.9 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2472.83] STATE0 CHASE (no abilities in range)
+[2472.87] GRIP: aliado destravädo
+[2472.87] STATE0: dist=750.8 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2472.87] STATE0 CHASE (no abilities in range)
+[2472.90] GRIP: aliado destravädo
+[2472.90] STATE0: dist=770.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2472.90] STATE0 CHASE (no abilities in range)
+[2472.93] GRIP: aliado destravädo
+[2472.93] STATE0: dist=770.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2472.93] STATE0 CHASE (no abilities in range)
+[2472.97] GRIP: aliado destravädo
+[2472.97] STATE0: dist=738.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2472.97] STATE0 CHASE (no abilities in range)
+[2473.00] GRIP: aliado destravädo
+[2473.00] STATE0: dist=687.6 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2473.00] STATE0 CHASE (no abilities in range)
+[2473.03] GRIP: aliado destravädo
+[2473.03] STATE0: dist=637.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2473.03] STATE0 CHASE (no abilities in range)
+[2473.07] GRIP: aliado destravädo
+[2473.07] STATE0: dist=586.8 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2473.07] STATE0 CHASE (no abilities in range)
+[2473.10] GRIP: aliado destravädo
+[2473.10] STATE0: dist=537.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2473.10] STATE0 CHASE (no abilities in range)
+[2473.13] GRIP: aliado destravädo
+[2473.13] STATE0: dist=488.6 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2473.13] STATE0 CHASE (no abilities in range)
+[2473.17] GRIP: aliado destravädo
+[2473.17] STATE0: dist=440.9 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2473.17] STATE0 CHASE (no abilities in range)
+[2473.20] GRIP: aliado destravädo
+[2473.20] STATE0: dist=394.6 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2473.20] STATE0 CHASE (no abilities in range)
+[2473.23] GRIP: aliado destravädo
+[2479.47] Combo START alvo=npc_dota_hero_monkey_king
+[2479.47] Ally SELECT=npc_dota_hero_largo
+[2479.47] STATE0: dist=1461.4 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2479.47] STATE0 CHASE (no abilities in range)
+[2479.50] GRIP: aliado destravädo
+[2479.50] STATE0: dist=1471.4 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2479.50] STATE0 CHASE (no abilities in range)
+[2479.53] GRIP: aliado destravädo
+[2479.53] STATE0: dist=1481.6 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2479.53] STATE0 CHASE (no abilities in range)
+[2479.57] GRIP: aliado destravädo
+[2479.57] STATE0: dist=1481.6 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2479.57] STATE0 CHASE (no abilities in range)
+[2479.60] GRIP: aliado destravädo
+[2479.60] STATE0: dist=1481.6 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2479.60] STATE0 CHASE (no abilities in range)
+[2479.63] GRIP: aliado destravädo
+[2479.63] STATE0: dist=1481.6 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2479.63] STATE0 CHASE (no abilities in range)
+[2479.67] GRIP: aliado destravädo
+[2479.67] STATE0: dist=1471.2 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2479.67] STATE0 CHASE (no abilities in range)
+[2479.70] GRIP: aliado destravädo
+[2479.70] STATE0: dist=1461.0 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2479.70] STATE0 CHASE (no abilities in range)
+[2479.73] GRIP: aliado destravädo
+[2479.73] STATE0: dist=1450.7 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2479.73] STATE0 CHASE (no abilities in range)
+[2479.77] GRIP: aliado destravädo
+[2479.77] STATE0: dist=1440.4 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2479.77] STATE0 CHASE (no abilities in range)
+[2479.80] GRIP: aliado destravädo
+[2479.80] STATE0: dist=1430.1 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2479.80] STATE0 CHASE (no abilities in range)
+[2479.83] GRIP: aliado destravädo
+[2479.83] STATE0: dist=1419.8 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2479.83] STATE0 CHASE (no abilities in range)
+[2479.87] GRIP: aliado destravädo
+[2479.87] STATE0: dist=1409.6 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2479.87] STATE0 CHASE (no abilities in range)
+[2479.90] GRIP: aliado destravädo
+[2479.90] STATE0: dist=1399.3 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2479.90] STATE0 CHASE (no abilities in range)
+[2479.93] GRIP: aliado destravädo
+[2479.93] STATE0: dist=1388.9 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2479.93] STATE0 CHASE (no abilities in range)
+[2479.97] GRIP: aliado destravädo
+[2479.97] STATE0: dist=1378.6 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2479.97] STATE0 CHASE (no abilities in range)
+[2480.00] GRIP: aliado destravädo
+[2480.00] STATE0: dist=1368.4 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2480.00] STATE0 CHASE (no abilities in range)
+[2480.03] GRIP: aliado destravädo
+[2480.03] STATE0: dist=1358.0 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2480.03] STATE0 CHASE (no abilities in range)
+[2480.07] GRIP: aliado destravädo
+[2480.07] STATE0: dist=1347.8 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2480.07] STATE0 CHASE (no abilities in range)
+[2480.10] GRIP: aliado destravädo
+[2480.10] STATE0: dist=1337.5 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2480.10] STATE0 CHASE (no abilities in range)
+[2480.13] GRIP: aliado destravädo
+[2480.13] STATE0: dist=1327.3 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2480.13] STATE0 CHASE (no abilities in range)
+[2480.17] GRIP: aliado destravädo
+[2480.17] STATE0: dist=1316.9 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2480.17] STATE0 CHASE (no abilities in range)
+[2480.20] GRIP: aliado destravädo
+[2480.20] STATE0: dist=1306.7 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2480.20] STATE0 CHASE (no abilities in range)
+[2480.23] GRIP: aliado destravädo
+[2480.23] STATE0: dist=1296.4 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2480.23] STATE0 CHASE (no abilities in range)
+[2480.27] GRIP: aliado destravädo
+[2480.27] STATE0: dist=1286.2 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2480.27] STATE0 CHASE (no abilities in range)
+[2480.30] GRIP: aliado destravädo
+[2480.30] STATE0: dist=1275.8 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2480.30] STATE0 CHASE (no abilities in range)
+[2480.33] GRIP: aliado destravädo
+[2480.33] STATE0: dist=1265.5 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2480.33] STATE0 CHASE (no abilities in range)
+[2480.37] GRIP: aliado destravädo
+[2480.37] STATE0: dist=1255.3 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2480.37] STATE0 CHASE (no abilities in range)
+[2480.40] GRIP: aliado destravädo
+[2480.40] STATE0: dist=1245.1 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2480.40] STATE0 CHASE (no abilities in range)
+[2480.43] GRIP: aliado destravädo
+[2480.43] STATE0: dist=1234.7 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2480.43] STATE0 CHASE (no abilities in range)
+[2480.47] GRIP: aliado destravädo
+[2480.47] STATE0: dist=1224.4 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2480.47] STATE0 CHASE (no abilities in range)
+[2480.50] GRIP: aliado destravädo
+[2480.50] STATE0: dist=1214.2 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2480.50] STATE0 CHASE (no abilities in range)
+[2480.53] GRIP: aliado destravädo
+[2480.53] STATE0: dist=1203.8 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2480.53] STATE0 CHASE (no abilities in range)
+[2480.57] GRIP: aliado destravädo
+[2480.57] STATE0: dist=1193.6 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2480.57] STATE0 BLINK PREFERRED dist=1193.6
+[2480.60] GRIP: aliado destravädo
+[2480.63] GRIP: aliado destravädo
+[2480.67] GRIP: aliado destravädo
+[2480.67] STATE1 ENTER (now=2480.67 combo_time=2480.65)
+[2480.67] STATE1 -> 2 (next at 2480.79)
+[2480.70] GRIP: aliado destravädo
+[2480.73] GRIP: aliado destravädo
+[2480.77] GRIP: aliado destravädo
+[2480.80] GRIP: aliado destravädo
+[2480.80] STATE2 ENTER (now=2480.80 combo_time=2480.79)
+[2480.80] STATE2 LINKEN BREAKER cast no inimigo
+[2480.83] GRIP: aliado destravädo
+[2480.87] GRIP: aliado destravädo
+[2480.90] GRIP: aliado destravädo
+[2480.93] GRIP: aliado destravädo
+[2480.97] GRIP: aliado destravädo
+[2481.00] GRIP: aliado destravädo
+[2481.03] GRIP: aliado destravädo
+[2481.07] GRIP: aliado destravädo
+[2481.10] GRIP: aliado destravädo
+[2481.13] GRIP: aliado destravädo
+[2481.17] GRIP: aliado destravädo
+[2481.20] GRIP: aliado destravädo
+[2481.23] GRIP: aliado destravädo
+[2481.23] STATE2 ENTER (now=2481.23 combo_time=2481.20)
+[2481.23] SMASH cast dir=(1.00,0.05) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2481.23] RETREAT queued (smash OK)
+[2481.27] GRIP: aliado destravädo
+[2481.30] GRIP: aliado destravädo
+[2481.30] STATE2 ENTER (now=2481.30 combo_time=2481.28)
+[2481.30] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2481.30] STATE2.5 GRIP cast após smash (dist=58.0)
+[2481.33] GRIP: aliado destravädo
+[2481.37] GRIP: aliado destravädo
+[2481.40] GRIP: aliado destravädo
+[2481.43] GRIP: aliado destravädo
+[2481.47] GRIP: aliado destravädo
+[2481.47] STATE2 ENTER (now=2481.47 combo_time=2481.45)
+[2481.47] SMASH cast dir=(1.00,0.05) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2481.47] RETREAT queued (smash OK)
+[2481.50] GRIP: aliado destravädo
+[2481.53] GRIP: aliado destravädo
+[2481.53] STATE2 ENTER (now=2481.53 combo_time=2481.52)
+[2481.53] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2481.53] STATE2 -> 3
+[2481.57] GRIP: aliado destravädo
+[2481.60] GRIP: aliado destravädo
+[2481.63] GRIP: aliado destravädo
+[2481.67] GRIP: aliado destravädo
+[2481.70] GRIP: aliado destravädo
+[2481.73] GRIP: aliado destravädo
+[2481.77] GRIP: aliado destravädo
+[2481.80] GRIP: aliado destravädo
+[2481.80] RETREAT remnant criado -> roll pendente para (-975,740)
+[2481.80] STATE3 done -> 0
+[2481.83] GRIP: aliado destravädo
+[2481.83] STATE0: dist=230.8 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2481.83] STATE0 CHASE (no abilities in range)
+[2481.87] GRIP: aliado destravädo
+[2481.87] STATE0: dist=260.6 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2481.87] STATE0 CHASE (no abilities in range)
+[2481.90] GRIP: aliado destravädo
+[2481.90] STATE0: dist=280.1 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2481.90] STATE0 CHASE (no abilities in range)
+[2481.93] GRIP: aliado destravädo
+[2481.93] STATE0: dist=299.5 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2481.93] STATE0 CHASE (no abilities in range)
+[2481.97] GRIP: aliado destravädo
+[2481.97] STATE0: dist=349.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2481.97] STATE0 CHASE (no abilities in range)
+[2482.00] GRIP: aliado destravädo
+[2482.00] STATE0: dist=368.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2482.00] STATE0 CHASE (no abilities in range)
+[2482.03] GRIP: aliado destravädo
+[2482.03] STATE0: dist=389.2 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2482.03] STATE0 CHASE (no abilities in range)
+[2482.07] GRIP: aliado destravädo
+[2482.07] STATE0: dist=419.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2482.07] STATE0 CHASE (no abilities in range)
+[2482.10] GRIP: aliado destravädo
+[2482.10] STATE0: dist=449.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2482.10] STATE0 CHASE (no abilities in range)
+[2482.13] GRIP: aliado destravädo
+[2482.13] STATE0: dist=478.9 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2482.13] STATE0 CHASE (no abilities in range)
+[2482.17] GRIP: aliado destravädo
+[2482.17] STATE0: dist=508.9 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2482.17] STATE0 CHASE (no abilities in range)
+[2482.20] GRIP: aliado destravädo
+[2482.20] STATE0: dist=538.9 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2482.20] STATE0 CHASE (no abilities in range)
+[2482.23] GRIP: aliado destravädo
+[2482.23] STATE0: dist=568.8 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2482.23] STATE0 CHASE (no abilities in range)
+[2482.27] GRIP: aliado destravädo
+[2482.27] STATE0: dist=598.8 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2482.27] STATE0 CHASE (no abilities in range)
+[2482.30] GRIP: aliado destravädo
+[2482.30] STATE0: dist=628.8 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2482.30] STATE0 CHASE (no abilities in range)
+[2482.33] GRIP: aliado destravädo
+[2482.33] STATE0: dist=658.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2482.33] STATE0 CHASE (no abilities in range)
+[2482.37] GRIP: aliado destravädo
+[2482.37] STATE0: dist=688.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2482.37] STATE0 CHASE (no abilities in range)
+[2482.40] GRIP: aliado destravädo
+[2482.40] STATE0: dist=718.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2482.40] STATE0 CHASE (no abilities in range)
+[2482.43] GRIP: aliado destravädo
+[2482.43] STATE0: dist=748.6 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2482.43] STATE0 CHASE (no abilities in range)
+[2482.47] GRIP: aliado destravädo
+[2482.47] STATE0: dist=778.6 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2482.47] STATE0 CHASE (no abilities in range)
+[2482.50] GRIP: aliado destravädo
+[2482.50] STATE0: dist=789.6 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2482.50] STATE0 CHASE (no abilities in range)
+[2482.53] GRIP: aliado destravädo
+[2482.53] STATE0: dist=761.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2482.53] STATE0 CHASE (no abilities in range)
+[2482.57] GRIP: aliado destravädo
+[2482.57] STATE0: dist=788.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2482.57] STATE0 CHASE (no abilities in range)
+[2482.60] GRIP: aliado destravädo
+[2482.60] STATE0: dist=756.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2482.60] STATE0 CHASE (no abilities in range)
+[2482.63] GRIP: aliado destravädo
+[2482.63] STATE0: dist=703.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2482.63] STATE0 CHASE (no abilities in range)
+[2482.67] GRIP: aliado destravädo
+[2489.93] Combo START alvo=npc_dota_hero_monkey_king
+[2489.93] Ally SELECT=npc_dota_hero_largo
+[2489.93] STATE0: dist=1455.3 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2489.93] STATE0 CHASE (no abilities in range)
+[2489.97] GRIP: aliado destravädo
+[2489.97] STATE0: dist=1457.2 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2489.97] STATE0 CHASE (no abilities in range)
+[2490.00] GRIP: aliado destravädo
+[2490.00] STATE0: dist=1452.9 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2490.00] STATE0 CHASE (no abilities in range)
+[2490.03] GRIP: aliado destravädo
+[2490.03] STATE0: dist=1457.2 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2490.03] STATE0 CHASE (no abilities in range)
+[2490.07] GRIP: aliado destravädo
+[2490.07] STATE0: dist=1446.9 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2490.07] STATE0 CHASE (no abilities in range)
+[2490.10] GRIP: aliado destravädo
+[2490.10] STATE0: dist=1436.6 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2490.10] STATE0 CHASE (no abilities in range)
+[2490.13] GRIP: aliado destravädo
+[2490.13] STATE0: dist=1426.3 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2490.13] STATE0 CHASE (no abilities in range)
+[2490.17] GRIP: aliado destravädo
+[2490.17] STATE0: dist=1415.8 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2490.17] STATE0 CHASE (no abilities in range)
+[2490.20] GRIP: aliado destravädo
+[2490.20] STATE0: dist=1405.6 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2490.20] STATE0 CHASE (no abilities in range)
+[2490.23] GRIP: aliado destravädo
+[2490.23] STATE0: dist=1395.3 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2490.23] STATE0 CHASE (no abilities in range)
+[2490.27] GRIP: aliado destravädo
+[2490.27] STATE0: dist=1384.9 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2490.27] STATE0 CHASE (no abilities in range)
+[2490.30] GRIP: aliado destravädo
+[2490.30] STATE0: dist=1374.5 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2490.30] STATE0 CHASE (no abilities in range)
+[2490.33] GRIP: aliado destravädo
+[2490.33] STATE0: dist=1364.2 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2490.33] STATE0 CHASE (no abilities in range)
+[2490.37] GRIP: aliado destravädo
+[2490.37] STATE0: dist=1353.9 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2490.37] STATE0 CHASE (no abilities in range)
+[2490.40] GRIP: aliado destravädo
+[2490.40] STATE0: dist=1343.6 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2490.40] STATE0 CHASE (no abilities in range)
+[2490.43] GRIP: aliado destravädo
+[2490.43] STATE0: dist=1333.2 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2490.43] STATE0 CHASE (no abilities in range)
+[2490.47] GRIP: aliado destravädo
+[2490.47] STATE0: dist=1322.9 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2490.47] STATE0 CHASE (no abilities in range)
+[2490.50] GRIP: aliado destravädo
+[2490.50] STATE0: dist=1312.6 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2490.50] STATE0 CHASE (no abilities in range)
+[2490.53] GRIP: aliado destravädo
+[2490.53] STATE0: dist=1302.1 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2490.53] STATE0 CHASE (no abilities in range)
+[2490.57] GRIP: aliado destravädo
+[2490.57] STATE0: dist=1291.9 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2490.57] STATE0 CHASE (no abilities in range)
+[2490.60] GRIP: aliado destravädo
+[2490.60] STATE0: dist=1281.6 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2490.60] STATE0 CHASE (no abilities in range)
+[2490.63] GRIP: aliado destravädo
+[2490.63] STATE0: dist=1271.3 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2490.63] STATE0 CHASE (no abilities in range)
+[2490.67] GRIP: aliado destravädo
+[2490.67] STATE0: dist=1260.8 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2490.67] STATE0 CHASE (no abilities in range)
+[2490.70] GRIP: aliado destravädo
+[2490.70] STATE0: dist=1250.5 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2490.70] STATE0 CHASE (no abilities in range)
+[2490.73] GRIP: aliado destravädo
+[2490.73] STATE0: dist=1240.2 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2490.73] STATE0 CHASE (no abilities in range)
+[2490.77] GRIP: aliado destravädo
+[2490.77] STATE0: dist=1230.0 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2490.77] STATE0 CHASE (no abilities in range)
+[2490.80] GRIP: aliado destravädo
+[2490.80] STATE0: dist=1219.5 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2490.80] STATE0 CHASE (no abilities in range)
+[2490.83] GRIP: aliado destravädo
+[2490.83] STATE0: dist=1209.2 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2490.83] STATE0 CHASE (no abilities in range)
+[2490.87] GRIP: aliado destravädo
+[2490.87] STATE0: dist=1198.9 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2490.87] STATE0 BLINK PREFERRED dist=1198.9
+[2490.90] GRIP: aliado destravädo
+[2490.93] GRIP: aliado destravädo
+[2490.97] GRIP: aliado destravädo
+[2490.97] STATE1 ENTER (now=2490.97 combo_time=2490.95)
+[2490.97] STATE1 -> 2 (next at 2491.09)
+[2491.00] GRIP: aliado destravädo
+[2491.03] GRIP: aliado destravädo
+[2491.07] GRIP: aliado destravädo
+[2491.10] GRIP: aliado destravädo
+[2491.10] STATE2 ENTER (now=2491.10 combo_time=2491.09)
+[2491.10] STATE2 LINKEN BREAKER cast no inimigo
+[2491.13] GRIP: aliado destravädo
+[2491.17] GRIP: aliado destravädo
+[2491.20] GRIP: aliado destravädo
+[2491.23] GRIP: aliado destravädo
+[2491.27] GRIP: aliado destravädo
+[2491.30] GRIP: aliado destravädo
+[2491.33] GRIP: aliado destravädo
+[2491.37] GRIP: aliado destravädo
+[2491.40] GRIP: aliado destravädo
+[2491.43] GRIP: aliado destravädo
+[2491.47] GRIP: aliado destravädo
+[2491.50] GRIP: aliado destravädo
+[2491.53] GRIP: aliado destravädo
+[2491.53] STATE2 ENTER (now=2491.53 combo_time=2491.50)
+[2491.53] SMASH cast dir=(-1.00,-0.04) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2491.53] RETREAT queued (smash OK)
+[2491.57] GRIP: aliado destravädo
+[2491.60] GRIP: aliado destravädo
+[2491.60] STATE2 ENTER (now=2491.60 combo_time=2491.58)
+[2491.60] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2491.60] STATE2.5 GRIP cast após smash (dist=58.0)
+[2491.63] GRIP: aliado destravädo
+[2491.67] GRIP: aliado destravädo
+[2491.70] GRIP: aliado destravädo
+[2491.73] GRIP: aliado destravädo
+[2491.77] GRIP: aliado destravädo
+[2491.77] STATE2 ENTER (now=2491.77 combo_time=2491.75)
+[2491.77] SMASH cast dir=(-1.00,-0.04) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2491.77] RETREAT queued (smash OK)
+[2491.80] GRIP: aliado destravädo
+[2491.83] GRIP: aliado destravädo
+[2491.83] STATE2 ENTER (now=2491.83 combo_time=2491.82)
+[2491.83] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2491.83] STATE2 -> 3
+[2491.87] GRIP: aliado destravädo
+[2491.90] GRIP: aliado destravädo
+[2491.93] GRIP: aliado destravädo
+[2491.97] GRIP: aliado destravädo
+[2492.00] GRIP: aliado destravädo
+[2492.03] GRIP: aliado destravädo
+[2492.07] GRIP: aliado destravädo
+[2492.10] GRIP: aliado destravädo
+[2492.10] RETREAT remnant criado -> roll pendente para (-819,743)
+[2492.10] STATE3 done -> 0
+[2492.13] GRIP: aliado destravädo
+[2492.13] STATE0: dist=146.1 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2492.13] STATE0 CHASE (no abilities in range)
+[2492.17] GRIP: aliado destravädo
+[2492.17] STATE0: dist=175.0 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2492.17] STATE0 CHASE (no abilities in range)
+[2492.20] GRIP: aliado destravädo
+[2492.20] STATE0: dist=204.3 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2492.20] STATE0 CHASE (no abilities in range)
+[2492.23] GRIP: aliado destravädo
+[2492.23] STATE0: dist=223.5 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2492.23] STATE0 CHASE (no abilities in range)
+[2492.27] GRIP: aliado destravädo
+[2492.27] STATE0: dist=253.0 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2492.27] STATE0 CHASE (no abilities in range)
+[2492.30] GRIP: aliado destravädo
+[2492.30] STATE0: dist=282.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2492.30] STATE0 CHASE (no abilities in range)
+[2492.33] GRIP: aliado destravädo
+[2492.33] STATE0: dist=312.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2492.33] STATE0 CHASE (no abilities in range)
+[2492.37] GRIP: aliado destravädo
+[2492.37] STATE0: dist=342.2 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2492.37] STATE0 CHASE (no abilities in range)
+[2492.40] GRIP: aliado destravädo
+[2492.40] STATE0: dist=372.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2492.40] STATE0 CHASE (no abilities in range)
+[2492.43] GRIP: aliado destravädo
+[2492.43] STATE0: dist=401.8 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2492.43] STATE0 CHASE (no abilities in range)
+[2492.47] GRIP: aliado destravädo
+[2492.47] STATE0: dist=431.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2492.47] STATE0 CHASE (no abilities in range)
+[2492.50] GRIP: aliado destravädo
+[2492.50] STATE0: dist=461.6 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2492.50] STATE0 CHASE (no abilities in range)
+[2492.53] GRIP: aliado destravädo
+[2492.53] STATE0: dist=491.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2492.53] STATE0 CHASE (no abilities in range)
+[2492.57] GRIP: aliado destravädo
+[2492.57] STATE0: dist=521.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2492.57] STATE0 CHASE (no abilities in range)
+[2492.60] GRIP: aliado destravädo
+[2492.60] STATE0: dist=551.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2492.60] STATE0 CHASE (no abilities in range)
+[2492.63] GRIP: aliado destravädo
+[2492.63] STATE0: dist=581.2 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2492.63] STATE0 CHASE (no abilities in range)
+[2492.67] GRIP: aliado destravädo
+[2492.67] STATE0: dist=611.2 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2492.67] STATE0 CHASE (no abilities in range)
+[2492.70] GRIP: aliado destravädo
+[2492.70] STATE0: dist=641.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2492.70] STATE0 CHASE (no abilities in range)
+[2492.73] GRIP: aliado destravädo
+[2492.73] STATE0: dist=671.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2492.73] STATE0 CHASE (no abilities in range)
+[2492.77] GRIP: aliado destravädo
+[2492.77] STATE0: dist=701.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2492.77] STATE0 CHASE (no abilities in range)
+[2492.80] GRIP: aliado destravädo
+[2492.80] STATE0: dist=689.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2492.80] STATE0 CHASE (no abilities in range)
+[2492.83] GRIP: aliado destravädo
+[2492.83] STATE0: dist=696.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2492.83] STATE0 CHASE (no abilities in range)
+[2492.87] GRIP: aliado destravädo
+[2492.87] STATE0: dist=689.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2492.87] STATE0 CHASE (no abilities in range)
+[2492.90] GRIP: aliado destravädo
+[2492.90] STATE0: dist=689.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2492.90] STATE0 CHASE (no abilities in range)
+[2492.93] GRIP: aliado destravädo
+[2492.93] STATE0: dist=689.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2492.93] STATE0 CHASE (no abilities in range)
+[2492.97] GRIP: aliado destravädo
+[2492.97] STATE0: dist=657.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2492.97] STATE0 CHASE (no abilities in range)
+[2493.00] GRIP: aliado destravädo
+[2493.00] STATE0: dist=607.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2493.00] STATE0 CHASE (no abilities in range)
+[2493.03] GRIP: aliado destravädo
+[2493.03] STATE0: dist=557.6 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2493.03] STATE0 CHASE (no abilities in range)
+[2493.07] GRIP: aliado destravädo
+[2493.07] STATE0: dist=508.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2493.07] STATE0 CHASE (no abilities in range)
+[2493.10] GRIP: aliado destravädo
+[2493.10] STATE0: dist=460.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2493.10] STATE0 CHASE (no abilities in range)
+[2493.13] GRIP: aliado destravädo
+[2493.13] STATE0: dist=413.6 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2493.13] STATE0 CHASE (no abilities in range)
+[2493.17] GRIP: aliado destravädo
+[2493.17] STATE0: dist=368.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2493.17] STATE0 CHASE (no abilities in range)
+[2493.20] GRIP: aliado destravädo
+[2493.20] STATE0: dist=326.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2493.20] STATE0 CHASE (no abilities in range)
+[2493.23] GRIP: aliado destravädo
+[2493.23] STATE0: dist=287.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2493.23] STATE0 CHASE (no abilities in range)
+[2493.27] GRIP: aliado destravädo
+[2493.27] STATE0: dist=253.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2493.27] STATE0 CHASE (no abilities in range)
+[2493.30] GRIP: aliado destravädo
+[2493.30] STATE0: dist=227.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2493.30] STATE0 CHASE (no abilities in range)
+[2493.33] GRIP: aliado destravädo
+[2493.33] STATE0: dist=212.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2493.33] STATE0 CHASE (no abilities in range)
+[2493.37] GRIP: aliado destravädo
+[2493.37] STATE0: dist=209.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2493.37] STATE0 CHASE (no abilities in range)
+[2493.40] GRIP: aliado destravädo
+[2493.40] STATE0: dist=220.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2493.40] STATE0 CHASE (no abilities in range)
+[2493.43] GRIP: aliado destravädo
+[2493.43] STATE0: dist=242.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2493.43] STATE0 CHASE (no abilities in range)
+[2493.47] GRIP: aliado destravädo
+[2493.47] STATE0: dist=273.2 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2493.47] STATE0 CHASE (no abilities in range)
+[2493.50] GRIP: aliado destravädo
+[2493.50] STATE0: dist=310.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2493.50] STATE0 CHASE (no abilities in range)
+[2493.53] GRIP: aliado destravädo
+[2493.53] STATE0: dist=351.6 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2493.53] STATE0 CHASE (no abilities in range)
+[2493.57] GRIP: aliado destravädo
+[2493.57] STATE0: dist=395.8 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2493.57] STATE0 CHASE (no abilities in range)
+[2493.60] GRIP: aliado destravädo
+[2493.60] STATE0: dist=442.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2493.60] STATE0 CHASE (no abilities in range)
+[2493.63] GRIP: aliado destravädo
+[2493.63] STATE0: dist=489.6 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2493.63] STATE0 CHASE (no abilities in range)
+[2493.67] GRIP: aliado destravädo
+[2493.67] STATE0: dist=538.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2493.67] STATE0 CHASE (no abilities in range)
+[2493.70] GRIP: aliado destravädo
+[2500.83] Combo START alvo=npc_dota_hero_monkey_king
+[2500.83] Ally SELECT=npc_dota_hero_largo
+[2500.83] STATE0: dist=1385.3 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2500.83] STATE0 CHASE (no abilities in range)
+[2500.87] GRIP: aliado destravädo
+[2500.87] STATE0: dist=1378.9 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2500.87] STATE0 CHASE (no abilities in range)
+[2500.90] GRIP: aliado destravädo
+[2500.90] STATE0: dist=1372.5 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2500.90] STATE0 CHASE (no abilities in range)
+[2500.93] GRIP: aliado destravädo
+[2500.93] STATE0: dist=1363.3 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2500.93] STATE0 CHASE (no abilities in range)
+[2500.97] GRIP: aliado destravädo
+[2500.97] STATE0: dist=1354.2 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2500.97] STATE0 CHASE (no abilities in range)
+[2501.00] GRIP: aliado destravädo
+[2501.00] STATE0: dist=1345.1 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2501.00] STATE0 CHASE (no abilities in range)
+[2501.03] GRIP: aliado destravädo
+[2501.03] STATE0: dist=1335.9 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2501.03] STATE0 CHASE (no abilities in range)
+[2501.07] GRIP: aliado destravädo
+[2501.07] STATE0: dist=1326.9 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2501.07] STATE0 CHASE (no abilities in range)
+[2501.10] GRIP: aliado destravädo
+[2501.10] STATE0: dist=1317.9 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2501.10] STATE0 CHASE (no abilities in range)
+[2501.13] GRIP: aliado destravädo
+[2501.13] STATE0: dist=1308.9 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2501.13] STATE0 CHASE (no abilities in range)
+[2501.17] GRIP: aliado destravädo
+[2501.17] STATE0: dist=1299.8 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2501.17] STATE0 CHASE (no abilities in range)
+[2501.20] GRIP: aliado destravädo
+[2501.20] STATE0: dist=1290.8 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2501.20] STATE0 CHASE (no abilities in range)
+[2501.23] GRIP: aliado destravädo
+[2501.23] STATE0: dist=1281.9 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2501.23] STATE0 CHASE (no abilities in range)
+[2501.27] GRIP: aliado destravädo
+[2501.27] STATE0: dist=1273.0 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2501.27] STATE0 CHASE (no abilities in range)
+[2501.30] GRIP: aliado destravädo
+[2501.30] STATE0: dist=1264.0 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2501.30] STATE0 CHASE (no abilities in range)
+[2501.33] GRIP: aliado destravädo
+[2501.33] STATE0: dist=1255.1 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2501.33] STATE0 CHASE (no abilities in range)
+[2501.37] GRIP: aliado destravädo
+[2501.37] STATE0: dist=1246.2 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2501.37] STATE0 CHASE (no abilities in range)
+[2501.40] GRIP: aliado destravädo
+[2501.40] STATE0: dist=1237.4 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2501.40] STATE0 CHASE (no abilities in range)
+[2501.43] GRIP: aliado destravädo
+[2501.43] STATE0: dist=1228.5 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2501.43] STATE0 CHASE (no abilities in range)
+[2501.47] GRIP: aliado destravädo
+[2501.47] STATE0: dist=1219.7 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2501.47] STATE0 CHASE (no abilities in range)
+[2501.50] GRIP: aliado destravädo
+[2501.50] STATE0: dist=1210.9 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2501.50] STATE0 CHASE (no abilities in range)
+[2501.53] GRIP: aliado destravädo
+[2501.53] STATE0: dist=1202.1 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2501.53] STATE0 CHASE (no abilities in range)
+[2501.57] GRIP: aliado destravädo
+[2501.57] STATE0: dist=1193.4 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2501.57] STATE0 BLINK PREFERRED dist=1193.4
+[2501.60] GRIP: aliado destravädo
+[2501.63] GRIP: aliado destravädo
+[2501.67] GRIP: aliado destravädo
+[2501.67] STATE1 ENTER (now=2501.67 combo_time=2501.65)
+[2501.67] STATE1 -> 2 (next at 2501.79)
+[2501.70] GRIP: aliado destravädo
+[2501.73] GRIP: aliado destravädo
+[2501.77] GRIP: aliado destravädo
+[2501.80] GRIP: aliado destravädo
+[2501.80] STATE2 ENTER (now=2501.80 combo_time=2501.79)
+[2501.80] STATE2 LINKEN BREAKER cast no inimigo
+[2501.83] GRIP: aliado destravädo
+[2501.87] GRIP: aliado destravädo
+[2501.90] GRIP: aliado destravädo
+[2501.93] GRIP: aliado destravädo
+[2501.97] GRIP: aliado destravädo
+[2502.00] GRIP: aliado destravädo
+[2502.03] GRIP: aliado destravädo
+[2502.07] GRIP: aliado destravädo
+[2502.10] GRIP: aliado destravädo
+[2502.13] GRIP: aliado destravädo
+[2502.17] GRIP: aliado destravädo
+[2502.20] GRIP: aliado destravädo
+[2502.23] GRIP: aliado destravädo
+[2502.23] STATE2 ENTER (now=2502.23 combo_time=2502.20)
+[2502.23] SMASH cast dir=(-0.91,-0.41) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2502.23] RETREAT queued (smash OK)
+[2502.27] GRIP: aliado destravädo
+[2502.30] GRIP: aliado destravädo
+[2502.30] STATE2 ENTER (now=2502.30 combo_time=2502.28)
+[2502.30] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2502.30] STATE2.5 GRIP cast após smash (dist=58.0)
+[2502.33] GRIP: aliado destravädo
+[2502.37] GRIP: aliado destravädo
+[2502.40] GRIP: aliado destravädo
+[2502.43] GRIP: aliado destravädo
+[2502.47] GRIP: aliado destravädo
+[2502.47] STATE2 ENTER (now=2502.47 combo_time=2502.45)
+[2502.47] SMASH cast dir=(-0.91,-0.41) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2502.47] RETREAT queued (smash OK)
+[2502.50] GRIP: aliado destravädo
+[2502.53] GRIP: aliado destravädo
+[2502.53] STATE2 ENTER (now=2502.53 combo_time=2502.52)
+[2502.53] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2502.53] STATE2 -> 3
+[2502.57] GRIP: aliado destravädo
+[2502.60] GRIP: aliado destravädo
+[2502.63] GRIP: aliado destravädo
+[2502.67] GRIP: aliado destravädo
+[2502.70] GRIP: aliado destravädo
+[2502.73] GRIP: aliado destravädo
+[2502.77] GRIP: aliado destravädo
+[2502.80] GRIP: aliado destravädo
+[2502.80] RETREAT remnant criado -> roll pendente para (-1507,511)
+[2502.80] STATE3 done -> 0
+[2502.83] GRIP: aliado destravädo
+[2502.83] STATE0: dist=95.1 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2502.83] STATE0 CHASE (no abilities in range)
+[2502.87] GRIP: aliado destravädo
+[2502.87] STATE0: dist=124.8 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2502.87] STATE0 CHASE (no abilities in range)
+[2502.90] GRIP: aliado destravädo
+[2502.90] STATE0: dist=154.6 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2502.90] STATE0 CHASE (no abilities in range)
+[2502.93] GRIP: aliado destravädo
+[2502.93] STATE0: dist=184.5 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2502.93] STATE0 CHASE (no abilities in range)
+[2502.97] GRIP: aliado destravädo
+[2502.97] STATE0: dist=214.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2502.97] STATE0 CHASE (no abilities in range)
+[2503.00] GRIP: aliado destravädo
+[2503.00] STATE0: dist=244.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2503.00] STATE0 CHASE (no abilities in range)
+[2503.03] GRIP: aliado destravädo
+[2503.03] STATE0: dist=274.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2503.03] STATE0 CHASE (no abilities in range)
+[2503.07] GRIP: aliado destravädo
+[2503.07] STATE0: dist=304.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2503.07] STATE0 CHASE (no abilities in range)
+[2503.10] GRIP: aliado destravädo
+[2503.10] STATE0: dist=334.2 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2503.10] STATE0 CHASE (no abilities in range)
+[2503.13] GRIP: aliado destravädo
+[2503.13] STATE0: dist=364.2 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2503.13] STATE0 CHASE (no abilities in range)
+[2503.17] GRIP: aliado destravädo
+[2503.17] STATE0: dist=394.2 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2503.17] STATE0 CHASE (no abilities in range)
+[2503.20] GRIP: aliado destravädo
+[2503.20] STATE0: dist=424.2 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2503.20] STATE0 CHASE (no abilities in range)
+[2503.23] GRIP: aliado destravädo
+[2503.23] STATE0: dist=454.2 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2503.23] STATE0 CHASE (no abilities in range)
+[2503.27] GRIP: aliado destravädo
+[2503.27] STATE0: dist=484.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2503.27] STATE0 CHASE (no abilities in range)
+[2503.30] GRIP: aliado destravädo
+[2503.30] STATE0: dist=514.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2503.30] STATE0 CHASE (no abilities in range)
+[2503.33] GRIP: aliado destravädo
+[2503.33] STATE0: dist=544.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2503.33] STATE0 CHASE (no abilities in range)
+[2503.37] GRIP: aliado destravädo
+[2503.37] STATE0: dist=574.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2503.37] STATE0 CHASE (no abilities in range)
+[2503.40] GRIP: aliado destravädo
+[2508.77] Combo START alvo=npc_dota_hero_monkey_king
+[2508.77] Ally SELECT=npc_dota_hero_largo
+[2508.77] STATE0: dist=937.1 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2508.77] STATE0 BLINK PREFERRED dist=937.1
+[2508.80] GRIP: aliado destravädo
+[2508.83] GRIP: aliado destravädo
+[2508.87] GRIP: aliado destravädo
+[2508.87] STATE1 ENTER (now=2508.87 combo_time=2508.85)
+[2508.87] STATE1 -> 2 (next at 2508.99)
+[2508.90] GRIP: aliado destravädo
+[2508.93] GRIP: aliado destravädo
+[2508.97] GRIP: aliado destravädo
+[2509.00] GRIP: aliado destravädo
+[2509.00] STATE2 ENTER (now=2509.00 combo_time=2508.99)
+[2509.00] STATE2 LINKEN BREAKER cast no inimigo
+[2509.03] GRIP: aliado destravädo
+[2509.07] GRIP: aliado destravädo
+[2509.10] GRIP: aliado destravädo
+[2509.13] GRIP: aliado destravädo
+[2509.17] GRIP: aliado destravädo
+[2509.20] GRIP: aliado destravädo
+[2509.23] GRIP: aliado destravädo
+[2509.27] GRIP: aliado destravädo
+[2509.30] GRIP: aliado destravädo
+[2509.33] GRIP: aliado destravädo
+[2509.37] GRIP: aliado destravädo
+[2509.40] GRIP: aliado destravädo
+[2509.43] GRIP: aliado destravädo
+[2509.43] STATE2 ENTER (now=2509.43 combo_time=2509.40)
+[2509.43] SMASH cast dir=(0.96,-0.27) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2509.43] RETREAT queued (smash OK)
+[2509.47] GRIP: aliado destravädo
+[2509.50] GRIP: aliado destravädo
+[2509.50] STATE2 ENTER (now=2509.50 combo_time=2509.48)
+[2509.50] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2509.50] STATE2.5 GRIP cast após smash (dist=58.0)
+[2509.53] GRIP: aliado destravädo
+[2509.57] GRIP: aliado destravädo
+[2509.60] GRIP: aliado destravädo
+[2509.63] GRIP: aliado destravädo
+[2509.67] GRIP: aliado destravädo
+[2509.67] STATE2 ENTER (now=2509.67 combo_time=2509.65)
+[2509.67] SMASH cast dir=(0.96,-0.27) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2509.67] RETREAT queued (smash OK)
+[2509.70] GRIP: aliado destravädo
+[2509.73] GRIP: aliado destravädo
+[2509.73] STATE2 ENTER (now=2509.73 combo_time=2509.72)
+[2509.73] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2509.73] STATE2 -> 3
+[2509.77] GRIP: aliado destravädo
+[2509.80] GRIP: aliado destravädo
+[2509.83] GRIP: aliado destravädo
+[2509.87] GRIP: aliado destravädo
+[2509.90] GRIP: aliado destravädo
+[2509.93] GRIP: aliado destravädo
+[2509.97] GRIP: aliado destravädo
+[2510.00] GRIP: aliado destravädo
+[2510.00] RETREAT remnant criado -> roll pendente para (-1158,726)
+[2510.00] STATE3 done -> 0
+[2510.03] GRIP: aliado destravädo
+[2510.03] STATE0: dist=236.1 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2510.03] STATE0 CHASE (no abilities in range)
+[2510.07] GRIP: aliado destravädo
+[2510.07] STATE0: dist=266.0 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2510.07] STATE0 CHASE (no abilities in range)
+[2510.10] GRIP: aliado destravädo
+[2510.10] STATE0: dist=285.6 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2510.10] STATE0 CHASE (no abilities in range)
+[2510.13] GRIP: aliado destravädo
+[2510.13] STATE0: dist=305.3 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2510.13] ROLL IN dist=305.3 target=(-1530,793)
+[2510.17] GRIP: aliado destravädo
+[2510.20] GRIP: aliado destravädo
+[2510.23] GRIP: aliado destravädo
+[2510.23] STATE1 ENTER (now=2510.23 combo_time=2510.21)
+[2510.23] STATE1 -> 2 (next at 2510.35)
+[2510.27] GRIP: aliado destravädo
+[2510.30] GRIP: aliado destravädo
+[2510.33] GRIP: aliado destravädo
+[2510.37] GRIP: aliado destravädo
+[2510.37] STATE2 ENTER (now=2510.37 combo_time=2510.35)
+[2510.37] STATE2 smash not castable (cd/mana)
+[2510.37] STATE2 -> 0
+[2510.40] GRIP: aliado destravädo
+[2510.40] STATE0: dist=545.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2510.40] STATE0 CHASE (no abilities in range)
+[2510.43] GRIP: aliado destravädo
+[2597.83] SCRIPT INIT OK
+[2598.67] Combo START alvo=npc_dota_hero_monkey_king
+[2598.67] Ally SELECT=npc_dota_hero_largo
+[2598.67] STATE0: dist=985.8 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2598.67] STATE0 BLINK PREFERRED dist=985.8
+[2598.70] GRIP: aliado destravädo
+[2598.73] GRIP: aliado destravädo
+[2598.77] GRIP: aliado destravädo
+[2598.77] STATE1 ENTER (now=2598.77 combo_time=2598.75)
+[2598.77] STATE1 -> 2 (next at 2598.89)
+[2598.80] GRIP: aliado destravädo
+[2598.83] GRIP: aliado destravädo
+[2598.87] GRIP: aliado destravädo
+[2598.90] GRIP: aliado destravädo
+[2598.90] STATE2 ENTER (now=2598.90 combo_time=2598.89)
+[2598.90] STATE2 LINKEN BREAKER cast no inimigo
+[2598.93] GRIP: aliado destravädo
+[2598.97] GRIP: aliado destravädo
+[2599.00] GRIP: aliado destravädo
+[2599.03] GRIP: aliado destravädo
+[2599.07] GRIP: aliado destravädo
+[2599.10] GRIP: aliado destravädo
+[2599.13] GRIP: aliado destravädo
+[2599.17] GRIP: aliado destravädo
+[2599.20] GRIP: aliado destravädo
+[2599.23] GRIP: aliado destravädo
+[2599.27] GRIP: aliado destravädo
+[2599.30] GRIP: aliado destravädo
+[2599.30] STATE2 ENTER (now=2599.30 combo_time=2599.30)
+[2599.30] SMASH cast dir=(-0.92,0.39) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2599.30] RETREAT queued (smash OK)
+[2599.33] GRIP: aliado destravädo
+[2599.37] GRIP: aliado destravädo
+[2599.37] STATE2 ENTER (now=2599.37 combo_time=2599.35)
+[2599.37] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2599.37] STATE2.5 GRIP cast após smash (dist=58.0)
+[2599.40] GRIP: aliado destravädo
+[2599.43] GRIP: aliado destravädo
+[2599.47] GRIP: aliado destravädo
+[2599.50] GRIP: aliado destravädo
+[2599.53] GRIP: aliado destravädo
+[2599.53] STATE2 ENTER (now=2599.53 combo_time=2599.52)
+[2599.53] SMASH cast dir=(-0.92,0.39) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2599.53] RETREAT queued (smash OK)
+[2599.57] GRIP: aliado destravädo
+[2599.63] GRIP: aliado destravädo
+[2599.63] STATE2 ENTER (now=2599.63 combo_time=2599.58)
+[2599.63] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2599.63] STATE2 -> 3
+[2599.67] GRIP: aliado destravädo
+[2599.70] GRIP: aliado destravädo
+[2599.73] GRIP: aliado destravädo
+[2599.77] GRIP: aliado destravädo
+[2599.80] GRIP: aliado destravädo
+[2599.83] GRIP: aliado destravädo
+[2599.87] GRIP: aliado destravädo
+[2599.90] GRIP: aliado destravädo
+[2599.90] RETREAT remnant criado -> roll pendente para (-2026,1052)
+[2599.90] STATE3 done -> 0
+[2599.93] GRIP: aliado destravädo
+[2599.93] STATE0: dist=58.0 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2599.93] STATE0 FAST_SMASH dir=(-0.92,0.39) dist=58.0
+[2599.97] GRIP: aliado destravädo
+[2600.00] GRIP: aliado destravädo
+[2600.03] GRIP: aliado destravädo
+[2600.07] GRIP: aliado destravädo
+[2600.10] GRIP: aliado destravädo
+[2600.10] STATE2 ENTER (now=2600.10 combo_time=2600.08)
+[2600.10] STATE2 smash not castable (cd/mana)
+[2600.10] STATE2 -> 0
+[2600.13] GRIP: aliado destravädo
+[2600.13] STATE0: dist=58.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2600.13] STATE0 CHASE (no abilities in range)
+[2600.17] GRIP: aliado destravädo
+[2600.17] STATE0: dist=58.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2600.17] STATE0 CHASE (no abilities in range)
+[2600.20] GRIP: aliado destravädo
+[2600.20] STATE0: dist=58.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2600.20] STATE0 CHASE (no abilities in range)
+[2600.23] GRIP: aliado destravädo
+[2600.23] STATE0: dist=58.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2600.23] STATE0 CHASE (no abilities in range)
+[2600.27] GRIP: aliado destravädo
+[2600.27] STATE0: dist=58.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2600.27] STATE0 CHASE (no abilities in range)
+[2600.30] GRIP: aliado destravädo
+[2600.30] STATE0: dist=58.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2600.30] STATE0 CHASE (no abilities in range)
+[2600.33] GRIP: aliado destravädo
+[2600.33] STATE0: dist=58.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2600.33] STATE0 CHASE (no abilities in range)
+[2600.37] GRIP: aliado destravädo
+[2600.37] STATE0: dist=58.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2600.37] STATE0 CHASE (no abilities in range)
+[2600.40] GRIP: aliado destravädo
+[2600.40] STATE0: dist=58.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2600.40] STATE0 CHASE (no abilities in range)
+[2600.43] GRIP: aliado destravädo
+[2600.43] STATE0: dist=58.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2600.43] STATE0 CHASE (no abilities in range)
+[2600.47] GRIP: aliado destravädo
+[2600.47] STATE0: dist=58.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2600.47] STATE0 CHASE (no abilities in range)
+[2600.50] GRIP: aliado destravädo
+[2600.50] STATE0: dist=58.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2600.50] STATE0 CHASE (no abilities in range)
+[2600.53] GRIP: aliado destravädo
+[2600.53] STATE0: dist=58.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2600.53] STATE0 CHASE (no abilities in range)
+[2600.57] GRIP: aliado destravädo
+[2600.57] STATE0: dist=58.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2600.57] STATE0 CHASE (no abilities in range)
+[2600.60] GRIP: aliado destravädo
+[2600.60] STATE0: dist=58.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2600.60] STATE0 CHASE (no abilities in range)
+[2600.63] GRIP: aliado destravädo
+[2600.63] STATE0: dist=58.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2600.63] STATE0 CHASE (no abilities in range)
+[2600.67] GRIP: aliado destravädo
+[2600.67] STATE0: dist=58.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2600.67] STATE0 CHASE (no abilities in range)
+[2600.70] GRIP: aliado destravädo
+[2600.70] STATE0: dist=58.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2600.70] STATE0 CHASE (no abilities in range)
+[2600.73] GRIP: aliado destravädo
+[2600.73] STATE0: dist=90.8 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2600.73] STATE0 CHASE (no abilities in range)
+[2600.77] GRIP: aliado destravädo
+[2618.37] SCRIPT INIT OK
+[2623.17] Combo START alvo=npc_dota_hero_monkey_king
+[2623.17] Ally SELECT=npc_dota_hero_largo
+[2623.17] STATE0: dist=891.6 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2623.17] STATE0 BLINK PREFERRED dist=891.6
+[2623.20] GRIP: aliado destravädo
+[2623.23] GRIP: aliado destravädo
+[2623.27] GRIP: aliado destravädo
+[2623.27] STATE1 ENTER (now=2623.27 combo_time=2623.25)
+[2623.27] STATE1 -> 2 (next at 2623.39)
+[2623.30] GRIP: aliado destravädo
+[2623.33] GRIP: aliado destravädo
+[2623.37] GRIP: aliado destravädo
+[2623.40] GRIP: aliado destravädo
+[2623.40] STATE2 ENTER (now=2623.40 combo_time=2623.39)
+[2623.40] STATE2 LINKEN BREAKER cast no inimigo
+[2623.43] GRIP: aliado destravädo
+[2623.47] GRIP: aliado destravädo
+[2623.50] GRIP: aliado destravädo
+[2623.53] GRIP: aliado destravädo
+[2623.57] GRIP: aliado destravädo
+[2623.60] GRIP: aliado destravädo
+[2623.63] GRIP: aliado destravädo
+[2623.67] GRIP: aliado destravädo
+[2623.70] GRIP: aliado destravädo
+[2623.73] GRIP: aliado destravädo
+[2623.77] GRIP: aliado destravädo
+[2623.80] GRIP: aliado destravädo
+[2623.80] STATE2 ENTER (now=2623.80 combo_time=2623.80)
+[2623.80] SMASH cast dir=(-0.92,0.39) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2623.80] RETREAT queued (smash OK)
+[2623.83] GRIP: aliado destravädo
+[2623.87] GRIP: aliado destravädo
+[2623.87] STATE2 ENTER (now=2623.87 combo_time=2623.85)
+[2623.87] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2623.87] STATE2.5 GRIP cast após smash (dist=58.0)
+[2623.90] GRIP: aliado destravädo
+[2623.93] GRIP: aliado destravädo
+[2623.97] GRIP: aliado destravädo
+[2624.00] GRIP: aliado destravädo
+[2624.03] GRIP: aliado destravädo
+[2624.03] STATE2 ENTER (now=2624.03 combo_time=2624.02)
+[2624.03] STATE2 smash not castable (cd/mana)
+[2624.03] STATE2 -> 3
+[2624.07] GRIP: aliado destravädo
+[2624.10] GRIP: aliado destravädo
+[2624.13] GRIP: aliado destravädo
+[2624.17] GRIP: aliado destravädo
+[2624.20] GRIP: aliado destravädo
+[2624.23] GRIP: aliado destravädo
+[2624.27] GRIP: aliado destravädo
+[2624.30] GRIP: aliado destravädo
+[2624.30] RETREAT remnant criado -> roll pendente para (-2002,1069)
+[2624.30] STATE3 done -> 0
+[2624.33] GRIP: aliado destravädo
+[2624.33] STATE0: dist=290.3 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2624.33] STATE0 CHASE (no abilities in range)
+[2624.37] GRIP: aliado destravädo
+[2624.37] STATE0: dist=309.8 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2624.37] ROLL IN dist=309.8 target=(-1686,821)
+[2624.40] GRIP: aliado destravädo
+[2624.43] GRIP: aliado destravädo
+[2624.47] GRIP: aliado destravädo
+[2624.47] STATE1 ENTER (now=2624.47 combo_time=2624.45)
+[2624.47] STATE1 -> 2 (next at 2624.59)
+[2624.50] GRIP: aliado destravädo
+[2624.53] GRIP: aliado destravädo
+[2624.57] GRIP: aliado destravädo
+[2624.60] GRIP: aliado destravädo
+[2624.60] STATE2 ENTER (now=2624.60 combo_time=2624.59)
+[2624.60] STATE2 smash not castable (cd/mana)
+[2624.60] STATE2 -> 0
+[2624.63] GRIP: aliado destravädo
+[2624.63] STATE0: dist=548.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2624.63] STATE0 CHASE (no abilities in range)
+[2624.67] GRIP: aliado destravädo
+[2624.67] STATE0: dist=578.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2624.67] STATE0 CHASE (no abilities in range)
+[2624.70] GRIP: aliado destravädo
+[2624.70] STATE0: dist=608.6 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2624.70] STATE0 CHASE (no abilities in range)
+[2624.73] GRIP: aliado destravädo
+[2624.73] STATE0: dist=638.6 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2624.73] STATE0 CHASE (no abilities in range)
+[2624.77] GRIP: aliado destravädo
+[2624.77] STATE0: dist=668.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2624.77] STATE0 CHASE (no abilities in range)
+[2624.80] GRIP: aliado destravädo
+[2624.80] STATE0: dist=698.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2624.80] STATE0 CHASE (no abilities in range)
+[2624.83] GRIP: aliado destravädo
+[2624.83] STATE0: dist=728.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2624.83] STATE0 CHASE (no abilities in range)
+[2624.87] GRIP: aliado destravädo
+[2624.87] STATE0: dist=672.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2624.87] STATE0 CHASE (no abilities in range)
+[2624.90] GRIP: aliado destravädo
+[2624.90] STATE0: dist=722.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2624.90] STATE0 CHASE (no abilities in range)
+[2624.93] GRIP: aliado destravädo
+[2624.93] STATE0: dist=728.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2624.93] STATE0 CHASE (no abilities in range)
+[2624.97] GRIP: aliado destravädo
+[2624.97] STATE0: dist=728.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2624.97] STATE0 CHASE (no abilities in range)
+[2625.00] GRIP: aliado destravädo
+[2625.00] STATE0: dist=728.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2625.00] STATE0 CHASE (no abilities in range)
+[2625.03] GRIP: aliado destravädo
+[2625.03] STATE0: dist=728.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2625.03] STATE0 CHASE (no abilities in range)
+[2625.07] GRIP: aliado destravädo
+[2625.07] STATE0: dist=728.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2625.07] STATE0 CHASE (no abilities in range)
+[2625.10] GRIP: aliado destravädo
+[2625.10] STATE0: dist=696.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2625.10] STATE0 CHASE (no abilities in range)
+[2625.13] GRIP: aliado destravädo
+[2625.13] STATE0: dist=645.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2625.13] STATE0 CHASE (no abilities in range)
+[2625.17] GRIP: aliado destravädo
+[2625.17] STATE0: dist=594.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2625.17] STATE0 CHASE (no abilities in range)
+[2625.20] GRIP: aliado destravädo
+[2625.20] STATE0: dist=543.9 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2625.20] STATE0 CHASE (no abilities in range)
+[2625.23] GRIP: aliado destravädo
+[2625.23] STATE0: dist=494.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2625.23] STATE0 CHASE (no abilities in range)
+[2625.27] GRIP: aliado destravädo
+[2625.27] STATE0: dist=445.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2625.27] STATE0 CHASE (no abilities in range)
+[2625.30] GRIP: aliado destravädo
+[2625.30] STATE0: dist=397.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2625.30] STATE0 CHASE (no abilities in range)
+[2625.33] GRIP: aliado destravädo
+[2625.33] STATE0: dist=351.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2625.33] STATE0 CHASE (no abilities in range)
+[2625.40] GRIP: aliado destravädo
+[2636.40] Combo START alvo=npc_dota_hero_monkey_king
+[2636.40] Ally SELECT=npc_dota_hero_largo
+[2636.40] STATE0: dist=1135.3 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2636.40] STATE0 BLINK PREFERRED dist=1135.3
+[2636.43] GRIP: aliado destravädo
+[2636.47] GRIP: aliado destravädo
+[2636.50] GRIP: aliado destravädo
+[2636.50] STATE1 ENTER (now=2636.50 combo_time=2636.48)
+[2636.50] STATE1 -> 2 (next at 2636.62)
+[2636.53] GRIP: aliado destravädo
+[2636.57] GRIP: aliado destravädo
+[2636.60] GRIP: aliado destravädo
+[2636.63] GRIP: aliado destravädo
+[2636.63] STATE2 ENTER (now=2636.63 combo_time=2636.62)
+[2636.63] STATE2 LINKEN BREAKER cast no inimigo
+[2636.67] GRIP: aliado destravädo
+[2636.70] GRIP: aliado destravädo
+[2636.73] GRIP: aliado destravädo
+[2636.77] GRIP: aliado destravädo
+[2636.80] GRIP: aliado destravädo
+[2636.83] GRIP: aliado destravädo
+[2636.87] GRIP: aliado destravädo
+[2636.90] GRIP: aliado destravädo
+[2636.93] GRIP: aliado destravädo
+[2636.97] GRIP: aliado destravädo
+[2637.00] GRIP: aliado destravädo
+[2637.03] GRIP: aliado destravädo
+[2637.03] STATE2 ENTER (now=2637.03 combo_time=2637.03)
+[2637.03] SMASH cast dir=(0.93,-0.38) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2637.03] RETREAT queued (smash OK)
+[2637.07] GRIP: aliado destravädo
+[2637.10] GRIP: aliado destravädo
+[2637.10] STATE2 ENTER (now=2637.10 combo_time=2637.08)
+[2637.10] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2637.10] STATE2 -> 3
+[2637.13] GRIP: aliado destravädo
+[2637.17] GRIP: aliado destravädo
+[2637.20] GRIP: aliado destravädo
+[2637.23] GRIP: aliado destravädo
+[2637.27] GRIP: aliado destravädo
+[2637.30] GRIP: aliado destravädo
+[2637.33] GRIP: aliado destravädo
+[2637.37] GRIP: aliado destravädo
+[2637.37] RETREAT remnant criado -> roll pendente para (-2050,1030)
+[2637.37] STATE3 done -> 0
+[2637.40] GRIP: aliado destravädo
+[2637.40] STATE0: dist=273.3 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2637.40] STATE0 CHASE (no abilities in range)
+[2637.43] GRIP: aliado destravädo
+[2637.43] STATE0: dist=273.0 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2637.43] STATE0 CHASE (no abilities in range)
+[2637.47] GRIP: aliado destravädo
+[2637.47] STATE0: dist=282.9 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2637.47] STATE0 CHASE (no abilities in range)
+[2637.50] GRIP: aliado destravädo
+[2637.50] STATE0: dist=292.9 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2637.50] STATE0 CHASE (no abilities in range)
+[2637.53] GRIP: aliado destravädo
+[2637.53] STATE0: dist=303.0 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2637.53] ROLL IN dist=303.0 target=(-3043,1496)
+[2637.57] GRIP: aliado destravädo
+[2637.60] GRIP: aliado destravädo
+[2637.63] GRIP: aliado destravädo
+[2637.63] STATE1 ENTER (now=2637.63 combo_time=2637.61)
+[2637.63] STATE1 -> 2 (next at 2637.75)
+[2637.70] GRIP: aliado destravädo
+[2637.73] GRIP: aliado destravädo
+[2637.77] GRIP: aliado destravädo
+[2637.77] STATE2 ENTER (now=2637.77 combo_time=2637.75)
+[2637.77] STATE2 smash BLOCKED: remnant próximo ao inimigo (dist=129.3)
+[2637.77] STATE2 -> 0
+[2637.80] GRIP: aliado destravädo
+[2645.70] Combo START alvo=npc_dota_hero_monkey_king
+[2645.70] Ally SELECT=npc_dota_hero_largo
+[2645.70] STATE0: dist=929.7 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2645.70] STATE0 BLINK PREFERRED dist=929.7
+[2645.73] GRIP: aliado destravädo
+[2645.77] GRIP: aliado destravädo
+[2645.80] GRIP: aliado destravädo
+[2645.80] STATE1 ENTER (now=2645.80 combo_time=2645.78)
+[2645.80] STATE1 -> 2 (next at 2645.92)
+[2645.83] GRIP: aliado destravädo
+[2645.87] GRIP: aliado destravädo
+[2645.90] GRIP: aliado destravädo
+[2645.93] GRIP: aliado destravädo
+[2645.93] STATE2 ENTER (now=2645.93 combo_time=2645.92)
+[2645.93] STATE2 LINKEN BREAKER cast no inimigo
+[2645.97] GRIP: aliado destravädo
+[2646.00] GRIP: aliado destravädo
+[2646.03] GRIP: aliado destravädo
+[2646.07] GRIP: aliado destravädo
+[2646.10] GRIP: aliado destravädo
+[2646.13] GRIP: aliado destravädo
+[2646.17] GRIP: aliado destravädo
+[2646.20] GRIP: aliado destravädo
+[2646.23] GRIP: aliado destravädo
+[2646.27] GRIP: aliado destravädo
+[2646.30] GRIP: aliado destravädo
+[2646.33] GRIP: aliado destravädo
+[2646.37] GRIP: aliado destravädo
+[2646.37] STATE2 ENTER (now=2646.37 combo_time=2646.33)
+[2646.37] SMASH cast dir=(0.29,-0.96) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2646.37] RETREAT queued (smash OK)
+[2646.40] GRIP: aliado destravädo
+[2646.43] GRIP: aliado destravädo
+[2646.43] STATE2 ENTER (now=2646.43 combo_time=2646.42)
+[2646.43] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2646.43] STATE2 -> 3
+[2646.47] GRIP: aliado destravädo
+[2646.50] GRIP: aliado destravädo
+[2646.53] GRIP: aliado destravädo
+[2646.57] GRIP: aliado destravädo
+[2646.60] GRIP: aliado destravädo
+[2646.63] GRIP: aliado destravädo
+[2646.67] GRIP: aliado destravädo
+[2646.70] GRIP: aliado destravädo
+[2646.70] RETREAT remnant criado -> roll pendente para (-2081,1145)
+[2646.70] STATE3 done -> 0
+[2646.73] GRIP: aliado destravädo
+[2646.73] STATE0: dist=240.7 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2646.73] STATE0 CHASE (no abilities in range)
+[2646.77] GRIP: aliado destravädo
+[2646.77] STATE0: dist=260.2 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2646.77] STATE0 CHASE (no abilities in range)
+[2646.80] GRIP: aliado destravädo
+[2646.80] STATE0: dist=279.7 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2646.80] STATE0 CHASE (no abilities in range)
+[2646.83] GRIP: aliado destravädo
+[2646.83] STATE0: dist=299.3 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2646.83] STATE0 CHASE (no abilities in range)
+[2646.87] GRIP: aliado destravädo
+[2646.87] STATE0: dist=349.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2646.87] STATE0 CHASE (no abilities in range)
+[2646.90] GRIP: aliado destravädo
+[2646.90] STATE0: dist=368.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2646.90] STATE0 CHASE (no abilities in range)
+[2646.93] GRIP: aliado destravädo
+[2646.93] STATE0: dist=389.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2646.93] STATE0 CHASE (no abilities in range)
+[2646.97] GRIP: aliado destravädo
+[2646.97] STATE0: dist=419.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2646.97] STATE0 CHASE (no abilities in range)
+[2647.00] GRIP: aliado destravädo
+[2647.00] STATE0: dist=449.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.00] STATE0 CHASE (no abilities in range)
+[2647.03] GRIP: aliado destravädo
+[2647.03] STATE0: dist=478.9 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.03] STATE0 CHASE (no abilities in range)
+[2647.07] GRIP: aliado destravädo
+[2647.07] STATE0: dist=508.9 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.07] STATE0 CHASE (no abilities in range)
+[2647.10] GRIP: aliado destravädo
+[2647.10] STATE0: dist=538.9 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.10] STATE0 CHASE (no abilities in range)
+[2647.13] GRIP: aliado destravädo
+[2647.13] STATE0: dist=568.9 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.13] STATE0 CHASE (no abilities in range)
+[2647.17] GRIP: aliado destravädo
+[2647.17] STATE0: dist=598.8 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.17] STATE0 CHASE (no abilities in range)
+[2647.20] GRIP: aliado destravädo
+[2647.20] STATE0: dist=628.8 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.20] STATE0 CHASE (no abilities in range)
+[2647.23] GRIP: aliado destravädo
+[2647.23] STATE0: dist=658.8 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.23] STATE0 CHASE (no abilities in range)
+[2647.27] GRIP: aliado destravädo
+[2647.27] STATE0: dist=688.8 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.27] STATE0 CHASE (no abilities in range)
+[2647.30] GRIP: aliado destravädo
+[2647.30] STATE0: dist=718.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.30] STATE0 CHASE (no abilities in range)
+[2647.33] GRIP: aliado destravädo
+[2647.33] STATE0: dist=748.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.33] STATE0 CHASE (no abilities in range)
+[2647.37] GRIP: aliado destravädo
+[2647.37] STATE0: dist=778.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.37] STATE0 CHASE (no abilities in range)
+[2647.40] GRIP: aliado destravädo
+[2647.40] STATE0: dist=730.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.40] STATE0 CHASE (no abilities in range)
+[2647.43] GRIP: aliado destravädo
+[2647.43] STATE0: dist=757.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.43] STATE0 CHASE (no abilities in range)
+[2647.47] GRIP: aliado destravädo
+[2647.47] STATE0: dist=778.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.47] STATE0 CHASE (no abilities in range)
+[2647.50] GRIP: aliado destravädo
+[2647.50] STATE0: dist=745.8 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.50] STATE0 CHASE (no abilities in range)
+[2647.53] GRIP: aliado destravädo
+[2647.53] STATE0: dist=693.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.53] STATE0 CHASE (no abilities in range)
+[2647.57] GRIP: aliado destravädo
+[2647.57] STATE0: dist=640.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.57] STATE0 CHASE (no abilities in range)
+[2647.60] GRIP: aliado destravädo
+[2647.60] STATE0: dist=588.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.60] STATE0 CHASE (no abilities in range)
+[2647.63] GRIP: aliado destravädo
+[2647.63] STATE0: dist=535.8 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.63] STATE0 CHASE (no abilities in range)
+[2647.67] GRIP: aliado destravädo
+[2647.67] STATE0: dist=483.8 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.67] STATE0 CHASE (no abilities in range)
+[2647.70] GRIP: aliado destravädo
+[2647.70] STATE0: dist=432.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.70] STATE0 CHASE (no abilities in range)
+[2647.73] GRIP: aliado destravädo
+[2647.73] STATE0: dist=380.9 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.73] STATE0 CHASE (no abilities in range)
+[2647.77] GRIP: aliado destravädo
+[2647.77] STATE0: dist=330.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.77] STATE0 CHASE (no abilities in range)
+[2647.80] GRIP: aliado destravädo
+[2647.80] STATE0: dist=280.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.80] STATE0 CHASE (no abilities in range)
+[2647.83] GRIP: aliado destravädo
+[2647.83] STATE0: dist=232.9 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.83] STATE0 CHASE (no abilities in range)
+[2647.87] GRIP: aliado destravädo
+[2647.87] STATE0: dist=80.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.87] STATE0 CHASE (no abilities in range)
+[2647.90] GRIP: aliado destravädo
+[2647.90] STATE0: dist=80.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.90] STATE0 CHASE (no abilities in range)
+[2647.93] GRIP: aliado destravädo
+[2647.93] STATE0: dist=80.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.93] STATE0 CHASE (no abilities in range)
+[2647.97] GRIP: aliado destravädo
+[2647.97] STATE0: dist=69.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2647.97] STATE0 CHASE (no abilities in range)
+[2648.00] GRIP: aliado destravädo
+[2648.00] STATE0: dist=59.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2648.00] STATE0 CHASE (no abilities in range)
+[2648.03] GRIP: aliado destravädo
+[2648.03] STATE0: dist=49.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2648.03] STATE0 CHASE (no abilities in range)
+[2648.07] GRIP: aliado destravädo
+[2648.07] STATE0: dist=46.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2648.07] STATE0 CHASE (no abilities in range)
+[2648.10] GRIP: aliado destravädo
+[2648.10] STATE0: dist=46.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2648.10] STATE0 CHASE (no abilities in range)
+[2648.13] GRIP: aliado destravädo
+[2652.80] Combo START alvo=npc_dota_hero_monkey_king
+[2652.80] Ally SELECT=npc_dota_hero_largo
+[2652.80] STATE0: dist=1050.4 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2652.80] STATE0 BLINK PREFERRED dist=1050.4
+[2652.83] GRIP: aliado destravädo
+[2652.87] GRIP: aliado destravädo
+[2652.90] GRIP: aliado destravädo
+[2652.90] STATE1 ENTER (now=2652.90 combo_time=2652.88)
+[2652.90] STATE1 -> 2 (next at 2653.02)
+[2652.93] GRIP: aliado destravädo
+[2652.97] GRIP: aliado destravädo
+[2653.00] GRIP: aliado destravädo
+[2653.03] GRIP: aliado destravädo
+[2653.03] STATE2 ENTER (now=2653.03 combo_time=2653.02)
+[2653.03] STATE2 LINKEN BREAKER cast no inimigo
+[2653.07] GRIP: aliado destravädo
+[2653.10] GRIP: aliado destravädo
+[2653.13] GRIP: aliado destravädo
+[2653.17] GRIP: aliado destravädo
+[2653.20] GRIP: aliado destravädo
+[2653.23] GRIP: aliado destravädo
+[2653.27] GRIP: aliado destravädo
+[2653.30] GRIP: aliado destravädo
+[2653.33] GRIP: aliado destravädo
+[2653.37] GRIP: aliado destravädo
+[2653.40] GRIP: aliado destravädo
+[2653.43] GRIP: aliado destravädo
+[2653.47] GRIP: aliado destravädo
+[2653.47] STATE2 ENTER (now=2653.47 combo_time=2653.43)
+[2653.47] SMASH cast dir=(-0.63,-0.78) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2653.47] RETREAT queued (smash OK)
+[2653.50] GRIP: aliado destravädo
+[2653.53] GRIP: aliado destravädo
+[2653.53] STATE2 ENTER (now=2653.53 combo_time=2653.52)
+[2653.53] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2653.53] STATE2 -> 3
+[2653.57] GRIP: aliado destravädo
+[2653.60] GRIP: aliado destravädo
+[2653.63] GRIP: aliado destravädo
+[2653.67] GRIP: aliado destravädo
+[2653.70] GRIP: aliado destravädo
+[2653.73] GRIP: aliado destravädo
+[2653.77] GRIP: aliado destravädo
+[2653.80] GRIP: aliado destravädo
+[2653.80] RETREAT remnant criado -> roll pendente para (-1906,1098)
+[2653.80] STATE3 done -> 0
+[2653.83] GRIP: aliado destravädo
+[2653.83] STATE0: dist=234.5 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2653.83] STATE0 CHASE (no abilities in range)
+[2653.87] GRIP: aliado destravädo
+[2653.87] STATE0: dist=253.9 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2653.87] STATE0 CHASE (no abilities in range)
+[2653.90] GRIP: aliado destravädo
+[2653.90] STATE0: dist=283.7 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2653.90] STATE0 CHASE (no abilities in range)
+[2653.93] GRIP: aliado destravädo
+[2653.93] STATE0: dist=319.5 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2653.93] ROLL IN dist=319.5 target=(-1734,1442)
+[2653.97] GRIP: aliado destravädo
+[2654.00] GRIP: aliado destravädo
+[2654.03] GRIP: aliado destravädo
+[2654.03] STATE1 ENTER (now=2654.03 combo_time=2654.01)
+[2654.03] STATE1 -> 2 (next at 2654.15)
+[2654.10] GRIP: aliado destravädo
+[2654.13] GRIP: aliado destravädo
+[2654.17] GRIP: aliado destravädo
+[2654.17] STATE2 ENTER (now=2654.17 combo_time=2654.15)
+[2654.17] STATE2 smash not castable (cd/mana)
+[2654.17] STATE2 -> 0
+[2654.20] GRIP: aliado destravädo
+[2654.20] STATE0: dist=552.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2654.20] STATE0 CHASE (no abilities in range)
+[2654.23] GRIP: aliado destravädo
+[2654.23] STATE0: dist=582.6 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2654.23] STATE0 CHASE (no abilities in range)
+[2654.27] GRIP: aliado destravädo
+[2654.27] STATE0: dist=612.6 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2654.27] STATE0 CHASE (no abilities in range)
+[2654.30] GRIP: aliado destravädo
+[2654.30] STATE0: dist=642.6 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2654.30] STATE0 CHASE (no abilities in range)
+[2654.33] GRIP: aliado destravädo
+[2654.33] STATE0: dist=672.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2654.33] STATE0 CHASE (no abilities in range)
+[2654.37] GRIP: aliado destravädo
+[2654.37] STATE0: dist=702.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2654.37] STATE0 CHASE (no abilities in range)
+[2654.40] GRIP: aliado destravädo
+[2654.40] STATE0: dist=732.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2654.40] STATE0 CHASE (no abilities in range)
+[2654.43] GRIP: aliado destravädo
+[2654.43] STATE0: dist=762.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2654.43] STATE0 CHASE (no abilities in range)
+[2654.47] GRIP: aliado destravädo
+[2654.47] STATE0: dist=792.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2654.47] STATE0 CHASE (no abilities in range)
+[2654.50] GRIP: aliado destravädo
+[2654.50] STATE0: dist=743.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2654.50] STATE0 CHASE (no abilities in range)
+[2654.53] GRIP: aliado destravädo
+[2654.53] STATE0: dist=766.8 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2654.53] STATE0 CHASE (no abilities in range)
+[2654.57] GRIP: aliado destravädo
+[2654.57] STATE0: dist=792.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2654.57] STATE0 CHASE (no abilities in range)
+[2654.60] GRIP: aliado destravädo
+[2654.60] STATE0: dist=759.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2654.60] STATE0 CHASE (no abilities in range)
+[2654.63] GRIP: aliado destravädo
+[2654.63] STATE0: dist=707.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2654.63] STATE0 CHASE (no abilities in range)
+[2654.67] GRIP: aliado destravädo
+[2654.67] STATE0: dist=655.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2654.67] STATE0 CHASE (no abilities in range)
+[2654.70] GRIP: aliado destravädo
+[2654.70] STATE0: dist=603.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2654.70] STATE0 CHASE (no abilities in range)
+[2654.73] GRIP: aliado destravädo
+[2654.73] STATE0: dist=551.9 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2654.73] STATE0 CHASE (no abilities in range)
+[2654.77] GRIP: aliado destravädo
+[2654.77] STATE0: dist=500.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2654.77] STATE0 CHASE (no abilities in range)
+[2654.80] GRIP: aliado destravädo
+[2654.80] STATE0: dist=449.9 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2654.80] STATE0 CHASE (no abilities in range)
+[2654.83] GRIP: aliado destravädo
+[2654.83] STATE0: dist=399.9 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2654.83] STATE0 CHASE (no abilities in range)
+[2654.87] GRIP: aliado destravädo
+[2654.87] STATE0: dist=350.8 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2654.87] STATE0 CHASE (no abilities in range)
+[2654.90] GRIP: aliado destravädo
+[2670.90] Combo START alvo=npc_dota_hero_monkey_king
+[2670.90] Ally SELECT=npc_dota_hero_largo
+[2670.90] STATE0: dist=859.4 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2670.90] STATE0 BLINK PREFERRED dist=859.4
+[2670.93] GRIP: aliado destravädo
+[2670.97] GRIP: aliado destravädo
+[2671.00] GRIP: aliado destravädo
+[2671.00] STATE1 ENTER (now=2671.00 combo_time=2670.98)
+[2671.00] STATE1 -> 2 (next at 2671.12)
+[2671.03] GRIP: aliado destravädo
+[2671.07] GRIP: aliado destravädo
+[2671.10] GRIP: aliado destravädo
+[2671.13] GRIP: aliado destravädo
+[2671.13] STATE2 ENTER (now=2671.13 combo_time=2671.12)
+[2671.13] STATE2 LINKEN BREAKER cast no inimigo
+[2671.17] GRIP: aliado destravädo
+[2671.20] GRIP: aliado destravädo
+[2671.23] GRIP: aliado destravädo
+[2671.27] GRIP: aliado destravädo
+[2671.30] GRIP: aliado destravädo
+[2671.33] GRIP: aliado destravädo
+[2671.37] GRIP: aliado destravädo
+[2671.40] GRIP: aliado destravädo
+[2671.43] GRIP: aliado destravädo
+[2671.47] GRIP: aliado destravädo
+[2671.50] GRIP: aliado destravädo
+[2671.53] GRIP: aliado destravädo
+[2671.53] STATE2 ENTER (now=2671.53 combo_time=2671.53)
+[2671.53] STATE2 LINKEN BREAKER cast no inimigo
+[2671.57] GRIP: aliado destravädo
+[2671.60] GRIP: aliado destravädo
+[2671.63] GRIP: aliado destravädo
+[2671.67] GRIP: aliado destravädo
+[2671.70] GRIP: aliado destravädo
+[2671.73] GRIP: aliado destravädo
+[2671.77] GRIP: aliado destravädo
+[2671.80] GRIP: aliado destravädo
+[2671.83] GRIP: aliado destravädo
+[2671.87] GRIP: aliado destravädo
+[2671.90] GRIP: aliado destravädo
+[2671.93] GRIP: aliado destravädo
+[2671.97] GRIP: aliado destravädo
+[2671.97] STATE2 ENTER (now=2671.97 combo_time=2671.93)
+[2671.97] STATE2 LINKEN BREAKER cast no inimigo
+[2672.00] GRIP: aliado destravädo
+[2676.17] Combo START alvo=npc_dota_hero_monkey_king
+[2676.17] Ally SELECT=npc_dota_hero_largo
+[2676.17] STATE0: dist=954.1 rolling=true canRoll=true blink=true preferRoll=true holding=true
+[2676.17] STATE0 ROLL prefer target=(-2056,1573) travel=954
+[2676.20] GRIP: aliado destravädo
+[2676.23] GRIP: aliado destravädo
+[2676.27] GRIP: aliado destravädo
+[2676.27] STATE1 ENTER (now=2676.27 combo_time=2676.25)
+[2676.27] STATE1 -> 2 (next at 2676.39)
+[2676.30] GRIP: aliado destravädo
+[2676.33] GRIP: aliado destravädo
+[2676.37] GRIP: aliado destravädo
+[2676.40] GRIP: aliado destravädo
+[2676.40] STATE2 ENTER (now=2676.40 combo_time=2676.39)
+[2676.40] STATE2 LINKEN BREAKER cast no inimigo
+[2676.43] GRIP: aliado destravädo
+[2676.47] GRIP: aliado destravädo
+[2676.50] GRIP: aliado destravädo
+[2676.53] GRIP: aliado destravädo
+[2676.57] GRIP: aliado destravädo
+[2676.60] GRIP: aliado destravädo
+[2676.63] GRIP: aliado destravädo
+[2676.67] GRIP: aliado destravädo
+[2676.70] GRIP: aliado destravädo
+[2676.73] GRIP: aliado destravädo
+[2676.77] GRIP: aliado destravädo
+[2676.80] GRIP: aliado destravädo
+[2676.80] STATE2 ENTER (now=2676.80 combo_time=2676.80)
+[2676.80] STATE2 LINKEN BREAKER cast no inimigo
+[2676.83] GRIP: aliado destravädo
+[2676.87] GRIP: aliado destravädo
+[2676.90] GRIP: aliado destravädo
+[2676.93] GRIP: aliado destravädo
+[2676.97] GRIP: aliado destravädo
+[2677.00] GRIP: aliado destravädo
+[2677.03] GRIP: aliado destravädo
+[2677.07] GRIP: aliado destravädo
+[2677.10] GRIP: aliado destravädo
+[2677.13] GRIP: aliado destravädo
+[2677.17] GRIP: aliado destravädo
+[2677.20] GRIP: aliado destravädo
+[2677.23] GRIP: aliado destravädo
+[2677.23] STATE2 ENTER (now=2677.23 combo_time=2677.20)
+[2677.23] STATE2 LINKEN BREAKER cast no inimigo
+[2677.27] GRIP: aliado destravädo
+[2677.30] GRIP: aliado destravädo
+[2677.33] GRIP: aliado destravädo
+[2677.37] GRIP: aliado destravädo
+[2677.40] GRIP: aliado destravädo
+[2677.43] GRIP: aliado destravädo
+[2677.47] GRIP: aliado destravädo
+[2677.50] GRIP: aliado destravädo
+[2677.53] GRIP: aliado destravädo
+[2677.57] GRIP: aliado destravädo
+[2677.60] GRIP: aliado destravädo
+[2677.63] GRIP: aliado destravädo
+[2677.67] GRIP: aliado destravädo
+[2677.67] STATE2 ENTER (now=2677.67 combo_time=2677.63)
+[2677.67] SMASH cast dir=(0.08,-1.00) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2677.70] GRIP: aliado destravädo
+[2677.73] GRIP: aliado destravädo
+[2677.73] STATE2 ENTER (now=2677.73 combo_time=2677.72)
+[2677.73] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2677.73] STATE2 -> 0
+[2677.77] GRIP: aliado destravädo
+[2677.77] STATE0: dist=80.0 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2677.77] STATE0 CHASE (no abilities in range)
+[2677.80] GRIP: aliado destravädo
+[2677.80] STATE0: dist=107.9 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2677.80] STATE0 CHASE (no abilities in range)
+[2677.83] GRIP: aliado destravädo
+[2677.83] STATE0: dist=136.7 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2677.83] STATE0 CHASE (no abilities in range)
+[2677.87] GRIP: aliado destravädo
+[2677.87] STATE0: dist=165.8 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2677.87] STATE0 CHASE (no abilities in range)
+[2677.90] GRIP: aliado destravädo
+[2677.90] STATE0: dist=195.3 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2677.90] STATE0 CHASE (no abilities in range)
+[2677.93] GRIP: aliado destravädo
+[2677.93] STATE0: dist=224.9 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2677.93] STATE0 CHASE (no abilities in range)
+[2677.97] GRIP: aliado destravädo
+[2677.97] STATE0: dist=254.6 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2677.97] STATE0 BLINK FALLBACK dist=254.6
+[2678.00] GRIP: aliado destravädo
+[2678.03] GRIP: aliado destravädo
+[2678.07] GRIP: aliado destravädo
+[2678.07] STATE1 ENTER (now=2678.07 combo_time=2678.05)
+[2678.07] STATE1 -> 2 (next at 2678.19)
+[2678.10] GRIP: aliado destravädo
+[2678.13] GRIP: aliado destravädo
+[2678.17] GRIP: aliado destravädo
+[2678.20] GRIP: aliado destravädo
+[2678.20] STATE2 ENTER (now=2678.20 combo_time=2678.19)
+[2678.20] STATE2 smash not castable (cd/mana)
+[2678.20] STATE2 -> 0
+[2678.23] GRIP: aliado destravädo
+[2678.23] STATE0: dist=421.4 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2678.23] STATE0 CHASE (no abilities in range)
+[2678.27] GRIP: aliado destravädo
+[2678.27] STATE0: dist=441.1 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2678.27] STATE0 CHASE (no abilities in range)
+[2678.30] GRIP: aliado destravädo
+[2678.30] STATE0: dist=460.7 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2678.30] STATE0 CHASE (no abilities in range)
+[2678.33] GRIP: aliado destravädo
+[2678.33] STATE0: dist=480.4 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2678.33] STATE0 CHASE (no abilities in range)
+[2678.37] GRIP: aliado destravädo
+[2678.37] STATE0: dist=500.0 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2678.37] STATE0 CHASE (no abilities in range)
+[2678.40] GRIP: aliado destravädo
+[2678.40] STATE0: dist=519.8 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2678.40] STATE0 CHASE (no abilities in range)
+[2678.43] GRIP: aliado destravädo
+[2678.43] STATE0: dist=539.3 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2678.43] STATE0 CHASE (no abilities in range)
+[2678.47] GRIP: aliado destravädo
+[2678.47] STATE0: dist=559.0 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2678.47] STATE0 CHASE (no abilities in range)
+[2678.50] GRIP: aliado destravädo
+[2678.50] STATE0: dist=578.7 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2678.50] STATE0 CHASE (no abilities in range)
+[2678.53] GRIP: aliado destravädo
+[2678.53] STATE0: dist=598.2 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2678.53] STATE0 CHASE (no abilities in range)
+[2678.57] GRIP: aliado destravädo
+[2678.57] STATE0: dist=617.9 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2678.57] STATE0 CHASE (no abilities in range)
+[2678.60] GRIP: aliado destravädo
+[2678.60] STATE0: dist=637.6 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2678.60] STATE0 CHASE (no abilities in range)
+[2678.63] GRIP: aliado destravädo
+[2678.63] STATE0: dist=657.3 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2678.63] STATE0 CHASE (no abilities in range)
+[2678.67] GRIP: aliado destravädo
+[2678.67] STATE0: dist=613.4 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2678.67] STATE0 CHASE (no abilities in range)
+[2678.70] GRIP: aliado destravädo
+[2721.97] Combo START alvo=npc_dota_hero_monkey_king
+[2721.97] Ally SELECT=npc_dota_hero_largo
+[2721.97] STATE0: dist=1072.1 rolling=true canRoll=true blink=true preferRoll=true holding=true
+[2721.97] STATE0 ROLL prefer target=(-2193,1666) travel=1072
+[2722.00] GRIP: aliado destravädo
+[2722.03] GRIP: aliado destravädo
+[2722.07] GRIP: aliado destravädo
+[2722.07] STATE1 ENTER (now=2722.07 combo_time=2722.05)
+[2722.07] STATE1 -> 2 (next at 2722.19)
+[2722.10] GRIP: aliado destravädo
+[2722.13] GRIP: aliado destravädo
+[2722.17] GRIP: aliado destravädo
+[2722.20] GRIP: aliado destravädo
+[2722.20] STATE2 ENTER (now=2722.20 combo_time=2722.19)
+[2722.20] STATE2 LINKEN BREAKER cast no inimigo
+[2722.23] GRIP: aliado destravädo
+[2722.27] GRIP: aliado destravädo
+[2722.30] GRIP: aliado destravädo
+[2722.33] GRIP: aliado destravädo
+[2722.37] GRIP: aliado destravädo
+[2722.40] GRIP: aliado destravädo
+[2722.43] GRIP: aliado destravädo
+[2722.47] GRIP: aliado destravädo
+[2722.50] GRIP: aliado destravädo
+[2722.53] GRIP: aliado destravädo
+[2722.57] GRIP: aliado destravädo
+[2722.60] GRIP: aliado destravädo
+[2722.63] GRIP: aliado destravädo
+[2722.63] STATE2 ENTER (now=2722.63 combo_time=2722.60)
+[2722.63] STATE2 LINKEN BREAKER cast no inimigo
+[2722.67] GRIP: aliado destravädo
+[2722.70] GRIP: aliado destravädo
+[2722.73] GRIP: aliado destravädo
+[2722.77] GRIP: aliado destravädo
+[2722.80] GRIP: aliado destravädo
+[2722.83] GRIP: aliado destravädo
+[2722.87] GRIP: aliado destravädo
+[2722.90] GRIP: aliado destravädo
+[2722.93] GRIP: aliado destravädo
+[2722.97] GRIP: aliado destravädo
+[2723.00] GRIP: aliado destravädo
+[2723.03] GRIP: aliado destravädo
+[2723.03] STATE2 ENTER (now=2723.03 combo_time=2723.03)
+[2723.03] STATE2 LINKEN BREAKER cast no inimigo
+[2723.07] GRIP: aliado destravädo
+[2723.10] GRIP: aliado destravädo
+[2723.13] GRIP: aliado destravädo
+[2723.17] GRIP: aliado destravädo
+[2723.20] GRIP: aliado destravädo
+[2723.23] GRIP: aliado destravädo
+[2723.27] GRIP: aliado destravädo
+[2723.30] GRIP: aliado destravädo
+[2723.33] GRIP: aliado destravädo
+[2723.37] GRIP: aliado destravädo
+[2723.40] GRIP: aliado destravädo
+[2723.43] GRIP: aliado destravädo
+[2723.47] GRIP: aliado destravädo
+[2723.47] STATE2 ENTER (now=2723.47 combo_time=2723.43)
+[2723.47] SMASH cast dir=(0.27,-0.96) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2723.50] GRIP: aliado destravädo
+[2723.53] GRIP: aliado destravädo
+[2723.53] STATE2 ENTER (now=2723.53 combo_time=2723.52)
+[2723.53] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2723.53] STATE2 -> 0
+[2723.57] GRIP: aliado destravädo
+[2723.57] STATE0: dist=80.0 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2723.57] STATE0 FAST_SMASH dir=(0.27,-0.96) dist=80.0
+[2723.60] GRIP: aliado destravädo
+[2723.63] GRIP: aliado destravädo
+[2723.67] GRIP: aliado destravädo
+[2723.70] GRIP: aliado destravädo
+[2723.73] GRIP: aliado destravädo
+[2723.73] STATE2 ENTER (now=2723.73 combo_time=2723.72)
+[2723.73] STATE2 smash not castable (cd/mana)
+[2723.73] STATE2 -> 0
+[2723.77] GRIP: aliado destravädo
+[2723.77] STATE0: dist=163.7 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2723.77] STATE0 CHASE (no abilities in range)
+[2723.80] GRIP: aliado destravädo
+[2723.80] STATE0: dist=192.8 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2723.80] STATE0 CHASE (no abilities in range)
+[2723.83] GRIP: aliado destravädo
+[2723.83] STATE0: dist=222.2 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2723.83] STATE0 CHASE (no abilities in range)
+[2723.87] GRIP: aliado destravädo
+[2723.87] STATE0: dist=251.8 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2723.87] STATE0 BLINK FALLBACK dist=251.8
+[2723.90] GRIP: aliado destravädo
+[2723.93] GRIP: aliado destravädo
+[2723.97] GRIP: aliado destravädo
+[2723.97] STATE1 ENTER (now=2723.97 combo_time=2723.95)
+[2723.97] STATE1 -> 2 (next at 2724.09)
+[2724.00] GRIP: aliado destravädo
+[2724.03] GRIP: aliado destravädo
+[2724.07] GRIP: aliado destravädo
+[2724.10] GRIP: aliado destravädo
+[2724.10] STATE2 ENTER (now=2724.10 combo_time=2724.09)
+[2724.10] STATE2 smash not castable (cd/mana)
+[2724.10] STATE2 -> 0
+[2724.13] GRIP: aliado destravädo
+[2724.13] STATE0: dist=240.0 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2724.13] STATE0 CHASE (no abilities in range)
+[2724.17] GRIP: aliado destravädo
+[2724.17] STATE0: dist=270.0 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2724.17] STATE0 CHASE (no abilities in range)
+[2724.20] GRIP: aliado destravädo
+[2724.20] STATE0: dist=300.0 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2724.20] STATE0 CHASE (no abilities in range)
+[2724.23] GRIP: aliado destravädo
+[2724.23] STATE0: dist=319.7 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2724.23] STATE0 CHASE (no abilities in range)
+[2724.27] GRIP: aliado destravädo
+[2724.27] STATE0: dist=339.4 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2724.27] STATE0 CHASE (no abilities in range)
+[2724.30] GRIP: aliado destravädo
+[2724.30] STATE0: dist=359.0 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2724.30] STATE0 CHASE (no abilities in range)
+[2724.33] GRIP: aliado destravädo
+[2724.33] STATE0: dist=378.7 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2724.33] STATE0 CHASE (no abilities in range)
+[2724.37] GRIP: aliado destravädo
+[2724.37] STATE0: dist=398.4 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2724.37] STATE0 CHASE (no abilities in range)
+[2724.40] GRIP: aliado destravädo
+[2724.40] STATE0: dist=418.1 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2724.40] STATE0 CHASE (no abilities in range)
+[2724.43] GRIP: aliado destravädo
+[2724.43] STATE0: dist=437.6 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2724.43] STATE0 CHASE (no abilities in range)
+[2724.47] GRIP: aliado destravädo
+[2724.47] STATE0: dist=457.3 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2724.47] STATE0 CHASE (no abilities in range)
+[2724.50] GRIP: aliado destravädo
+[2724.50] STATE0: dist=477.1 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2724.50] STATE0 CHASE (no abilities in range)
+[2724.53] GRIP: aliado destravädo
+[2724.53] STATE0: dist=496.6 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2724.53] STATE0 CHASE (no abilities in range)
+[2724.57] GRIP: aliado destravädo
+[2850.27] SCRIPT INIT OK
+[2853.03] Combo START alvo=npc_dota_hero_monkey_king
+[2853.03] Ally SELECT=npc_dota_hero_largo
+[2853.03] STATE0: dist=838.3 rolling=true canRoll=true blink=true preferRoll=true holding=true
+[2853.03] STATE0 ROLL prefer target=(-1629,1378) travel=838
+[2853.07] GRIP: aliado destravädo
+[2853.10] GRIP: aliado destravädo
+[2853.13] GRIP: aliado destravädo
+[2853.13] STATE1 ENTER (now=2853.13 combo_time=2853.11)
+[2853.13] STATE1 -> 2 (next at 2853.25)
+[2853.17] GRIP: aliado destravädo
+[2853.20] GRIP: aliado destravädo
+[2853.23] GRIP: aliado destravädo
+[2853.27] GRIP: aliado destravädo
+[2853.27] STATE2 ENTER (now=2853.27 combo_time=2853.25)
+[2853.27] STATE2 LINKEN BREAKER cast no inimigo
+[2853.30] GRIP: aliado destravädo
+[2853.33] GRIP: aliado destravädo
+[2853.37] GRIP: aliado destravädo
+[2853.40] GRIP: aliado destravädo
+[2853.43] GRIP: aliado destravädo
+[2853.47] GRIP: aliado destravädo
+[2853.50] GRIP: aliado destravädo
+[2853.53] GRIP: aliado destravädo
+[2853.57] GRIP: aliado destravädo
+[2853.60] GRIP: aliado destravädo
+[2853.63] GRIP: aliado destravädo
+[2853.67] GRIP: aliado destravädo
+[2853.67] STATE2 ENTER (now=2853.67 combo_time=2853.67)
+[2853.67] STATE2 LINKEN BREAKER cast no inimigo
+[2853.70] GRIP: aliado destravädo
+[2853.73] GRIP: aliado destravädo
+[2853.77] GRIP: aliado destravädo
+[2853.80] GRIP: aliado destravädo
+[2853.83] GRIP: aliado destravädo
+[2853.87] GRIP: aliado destravädo
+[2853.90] GRIP: aliado destravädo
+[2853.93] GRIP: aliado destravädo
+[2853.97] GRIP: aliado destravädo
+[2854.00] GRIP: aliado destravädo
+[2854.03] GRIP: aliado destravädo
+[2854.07] GRIP: aliado destravädo
+[2854.10] GRIP: aliado destravädo
+[2854.10] STATE2 ENTER (now=2854.10 combo_time=2854.07)
+[2854.10] STATE2 LINKEN BREAKER cast no inimigo
+[2854.13] GRIP: aliado destravädo
+[2854.17] GRIP: aliado destravädo
+[2854.20] GRIP: aliado destravädo
+[2854.23] GRIP: aliado destravädo
+[2854.27] GRIP: aliado destravädo
+[2854.30] GRIP: aliado destravädo
+[2854.33] GRIP: aliado destravädo
+[2854.37] GRIP: aliado destravädo
+[2854.40] GRIP: aliado destravädo
+[2854.43] GRIP: aliado destravädo
+[2854.47] GRIP: aliado destravädo
+[2854.50] GRIP: aliado destravädo
+[2854.53] GRIP: aliado destravädo
+[2854.53] STATE2 ENTER (now=2854.53 combo_time=2854.50)
+[2854.53] SMASH cast dir=(-0.96,-0.29) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2854.57] GRIP: aliado destravädo
+[2854.60] GRIP: aliado destravädo
+[2854.60] STATE2 ENTER (now=2854.60 combo_time=2854.58)
+[2854.60] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2854.60] STATE2 -> 0
+[2854.63] GRIP: aliado destravädo
+[2854.63] STATE0: dist=80.0 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2854.63] STATE0 CHASE (no abilities in range)
+[2854.67] GRIP: aliado destravädo
+[2854.67] STATE0: dist=103.4 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2854.67] STATE0 CHASE (no abilities in range)
+[2854.70] GRIP: aliado destravädo
+[2854.70] STATE0: dist=129.5 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2854.70] STATE0 CHASE (no abilities in range)
+[2854.73] GRIP: aliado destravädo
+[2854.73] STATE0: dist=157.0 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2854.73] STATE0 CHASE (no abilities in range)
+[2854.77] GRIP: aliado destravädo
+[2854.77] STATE0: dist=185.2 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2854.77] STATE0 CHASE (no abilities in range)
+[2854.80] GRIP: aliado destravädo
+[2854.80] STATE0: dist=214.0 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2854.80] STATE0 CHASE (no abilities in range)
+[2854.83] GRIP: aliado destravädo
+[2854.83] STATE0: dist=243.0 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2854.83] STATE0 CHASE (no abilities in range)
+[2854.87] GRIP: aliado destravädo
+[2854.87] STATE0: dist=272.3 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2854.87] STATE0 CHASE (no abilities in range)
+[2854.90] GRIP: aliado destravädo
+[2854.90] STATE0: dist=291.3 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2854.90] STATE0 CHASE (no abilities in range)
+[2854.93] GRIP: aliado destravädo
+[2854.93] STATE0: dist=310.5 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2854.93] STATE0 CHASE (no abilities in range)
+[2854.97] GRIP: aliado destravädo
+[2854.97] STATE0: dist=329.9 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2854.97] STATE0 CHASE (no abilities in range)
+[2855.00] GRIP: aliado destravädo
+[2855.00] STATE0: dist=349.4 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2855.00] STATE0 CHASE (no abilities in range)
+[2855.03] GRIP: aliado destravädo
+[2855.03] STATE0: dist=368.9 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2855.03] STATE0 CHASE (no abilities in range)
+[2855.07] GRIP: aliado destravädo
+[2855.07] STATE0: dist=388.5 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2855.07] STATE0 CHASE (no abilities in range)
+[2855.10] GRIP: aliado destravädo
+[2855.10] STATE0: dist=408.2 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2855.10] STATE0 CHASE (no abilities in range)
+[2855.13] GRIP: aliado destravädo
+[2855.13] STATE0: dist=428.0 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2855.13] STATE0 CHASE (no abilities in range)
+[2855.17] GRIP: aliado destravädo
+[2856.17] Combo START alvo=npc_dota_hero_monkey_king
+[2856.17] Ally SELECT=npc_dota_hero_largo
+[2856.17] STATE0: dist=644.6 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2856.17] STATE0 CHASE (no abilities in range)
+[2856.20] GRIP: aliado destravädo
+[2856.20] STATE0: dist=641.3 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2856.20] STATE0 CHASE (no abilities in range)
+[2856.23] GRIP: aliado destravädo
+[2856.23] STATE0: dist=638.1 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2856.23] STATE0 CHASE (no abilities in range)
+[2856.27] GRIP: aliado destravädo
+[2856.27] STATE0: dist=627.8 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2856.27] STATE0 CHASE (no abilities in range)
+[2856.30] GRIP: aliado destravädo
+[2856.30] STATE0: dist=617.4 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2856.30] STATE0 CHASE (no abilities in range)
+[2856.33] GRIP: aliado destravädo
+[2856.33] STATE0: dist=607.1 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2856.33] STATE0 CHASE (no abilities in range)
+[2856.37] GRIP: aliado destravädo
+[2856.37] STATE0: dist=596.8 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2856.37] STATE0 CHASE (no abilities in range)
+[2856.40] GRIP: aliado destravädo
+[2856.40] STATE0: dist=586.3 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2856.40] STATE0 CHASE (no abilities in range)
+[2856.43] GRIP: aliado destravädo
+[2860.33] Combo START alvo=npc_dota_hero_monkey_king
+[2860.33] Ally SELECT=npc_dota_hero_largo
+[2860.33] STATE0: dist=764.0 rolling=true canRoll=true blink=true preferRoll=true holding=true
+[2860.33] STATE0 ROLL prefer target=(-1538,1440) travel=764
+[2860.37] GRIP: aliado destravädo
+[2860.40] GRIP: aliado destravädo
+[2860.43] GRIP: aliado destravädo
+[2860.43] STATE1 ENTER (now=2860.43 combo_time=2860.41)
+[2860.43] STATE1 -> 2 (next at 2860.55)
+[2860.47] GRIP: aliado destravädo
+[2860.50] GRIP: aliado destravädo
+[2860.53] GRIP: aliado destravädo
+[2860.57] GRIP: aliado destravädo
+[2860.57] STATE2 ENTER (now=2860.57 combo_time=2860.55)
+[2860.57] STATE2 LINKEN BREAKER cast no inimigo
+[2860.60] GRIP: aliado destravädo
+[2860.63] GRIP: aliado destravädo
+[2860.67] GRIP: aliado destravädo
+[2860.70] GRIP: aliado destravädo
+[2860.73] GRIP: aliado destravädo
+[2860.77] GRIP: aliado destravädo
+[2860.80] GRIP: aliado destravädo
+[2860.83] GRIP: aliado destravädo
+[2860.87] GRIP: aliado destravädo
+[2860.90] GRIP: aliado destravädo
+[2860.93] GRIP: aliado destravädo
+[2860.97] GRIP: aliado destravädo
+[2861.00] GRIP: aliado destravädo
+[2861.00] STATE2 ENTER (now=2861.00 combo_time=2860.97)
+[2861.00] STATE2 LINKEN BREAKER cast no inimigo
+[2861.03] GRIP: aliado destravädo
+[2861.07] GRIP: aliado destravädo
+[2861.10] GRIP: aliado destravädo
+[2861.13] GRIP: aliado destravädo
+[2861.17] GRIP: aliado destravädo
+[2861.20] GRIP: aliado destravädo
+[2861.23] GRIP: aliado destravädo
+[2861.27] GRIP: aliado destravädo
+[2861.30] GRIP: aliado destravädo
+[2861.33] GRIP: aliado destravädo
+[2861.37] GRIP: aliado destravädo
+[2861.40] GRIP: aliado destravädo
+[2861.40] STATE2 ENTER (now=2861.40 combo_time=2861.40)
+[2861.40] SMASH cast dir=(-0.95,-0.32) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2861.43] GRIP: aliado destravädo
+[2861.47] GRIP: aliado destravädo
+[2861.47] STATE2 ENTER (now=2861.47 combo_time=2861.45)
+[2861.47] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2861.47] STATE2 -> 0
+[2861.50] GRIP: aliado destravädo
+[2861.50] STATE0: dist=326.7 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2861.50] STATE0 CHASE (no abilities in range)
+[2861.53] GRIP: aliado destravädo
+[2861.53] STATE0: dist=273.4 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2861.53] STATE0 CHASE (no abilities in range)
+[2861.57] GRIP: aliado destravädo
+[2861.57] STATE0: dist=80.0 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2861.57] STATE0 FAST_SMASH dir=(-0.95,-0.32) dist=80.0
+[2861.60] GRIP: aliado destravädo
+[2861.63] GRIP: aliado destravädo
+[2861.67] GRIP: aliado destravädo
+[2861.70] GRIP: aliado destravädo
+[2861.73] GRIP: aliado destravädo
+[2861.73] STATE2 ENTER (now=2861.73 combo_time=2861.72)
+[2861.73] STATE2 smash not castable (cd/mana)
+[2861.73] STATE2 -> 0
+[2861.77] GRIP: aliado destravädo
+[2861.77] STATE0: dist=118.0 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2861.77] STATE0 CHASE (no abilities in range)
+[2861.80] GRIP: aliado destravädo
+[2861.80] STATE0: dist=145.5 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2861.80] STATE0 CHASE (no abilities in range)
+[2861.83] GRIP: aliado destravädo
+[2861.83] STATE0: dist=173.8 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2861.83] STATE0 CHASE (no abilities in range)
+[2861.87] GRIP: aliado destravädo
+[2861.87] STATE0: dist=202.6 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2861.87] STATE0 CHASE (no abilities in range)
+[2861.90] GRIP: aliado destravädo
+[2861.90] STATE0: dist=231.7 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2861.90] STATE0 CHASE (no abilities in range)
+[2861.93] GRIP: aliado destravädo
+[2861.93] STATE0: dist=261.0 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2861.93] STATE0 CHASE (no abilities in range)
+[2861.97] GRIP: aliado destravädo
+[2861.97] STATE0: dist=280.2 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2861.97] STATE0 CHASE (no abilities in range)
+[2862.00] GRIP: aliado destravädo
+[2862.00] STATE0: dist=299.5 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.00] STATE0 CHASE (no abilities in range)
+[2862.03] GRIP: aliado destravädo
+[2862.03] STATE0: dist=318.7 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.03] STATE0 CHASE (no abilities in range)
+[2862.07] GRIP: aliado destravädo
+[2862.07] STATE0: dist=338.3 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.07] STATE0 CHASE (no abilities in range)
+[2862.10] GRIP: aliado destravädo
+[2862.10] STATE0: dist=357.9 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.10] STATE0 CHASE (no abilities in range)
+[2862.13] GRIP: aliado destravädo
+[2862.13] STATE0: dist=377.6 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.13] STATE0 CHASE (no abilities in range)
+[2862.17] GRIP: aliado destravädo
+[2862.17] STATE0: dist=397.2 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.17] STATE0 CHASE (no abilities in range)
+[2862.20] GRIP: aliado destravädo
+[2862.20] STATE0: dist=416.9 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.20] STATE0 CHASE (no abilities in range)
+[2862.23] GRIP: aliado destravädo
+[2862.23] STATE0: dist=436.6 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.23] STATE0 CHASE (no abilities in range)
+[2862.27] GRIP: aliado destravädo
+[2862.27] STATE0: dist=456.2 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.27] STATE0 CHASE (no abilities in range)
+[2862.30] GRIP: aliado destravädo
+[2862.30] STATE0: dist=475.7 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.30] STATE0 CHASE (no abilities in range)
+[2862.33] GRIP: aliado destravädo
+[2862.33] STATE0: dist=495.4 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.33] STATE0 CHASE (no abilities in range)
+[2862.37] GRIP: aliado destravädo
+[2862.37] STATE0: dist=515.0 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.37] STATE0 CHASE (no abilities in range)
+[2862.40] GRIP: aliado destravädo
+[2862.40] STATE0: dist=534.6 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.40] STATE0 CHASE (no abilities in range)
+[2862.43] GRIP: aliado destravädo
+[2862.43] STATE0: dist=554.3 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.43] STATE0 CHASE (no abilities in range)
+[2862.47] GRIP: aliado destravädo
+[2862.47] STATE0: dist=574.0 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.47] STATE0 CHASE (no abilities in range)
+[2862.50] GRIP: aliado destravädo
+[2862.50] STATE0: dist=593.6 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.50] STATE0 CHASE (no abilities in range)
+[2862.53] GRIP: aliado destravädo
+[2862.53] STATE0: dist=613.2 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.53] STATE0 CHASE (no abilities in range)
+[2862.57] GRIP: aliado destravädo
+[2862.57] STATE0: dist=632.9 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.57] STATE0 CHASE (no abilities in range)
+[2862.60] GRIP: aliado destravädo
+[2862.60] STATE0: dist=572.2 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.60] STATE0 CHASE (no abilities in range)
+[2862.63] GRIP: aliado destravädo
+[2862.63] STATE0: dist=587.8 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.63] STATE0 CHASE (no abilities in range)
+[2862.67] GRIP: aliado destravädo
+[2862.67] STATE0: dist=601.8 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.67] STATE0 CHASE (no abilities in range)
+[2862.70] GRIP: aliado destravädo
+[2862.70] STATE0: dist=591.6 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.70] STATE0 CHASE (no abilities in range)
+[2862.73] GRIP: aliado destravädo
+[2862.73] STATE0: dist=581.2 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.73] STATE0 CHASE (no abilities in range)
+[2862.77] GRIP: aliado destravädo
+[2862.77] STATE0: dist=571.0 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.77] STATE0 CHASE (no abilities in range)
+[2862.80] GRIP: aliado destravädo
+[2862.80] STATE0: dist=560.5 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.80] STATE0 CHASE (no abilities in range)
+[2862.83] GRIP: aliado destravädo
+[2862.83] STATE0: dist=550.2 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.83] STATE0 CHASE (no abilities in range)
+[2862.87] GRIP: aliado destravädo
+[2862.87] STATE0: dist=539.9 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.87] STATE0 CHASE (no abilities in range)
+[2862.90] GRIP: aliado destravädo
+[2862.90] STATE0: dist=529.5 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.90] STATE0 CHASE (no abilities in range)
+[2862.93] GRIP: aliado destravädo
+[2862.93] STATE0: dist=519.2 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.93] STATE0 CHASE (no abilities in range)
+[2862.97] GRIP: aliado destravädo
+[2862.97] STATE0: dist=508.9 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2862.97] STATE0 CHASE (no abilities in range)
+[2863.00] GRIP: aliado destravädo
+[2863.00] STATE0: dist=498.6 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2863.00] STATE0 CHASE (no abilities in range)
+[2863.03] GRIP: aliado destravädo
+[2863.03] STATE0: dist=488.2 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2863.03] STATE0 CHASE (no abilities in range)
+[2863.07] GRIP: aliado destravädo
+[2863.07] STATE0: dist=477.9 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2863.07] STATE0 CHASE (no abilities in range)
+[2863.10] GRIP: aliado destravädo
+[2863.10] STATE0: dist=467.6 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2863.10] STATE0 CHASE (no abilities in range)
+[2863.13] GRIP: aliado destravädo
+[2863.13] STATE0: dist=466.4 rolling=true canRoll=false blink=true preferRoll=true holding=true
+[2863.13] STATE0 CHASE (no abilities in range)
+[2863.17] GRIP: aliado destravädo
+[2874.57] Combo START alvo=npc_dota_hero_monkey_king
+[2874.57] Ally SELECT=npc_dota_hero_largo
+[2874.57] STATE0: dist=910.0 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2874.57] STATE0 BLINK dist=910.0
+[2874.60] GRIP: aliado destravädo
+[2874.63] GRIP: aliado destravädo
+[2874.67] GRIP: aliado destravädo
+[2874.67] STATE1 ENTER (now=2874.67 combo_time=2874.65)
+[2874.67] STATE1 -> 2 (next at 2874.79)
+[2874.70] GRIP: aliado destravädo
+[2874.73] GRIP: aliado destravädo
+[2874.77] GRIP: aliado destravädo
+[2874.80] GRIP: aliado destravädo
+[2874.80] STATE2 ENTER (now=2874.80 combo_time=2874.79)
+[2874.80] STATE2 LINKEN BREAKER cast no inimigo
+[2874.83] GRIP: aliado destravädo
+[2874.87] GRIP: aliado destravädo
+[2874.90] GRIP: aliado destravädo
+[2874.93] GRIP: aliado destravädo
+[2874.97] GRIP: aliado destravädo
+[2875.00] GRIP: aliado destravädo
+[2875.03] GRIP: aliado destravädo
+[2875.07] GRIP: aliado destravädo
+[2875.10] GRIP: aliado destravädo
+[2875.13] GRIP: aliado destravädo
+[2875.17] GRIP: aliado destravädo
+[2875.20] GRIP: aliado destravädo
+[2875.23] GRIP: aliado destravädo
+[2875.23] STATE2 ENTER (now=2875.23 combo_time=2875.20)
+[2875.23] SMASH cast dir=(-0.94,-0.34) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2875.23] RETREAT queued (smash OK)
+[2875.27] GRIP: aliado destravädo
+[2875.30] GRIP: aliado destravädo
+[2875.30] STATE2 ENTER (now=2875.30 combo_time=2875.28)
+[2875.30] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2875.30] STATE2 -> 3
+[2875.33] GRIP: aliado destravädo
+[2875.37] GRIP: aliado destravädo
+[2875.40] GRIP: aliado destravädo
+[2875.43] GRIP: aliado destravädo
+[2875.47] GRIP: aliado destravädo
+[2875.50] GRIP: aliado destravädo
+[2875.53] GRIP: aliado destravädo
+[2875.57] GRIP: aliado destravädo
+[2875.57] RETREAT remnant criado -> roll pendente para (-2204,1157)
+[2875.57] STATE3 done -> 0
+[2875.60] GRIP: aliado destravädo
+[2875.60] STATE0: dist=197.7 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2875.60] STATE0 CHASE (no abilities in range)
+[2875.63] GRIP: aliado destravädo
+[2875.63] STATE0: dist=216.3 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2875.63] STATE0 CHASE (no abilities in range)
+[2875.67] GRIP: aliado destravädo
+[2875.67] STATE0: dist=245.5 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2875.67] STATE0 CHASE (no abilities in range)
+[2875.70] GRIP: aliado destravädo
+[2875.70] STATE0: dist=264.6 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2875.70] STATE0 CHASE (no abilities in range)
+[2875.73] GRIP: aliado destravädo
+[2875.73] STATE0: dist=294.1 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2875.73] STATE0 CHASE (no abilities in range)
+[2875.77] GRIP: aliado destravädo
+[2875.77] STATE0: dist=323.6 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2875.77] STATE0 CHASE (no abilities in range)
+[2875.80] GRIP: aliado destravädo
+[2875.80] STATE0: dist=353.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2875.80] STATE0 CHASE (no abilities in range)
+[2875.83] GRIP: aliado destravädo
+[2875.83] STATE0: dist=383.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2875.83] STATE0 CHASE (no abilities in range)
+[2875.87] GRIP: aliado destravädo
+[2875.87] STATE0: dist=412.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2875.87] STATE0 CHASE (no abilities in range)
+[2875.90] GRIP: aliado destravädo
+[2875.90] STATE0: dist=442.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2875.90] STATE0 CHASE (no abilities in range)
+[2875.93] GRIP: aliado destravädo
+[2875.93] STATE0: dist=472.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2875.93] STATE0 CHASE (no abilities in range)
+[2875.97] GRIP: aliado destravädo
+[2875.97] STATE0: dist=502.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2875.97] STATE0 CHASE (no abilities in range)
+[2876.00] GRIP: aliado destravädo
+[2876.00] STATE0: dist=532.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2876.00] STATE0 CHASE (no abilities in range)
+[2876.03] GRIP: aliado destravädo
+[2876.03] STATE0: dist=561.8 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2876.03] STATE0 CHASE (no abilities in range)
+[2876.07] GRIP: aliado destravädo
+[2876.07] STATE0: dist=591.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2876.07] STATE0 CHASE (no abilities in range)
+[2876.10] GRIP: aliado destravädo
+[2876.10] STATE0: dist=621.6 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2876.10] STATE0 CHASE (no abilities in range)
+[2876.13] GRIP: aliado destravädo
+[2876.13] STATE0: dist=651.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2876.13] STATE0 CHASE (no abilities in range)
+[2876.17] GRIP: aliado destravädo
+[2876.17] STATE0: dist=681.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2876.17] STATE0 CHASE (no abilities in range)
+[2876.20] GRIP: aliado destravädo
+[2876.20] STATE0: dist=711.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2876.20] STATE0 CHASE (no abilities in range)
+[2876.23] GRIP: aliado destravädo
+[2876.23] STATE0: dist=741.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2876.23] STATE0 CHASE (no abilities in range)
+[2876.27] GRIP: aliado destravädo
+[2876.27] STATE0: dist=771.2 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2876.27] STATE0 CHASE (no abilities in range)
+[2876.30] GRIP: aliado destravädo
+[2876.30] STATE0: dist=719.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2876.30] STATE0 CHASE (no abilities in range)
+[2876.33] GRIP: aliado destravädo
+[2876.33] STATE0: dist=744.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2876.33] STATE0 CHASE (no abilities in range)
+[2876.37] GRIP: aliado destravädo
+[2876.37] STATE0: dist=771.2 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2876.37] STATE0 CHASE (no abilities in range)
+[2876.40] GRIP: aliado destravädo
+[2876.40] STATE0: dist=739.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2876.40] STATE0 CHASE (no abilities in range)
+[2876.43] GRIP: aliado destravädo
+[2876.43] STATE0: dist=688.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2876.43] STATE0 CHASE (no abilities in range)
+[2876.47] GRIP: aliado destravädo
+[2876.47] STATE0: dist=637.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2876.47] STATE0 CHASE (no abilities in range)
+[2876.50] GRIP: aliado destravädo
+[2876.50] STATE0: dist=587.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2876.50] STATE0 CHASE (no abilities in range)
+[2876.53] GRIP: aliado destravädo
+[2876.53] STATE0: dist=537.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2876.53] STATE0 CHASE (no abilities in range)
+[2876.57] GRIP: aliado destravädo
+[2876.57] STATE0: dist=489.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2876.57] STATE0 CHASE (no abilities in range)
+[2876.60] GRIP: aliado destravädo
+[2876.60] STATE0: dist=441.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2876.60] STATE0 CHASE (no abilities in range)
+[2876.63] GRIP: aliado destravädo
+[2876.63] STATE0: dist=395.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2876.63] STATE0 CHASE (no abilities in range)
+[2876.67] GRIP: aliado destravädo
+[2876.67] STATE0: dist=350.7 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2876.67] STATE0 CHASE (no abilities in range)
+[2876.70] GRIP: aliado destravädo
+[2883.33] Combo START alvo=npc_dota_hero_monkey_king
+[2883.33] Ally SELECT=npc_dota_hero_largo
+[2883.33] STATE0: dist=1302.5 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2883.33] STATE0 CHASE (no abilities in range)
+[2883.37] GRIP: aliado destravädo
+[2883.37] STATE0: dist=1313.0 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2883.37] STATE0 CHASE (no abilities in range)
+[2883.40] GRIP: aliado destravädo
+[2883.40] STATE0: dist=1323.8 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2883.40] STATE0 CHASE (no abilities in range)
+[2883.43] GRIP: aliado destravädo
+[2883.43] STATE0: dist=1327.8 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2883.43] STATE0 CHASE (no abilities in range)
+[2883.47] GRIP: aliado destravädo
+[2883.47] STATE0: dist=1321.5 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2883.47] STATE0 CHASE (no abilities in range)
+[2883.50] GRIP: aliado destravädo
+[2883.50] STATE0: dist=1315.3 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2883.50] STATE0 CHASE (no abilities in range)
+[2883.53] GRIP: aliado destravädo
+[2883.53] STATE0: dist=1309.0 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2883.53] STATE0 CHASE (no abilities in range)
+[2883.57] GRIP: aliado destravädo
+[2883.57] STATE0: dist=1302.7 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2883.57] STATE0 CHASE (no abilities in range)
+[2883.60] GRIP: aliado destravädo
+[2883.60] STATE0: dist=1285.4 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2883.60] STATE0 CHASE (no abilities in range)
+[2883.63] GRIP: aliado destravädo
+[2883.63] STATE0: dist=1281.2 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2883.63] STATE0 CHASE (no abilities in range)
+[2883.67] GRIP: aliado destravädo
+[2883.67] STATE0: dist=1271.8 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2883.67] STATE0 CHASE (no abilities in range)
+[2883.70] GRIP: aliado destravädo
+[2883.70] STATE0: dist=1261.5 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2883.70] STATE0 CHASE (no abilities in range)
+[2883.73] GRIP: aliado destravädo
+[2883.73] STATE0: dist=1251.2 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2883.73] STATE0 CHASE (no abilities in range)
+[2883.77] GRIP: aliado destravädo
+[2883.77] STATE0: dist=1240.9 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2883.77] STATE0 CHASE (no abilities in range)
+[2883.80] GRIP: aliado destravädo
+[2883.80] STATE0: dist=1230.4 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2883.80] STATE0 CHASE (no abilities in range)
+[2883.83] GRIP: aliado destravädo
+[2883.83] STATE0: dist=1220.2 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2883.83] STATE0 CHASE (no abilities in range)
+[2883.87] GRIP: aliado destravädo
+[2883.87] STATE0: dist=1209.9 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2883.87] STATE0 CHASE (no abilities in range)
+[2883.90] GRIP: aliado destravädo
+[2883.90] STATE0: dist=1199.4 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2883.90] STATE0 BLINK dist=1199.4
+[2883.93] GRIP: aliado destravädo
+[2883.97] GRIP: aliado destravädo
+[2884.00] GRIP: aliado destravädo
+[2884.00] STATE1 ENTER (now=2884.00 combo_time=2883.98)
+[2884.00] STATE1 -> 2 (next at 2884.12)
+[2884.03] GRIP: aliado destravädo
+[2884.07] GRIP: aliado destravädo
+[2884.10] GRIP: aliado destravädo
+[2884.13] GRIP: aliado destravädo
+[2884.13] STATE2 ENTER (now=2884.13 combo_time=2884.12)
+[2884.13] STATE2 LINKEN BREAKER cast no inimigo
+[2884.17] GRIP: aliado destravädo
+[2884.20] GRIP: aliado destravädo
+[2884.23] GRIP: aliado destravädo
+[2884.27] GRIP: aliado destravädo
+[2884.30] GRIP: aliado destravädo
+[2884.33] GRIP: aliado destravädo
+[2884.37] GRIP: aliado destravädo
+[2884.40] GRIP: aliado destravädo
+[2884.43] GRIP: aliado destravädo
+[2884.47] GRIP: aliado destravädo
+[2884.50] GRIP: aliado destravädo
+[2884.53] GRIP: aliado destravädo
+[2884.53] STATE2 ENTER (now=2884.53 combo_time=2884.53)
+[2884.53] SMASH cast dir=(-0.87,-0.49) enemy=npc_dota_hero_monkey_king ally=npc_dota_hero_largo
+[2884.53] RETREAT queued (smash OK)
+[2884.57] GRIP: aliado destravädo
+[2884.60] GRIP: aliado destravädo
+[2884.60] STATE2 ENTER (now=2884.60 combo_time=2884.58)
+[2884.60] STATE2 smash TryCast locked (delay timer) - SEM RETREAT
+[2884.60] STATE2 -> 3
+[2884.63] GRIP: aliado destravädo
+[2884.67] GRIP: aliado destravädo
+[2884.70] GRIP: aliado destravädo
+[2884.73] GRIP: aliado destravädo
+[2884.77] GRIP: aliado destravädo
+[2884.80] GRIP: aliado destravädo
+[2884.83] GRIP: aliado destravädo
+[2884.87] GRIP: aliado destravädo
+[2884.87] RETREAT remnant criado -> roll pendente para (-2241,1297)
+[2884.87] STATE3 done -> 0
+[2884.90] GRIP: aliado destravädo
+[2884.90] STATE0: dist=238.5 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2884.90] STATE0 CHASE (no abilities in range)
+[2884.93] GRIP: aliado destravädo
+[2884.93] STATE0: dist=258.1 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2884.93] STATE0 CHASE (no abilities in range)
+[2884.97] GRIP: aliado destravädo
+[2884.97] STATE0: dist=287.9 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2884.97] STATE0 CHASE (no abilities in range)
+[2885.00] GRIP: aliado destravädo
+[2885.00] STATE0: dist=318.9 rolling=true canRoll=true blink=true preferRoll=false holding=true
+[2885.00] STATE0 CHASE (no abilities in range)
+[2885.03] GRIP: aliado destravädo
+[2885.03] STATE0: dist=347.6 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2885.03] STATE0 CHASE (no abilities in range)
+[2885.07] GRIP: aliado destravädo
+[2885.07] STATE0: dist=377.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2885.07] STATE0 CHASE (no abilities in range)
+[2885.10] GRIP: aliado destravädo
+[2885.10] STATE0: dist=407.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2885.10] STATE0 CHASE (no abilities in range)
+[2885.13] GRIP: aliado destravädo
+[2885.13] STATE0: dist=437.4 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2885.13] STATE0 CHASE (no abilities in range)
+[2885.17] GRIP: aliado destravädo
+[2885.17] STATE0: dist=467.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2885.17] STATE0 CHASE (no abilities in range)
+[2885.20] GRIP: aliado destravädo
+[2885.20] STATE0: dist=497.3 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2885.20] STATE0 CHASE (no abilities in range)
+[2885.23] GRIP: aliado destravädo
+[2885.23] STATE0: dist=527.2 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2885.23] STATE0 CHASE (no abilities in range)
+[2885.27] GRIP: aliado destravädo
+[2885.27] STATE0: dist=557.2 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2885.27] STATE0 CHASE (no abilities in range)
+[2885.30] GRIP: aliado destravädo
+[2885.30] STATE0: dist=587.2 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2885.30] STATE0 CHASE (no abilities in range)
+[2885.33] GRIP: aliado destravädo
+[2885.33] STATE0: dist=617.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2885.33] STATE0 CHASE (no abilities in range)
+[2885.37] GRIP: aliado destravädo
+[2885.37] STATE0: dist=647.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2885.37] STATE0 CHASE (no abilities in range)
+[2885.40] GRIP: aliado destravädo
+[2885.40] STATE0: dist=677.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2885.40] STATE0 CHASE (no abilities in range)
+[2885.43] GRIP: aliado destravädo
+[2885.43] STATE0: dist=707.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2885.43] STATE0 CHASE (no abilities in range)
+[2885.47] GRIP: aliado destravädo
+[2885.47] STATE0: dist=737.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2885.47] STATE0 CHASE (no abilities in range)
+[2885.50] GRIP: aliado destravädo
+[2885.50] STATE0: dist=767.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2885.50] STATE0 CHASE (no abilities in range)
+[2885.53] GRIP: aliado destravädo
+[2885.53] STATE0: dist=797.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2885.53] STATE0 CHASE (no abilities in range)
+[2885.57] GRIP: aliado destravädo
+[2885.57] STATE0: dist=742.8 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2885.57] STATE0 CHASE (no abilities in range)
+[2885.60] GRIP: aliado destravädo
+[2885.60] STATE0: dist=788.2 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2885.60] STATE0 CHASE (no abilities in range)
+[2885.63] GRIP: aliado destravädo
+[2885.63] STATE0: dist=796.8 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2885.63] STATE0 CHASE (no abilities in range)
+[2885.67] GRIP: aliado destravädo
+[2885.67] STATE0: dist=797.0 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2885.67] STATE0 CHASE (no abilities in range)
+[2885.70] GRIP: aliado destravädo
+[2885.70] STATE0: dist=764.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2885.70] STATE0 CHASE (no abilities in range)
+[2885.73] GRIP: aliado destravädo
+[2885.73] STATE0: dist=711.5 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2885.73] STATE0 CHASE (no abilities in range)
+[2885.77] GRIP: aliado destravädo
+[2885.77] STATE0: dist=659.1 rolling=true canRoll=false blink=true preferRoll=false holding=true
+[2885.77] STATE0 CHASE (no abilities in range)
+[2885.80] GRIP: aliado destravädo

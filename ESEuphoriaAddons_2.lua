@@ -1092,60 +1092,9 @@ function EuphoriaAddon2.OnUpdate()
                 Ability.CastPosition(blink, enemyPos)
             end)
             last_blink_time = now
-            combo_time, combo_state = now+0.08,1  -- Aumentado levemente para 0.08
-            DebugPrint(string.format("STATE0: blink (preferred over roll) -> state=1 t=%.2f dist=%.1f", combo_time, dist))
-            FileLog(string.format("STATE0 BLINK PREFERRED dist=%.1f", dist))
-            
-            -- Marca que usou blink (não precisa criar remnant depois)
-            approach_roll_active = false
-            earthSpiritPending.active = false  -- Cancela qualquer roll pendente
-            action_cd_until = now + 0.05
-        -- Rolling (fallback quando NÃO prefere rolling, mas rolling está disponível)
-        elseif rolling and CanCast(myHero, rolling) and dist >= 300 and dist <= 1000 then
-            local myPosIn = Entity.GetAbsOrigin(myHero)
-            local predicted = PredictEnemyPos(smash_enemy, now)
-            local lenIn = (predicted - myPosIn):Length2D()
-            
-            -- Usa remnant antes de rolar se tiver mana
-            local hasRemnant = false
-            if stoneRemnant and Ability.GetLevel(stoneRemnant) > 0 then
-                local remnantCharges = Ability.GetCurrentCharges and Ability.GetCurrentCharges(stoneRemnant) or 0
-                local myMana = NPC.GetMana(myHero)
-                local remnantCost = Ability.GetManaCost and Ability.GetManaCost(stoneRemnant) or 0
-                local boulderCost = Ability.GetManaCost and Ability.GetManaCost(rolling) or 0
-                local timeSinceLastRemnant = now - last_remnant_time
-                if remnantCharges > 0 and myMana >= (remnantCost + boulderCost) and Ability.IsCastable(stoneRemnant, myMana) and timeSinceLastRemnant >= 0.8 then
-                    hasRemnant = true
-                end
-            end
-            
-            if hasRemnant then
-                local myPosInCast = Entity.GetAbsOrigin(myHero)
-                local dirToRoll = (predicted - myPosInCast):Normalized()
-                local remnantPos = myPosInCast + dirToRoll * 200
-                Ability.CastPosition(stoneRemnant, remnantPos)
-                earthSpiritPending = { active = true, time = now, escapePos = predicted }
-                last_remnant_time = now
-            else
-                Ability.CastPosition(rolling, predicted)
-            end
-            
-            -- SEMPRE seta estado 1 imediatamente, igual ao blink
-            combo_time, combo_state = now + 0.08, 1
-            approach_roll_active = true
-            action_cd_until = now + 0.05
-            DebugPrint(string.format("Rolling IN predicted: dist=%.1f -> (%.1f,%.1f)", dist, predicted.x, predicted.y))
-            debug_last = string.format("roll_in predicted (%.1f,%.1f)", predicted.x, predicted.y)
-            FileLog(string.format("ROLL IN dist=%.1f target=(%.0f,%.0f)", dist, predicted.x, predicted.y))
-        -- Blink como fallback (quando prefer_roll está ativado mas rolling não foi usado)
-        elseif blink and Ability.IsReady(blink) and dist > 250 and dist < 1200 and (now - last_blink_time) >= 1.0 then
-            TryCast("blink", 100, function() 
-                Ability.CastPosition(blink, enemyPos)
-            end)
-            last_blink_time = now
-            combo_time, combo_state = now+0.08,1  -- Aumentado levemente para 0.08
-            DebugPrint(string.format("STATE0: blink (fallback) -> state=1 t=%.2f dist=%.1f", combo_time, dist))
-            FileLog(string.format("STATE0 BLINK FALLBACK dist=%.1f", dist))
+            combo_time, combo_state = now+0.08,1
+            DebugPrint(string.format("STATE0: BLINK -> state=1 t=%.2f dist=%.1f", combo_time, dist))
+            FileLog(string.format("STATE0 BLINK dist=%.1f", dist))
             
             -- Marca que usou blink (não precisa criar remnant depois)
             approach_roll_active = false
