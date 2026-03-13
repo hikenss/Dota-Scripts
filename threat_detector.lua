@@ -901,11 +901,12 @@ end
 --------------------------------------------------------------------------------
 -- PREDICTIVE ENEMY ITEM SYSTEM (backward-compatible wrapper)
 -- Full prediction logic has been extracted to enemy_item_predictor.lua.
+-- predictor is injected by build_engine after both modules load (see setPredictor).
 -- This wrapper delegates to the predictor module when available, otherwise
 -- provides a minimal fallback.
 --------------------------------------------------------------------------------
 local predictor = nil
-pcall(function() predictor = require("enemy_item_predictor") end)
+function M.setPredictor(p) predictor = p end
 
 function M.predictEnemyItems(enemies, apiCache, gameTime)
     if predictor then

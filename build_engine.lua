@@ -7,26 +7,7 @@
 local script = {}
 
 --------------------------------------------------------------------------------
--- MODULE LOADING
---------------------------------------------------------------------------------
-local function loadMod(name)
-    local ok, mod = pcall(require, name)
-    if ok and type(mod) == "table" then return mod end
-    Log.Write("[BuildEngine] FATAL: cannot load module " .. name)
-    return nil
-end
-
-local api       = loadMod("api_client")
-local collector = loadMod("match_collector")
-local threats   = loadMod("threat_detector")
-
-if not api or not collector or not threats then
-    Log.Write("[BuildEngine] Missing modules — aborting.")
-    return script
-end
-
---------------------------------------------------------------------------------
--- FILE LOGGER (Umbrella does not route Log.Write to the Dota console reliably)
+-- FILE LOGGER  — defined first so loadMod failures are visible in the log
 --------------------------------------------------------------------------------
 local LOG_FILE = "smart_build_debug.txt"
 local _logFileHandle = nil
@@ -42,13 +23,61 @@ local function FLog(msg)
         _logFileHandle:write(line .. "\n")
         _logFileHandle:flush()
     end
-    Log.Write(line)
+    if type(Log) == "table" and type(Log.Write) == "function" then
+        pcall(Log.Write, line)
+    end
 end
-FLog("[BuildEngine] module loaded")
+FLog("[BuildEngine] script loading…")
+
+--------------------------------------------------------------------------------
+-- MODULE LOADING
+-- Tries require() first (works when Umbrella proxies local scripts), then
+-- falls back to dofile() with relative and absolute paths.
+--------------------------------------------------------------------------------
+local function loadMod(name)
+    -- 1) standard require (Umbrella may proxy this for scripts in the folder)
+    local ok, mod = pcall(require, name)
+    if ok and type(mod) == "table" then
+        FLog("[loadMod] require OK: " .. name)
+        return mod
+    end
+    FLog("[loadMod] require failed for " .. name .. ": " .. tostring(mod))
+
+    -- 2) dofile with relative path (file next to build_engine.lua)
+    ok, mod = pcall(dofile, name .. ".lua")
+    if ok and type(mod) == "table" then
+        FLog("[loadMod] dofile OK: " .. name)
+        return mod
+    end
+    FLog("[loadMod] dofile failed for " .. name .. ".lua: " .. tostring(mod))
+
+    -- 3) dofile with common absolute Umbrella path
+    ok, mod = pcall(dofile, "c:\\UB\\scripts\\" .. name .. ".lua")
+    if ok and type(mod) == "table" then
+        FLog("[loadMod] dofile(abs) OK: " .. name)
+        return mod
+    end
+    FLog("[loadMod] dofile(abs) failed for " .. name .. ": " .. tostring(mod))
+
+    return nil
+end
+
+local api       = loadMod("api_client")
+local collector = loadMod("match_collector")
+local threats   = loadMod("threat_detector")
+
+-- Log what loaded so the debug file always shows the true picture
+FLog("[BuildEngine] api=" .. tostring(api ~= nil)
+    .. " collector=" .. tostring(collector ~= nil)
+    .. " threats=" .. tostring(threats ~= nil))
+
+-- NOTE: we do NOT return early here even when modules are nil.
+-- OnDraw will render an error message instead — this keeps the overlay
+-- visible and the debug log reachable even during module load failures.
 
 -- Initialize integrated STRATZ token before menu creation so the UI field
 -- reflects the backend state even after Umbrella reloads scripts.
-if type(api.initFromConfig) == "function" then
+if api and type(api.initFromConfig) == "function" then
     api.initFromConfig()
 end
 
@@ -57,6 +86,11 @@ local metaFetcher = loadMod("meta_fetcher")
 local predictor   = loadMod("enemy_item_predictor")
 local timingEng   = loadMod("item_timing_engine")
 local learningEng = loadMod("learning_engine")
+
+-- Cross-inject to break circular require: each module gets a reference to
+-- the other through a setter rather than through require().
+if threats   and predictor and type(threats.setPredictor)   == "function" then threats.setPredictor(predictor) end
+if predictor and threats   and type(predictor.setThreats)   == "function" then predictor.setThreats(threats)   end
 
 --------------------------------------------------------------------------------
 -- ITEM DATABASE  (counter-items + meta-eligible items with tags & triggers)
@@ -359,7 +393,9 @@ do
 
         -- STRATZ is now always enabled with the built-in token.
         -- No token input needed in the menu.
-        api.configureStratz(api.getStratzToken and api.getStratzToken() or "", true)
+        if api and type(api.configureStratz) == "function" then
+            api.configureStratz(api.getStratzToken and api.getStratzToken() or "", true)
+        end
     end
 end
 
@@ -736,6 +772,23 @@ end
 
 function script.OnDraw()
     if not ShouldDrawPanel() then return end
+
+    -- If core modules failed to load, draw a visible error panel instead.
+    if not api or not collector or not threats then
+        local font  = ensureFont()
+        local cBg   = Color(14, 16, 22, 220)
+        local cRed  = Color(240, 80, 70, 255)
+        local cDim  = Color(150, 155, 165, 220)
+        Render.FilledRect(Vec2(20, 140), Vec2(340, 195), cBg, 6)
+        Render.Text(font, 14, "Smart Build — module load error", Vec2(28, 147), cRed)
+        local missing = {}
+        if not api       then missing[#missing+1] = "api_client" end
+        if not collector then missing[#missing+1] = "match_collector" end
+        if not threats   then missing[#missing+1] = "threat_detector" end
+        Render.Text(font, 11, "Missing: " .. table.concat(missing, ", "), Vec2(28, 165), cDim)
+        Render.Text(font, 11, "See smart_build_debug.txt for details", Vec2(28, 179), cDim)
+        return
+    end
 
     -- Fallback bootstrap: if OnUpdate did not populate the first snapshot yet,
     -- try once from OnDraw so the panel does not remain stuck forever.

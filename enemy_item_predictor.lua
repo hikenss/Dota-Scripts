@@ -10,8 +10,10 @@
 --------------------------------------------------------------------------------
 local M = {}
 
+-- threats is injected by build_engine after both modules are loaded;
+-- its use is already nil-guarded below so it is safe to leave as nil.
 local threats = nil
-pcall(function() threats = require("threat_detector") end)
+function M.setThreats(t) threats = t end
 
 --------------------------------------------------------------------------------
 -- BUILD PROGRESSIONS — if hero has item A, they likely build item B next
