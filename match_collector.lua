@@ -29,6 +29,7 @@ local function safeStatic(tbl, method, ...)
     local fn = tbl[method]
     if type(fn) ~= "function" then return nil end
     local ok, r = pcall(fn, ...)
+    if not ok then logDiag("safeStatic Error [" .. tostring(method) .. "]: " .. tostring(r)) end
     return ok and r or nil
 end
 
@@ -37,6 +38,7 @@ local function safeMethod(obj, method, ...)
     local fn = obj[method]
     if type(fn) ~= "function" then return nil end
     local ok, r = pcall(fn, obj, ...)
+    if not ok then logDiag("safeMethod Error [" .. tostring(method) .. "]: " .. tostring(r)) end
     return ok and r or nil
 end
 
@@ -79,14 +81,22 @@ function M.getRawGameTime()
 end
 
 function M.isInGame()
-    -- Engine.IsInGame() may not exist in all Umbrella versions.
-    -- Use Heroes.GetLocal() as the reliable fallback (same approach as Item Build.lua).
+    -- Engine.IsInGame()
     local byEngine = safeCall(Engine.IsInGame)
     if byEngine == true then return true end
-    -- Fallback: if a local hero entity exists, we're in an active game
+    -- Heroes.GetLocal()
     local hero = safeStatic(Heroes, "GetLocal")
     if hero then return true end
-    logDiag("isInGame: false (Engine.IsInGame=" .. tostring(byEngine) .. ", Heroes.GetLocal=nil)")
+    -- Players.GetLocal() + GetAssignedHero()
+    local player = safeStatic(Players, "GetLocal")
+    if player then
+        local h = safeStatic(Player, "GetAssignedHero", player)
+        if h then return true end
+    end
+    -- Heroes.GetAll() non-empty means game is active
+    local allH = safeStatic(Heroes, "GetAll")
+    if allH and #allH > 0 then return true end
+    logDiag("isInGame: false (Engine=" .. tostring(byEngine) .. ", Heroes=nil, Players=nil)")
     return false
 end
 
@@ -220,9 +230,69 @@ function M.collectSnapshot()
         return cache.snap
     end
 
-    local me = safeStatic(Heroes, "GetLocal")
+    -- EXHAUSTIVE HERO DETECTION (3 paths)
+    local me = nil
+
+    -- Path 1: Heroes.GetLocal() (standard)
+    me = safeStatic(Heroes, "GetLocal")
+    if me then
+        FLog("Hero found via Heroes.GetLocal()")
+    end
+
+    -- Path 2: iterate Heroes.GetAll(), check Entity.IsLocal(hero)
     if not me then
-        logDiag("collectSnapshot: Heroes.GetLocal() returned nil")
+        local allH = safeStatic(Heroes, "GetAll") or {}
+        FLog("Path 2: Heroes.GetAll() returned " .. tostring(#allH) .. " heroes")
+        for _, hero in ipairs(allH) do
+            if hero then
+                local isLocal = safeStatic(Entity, "IsLocal", hero)
+                if isLocal == true then
+                    me = hero
+                    FLog("Hero found via Entity.IsLocal() in GetAll loop")
+                    break
+                end
+                local isLP = safeStatic(Entity, "IsLocalPlayer", hero)
+                if isLP == true then
+                    me = hero
+                    FLog("Hero found via Entity.IsLocalPlayer() in GetAll loop")
+                    break
+                end
+            end
+        end
+    end
+
+    -- Path 3: Players.GetLocal() -> Player.GetAssignedHero()
+    if not me then
+        local player = safeStatic(Players, "GetLocal")
+        if player then
+            FLog("Path 3: Players.GetLocal() OK, trying GetAssignedHero")
+            me = safeStatic(Player, "GetAssignedHero", player)
+            if me then
+                FLog("Hero found via Player.GetAssignedHero()")
+            else
+                local pid = safeStatic(Player, "GetPlayerID", player)
+                FLog("Path 3b: PlayerID=" .. tostring(pid))
+                if pid then
+                    local allH = safeStatic(Heroes, "GetAll") or {}
+                    for _, hero in ipairs(allH) do
+                        if hero then
+                            local hpid = safeStatic(Player, "GetPlayerID", hero)
+                            if hpid == pid then
+                                me = hero
+                                FLog("Hero found via PlayerID match in GetAll")
+                                break
+                            end
+                        end
+                    end
+                end
+            end
+        else
+            FLog("Path 3: Players.GetLocal() returned nil")
+        end
+    end
+
+    if not me then
+        logDiag("collectSnapshot: ALL hero detection paths failed")
         return nil
     end
     local myTeam = safeStatic(Entity, "GetTeamNum", me)
