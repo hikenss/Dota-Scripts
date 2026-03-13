@@ -15,13 +15,13 @@ local ui = {}
 ui.global_switch = group:Switch("Ativar Combo", false)
 ui.hotkey = group:Bind("Tecla para Combo", Enum.ButtonCode.KEY_NONE, "⌨")
 ui.min_distance = group:Slider("Distância mínima do inimigo ao aliado para chutar", 100, 800, 800)
-ui.max_distance = group:Slider("Distância máxima do inimigo ao aliado para chutar", 1400, 2200, 2000)
+ui.max_distance = group:Slider("Distância máxima do inimigo ao aliado para chutar", 1400, 6000, 5000)
+ui.kick_to_techies_bombs = group:Switch("Chutar para Techies bomb", false, "panorama/images/spellicons/techies_land_mines_png.vtex_c")
+ui.kick_to_chronosphere = group:Switch("Chutar para Crono esfera Void", false, "panorama/images/spellicons/faceless_void_chronosphere_png.vtex_c")
 ui.ally_selector = nil
 
 -- Linken breaker items
 local linken_breaker_items_raw = {
-    "item_urn_of_shadows",
-    "item_spirit_vessel",
     "item_force_staff",
     "item_heavens_halberd",
     "item_orchid",
@@ -47,6 +47,7 @@ local local_player = nil
 local script_state = "IDLE"
 local combo_target_enemy = nil
 local combo_target_ally = nil
+local combo_target_position = nil
 local blink_target_pos = nil
 local last_move_order_time = 0
 local kick_attempt_time = 0
@@ -59,6 +60,10 @@ local BLINK_DAGGER_ITEMS = {
     "item_blink"
 }
 
+local KICK_TRAVEL_DISTANCE = 1200
+local CHRONOSPHERE_RADIUS = 425
+local TECHIES_BOMB_EFFECT_RADIUS = 300
+
 -- ============================================
 -- HELPER FUNCTIONS
 -- ============================================
@@ -67,9 +72,102 @@ local function reset_state()
     script_state = "IDLE"
     combo_target_enemy = nil
     combo_target_ally = nil
+    combo_target_position = nil
     blink_target_pos = nil
     kick_attempt_time = 0
     snowball_cast_time = 0
+end
+
+local function has_chronosphere_freeze_modifier(target)
+    return NPC.HasModifier(target, "modifier_faceless_void_chronosphere_freeze")
+        or NPC.HasModifier(target, "modifier_faceless_chronosphere_freeze")
+end
+
+local function is_in_kick_landing_window(enemy_pos, target_pos, target_area_radius)
+    local distance = (enemy_pos - target_pos):Length2D()
+    return math.abs(distance - KICK_TRAVEL_DISTANCE) <= target_area_radius
+end
+
+local function find_techies_bomb_target_position(enemy)
+    if not ui.kick_to_techies_bombs or not ui.kick_to_techies_bombs:Get() then
+        return nil
+    end
+
+    local my_team = Entity.GetTeamNum(hero)
+    local enemy_pos = Entity.GetAbsOrigin(enemy)
+    local best_bomb_pos = nil
+    local best_distance_delta = math.huge
+
+    for _, npc in ipairs(NPCs.GetAll()) do
+        if npc and Entity.IsAlive(npc) and Entity.GetTeamNum(npc) == my_team then
+            local npc_name = NPC.GetUnitName(npc)
+            if npc_name
+                and string.find(npc_name, "techies")
+                and (string.find(npc_name, "mine") or string.find(npc_name, "bomb") or string.find(npc_name, "trap")) then
+
+                local npc_pos = Entity.GetAbsOrigin(npc)
+                local distance = (enemy_pos - npc_pos):Length2D()
+                local distance_delta = math.abs(distance - KICK_TRAVEL_DISTANCE)
+
+                if is_in_kick_landing_window(enemy_pos, npc_pos, TECHIES_BOMB_EFFECT_RADIUS)
+                    and distance_delta < best_distance_delta then
+                    best_distance_delta = distance_delta
+                    best_bomb_pos = npc_pos
+                end
+            end
+        end
+    end
+
+    return best_bomb_pos
+end
+
+local function find_chronosphere_target_position(enemy)
+    if not ui.kick_to_chronosphere or not ui.kick_to_chronosphere:Get() then
+        return nil
+    end
+
+    local enemy_pos = Entity.GetAbsOrigin(enemy)
+    local frozen_count = 0
+    local frozen_sum = Vector(0, 0, 0)
+
+    for _, npc in ipairs(NPCs.GetAll()) do
+        if npc and Entity.IsAlive(npc) and has_chronosphere_freeze_modifier(npc) then
+            frozen_sum = frozen_sum + Entity.GetAbsOrigin(npc)
+            frozen_count = frozen_count + 1
+        end
+    end
+
+    if frozen_count == 0 then
+        return nil
+    end
+
+    local chrono_center = frozen_sum / frozen_count
+    local ally_void_nearby = false
+    local my_team = Entity.GetTeamNum(hero)
+
+    for _, ally in ipairs(Heroes.GetAll()) do
+        if ally
+            and Entity.IsAlive(ally)
+            and not NPC.IsIllusion(ally)
+            and Entity.GetTeamNum(ally) == my_team
+            and NPC.GetUnitName(ally) == "npc_dota_hero_faceless_void" then
+
+            if (Entity.GetAbsOrigin(ally) - chrono_center):Length2D() <= 900 then
+                ally_void_nearby = true
+                break
+            end
+        end
+    end
+
+    if not ally_void_nearby then
+        return nil
+    end
+
+    if is_in_kick_landing_window(enemy_pos, chrono_center, CHRONOSPHERE_RADIUS) then
+        return chrono_center
+    end
+
+    return nil
 end
 
 local function is_target_valid(target)
@@ -151,13 +249,25 @@ local function get_enemy_near_cursor()
 end
 
 local function get_best_target()
-    if not ui.ally_selector then 
-        return nil, nil 
-    end
-    
     local enemy = get_enemy_near_cursor()
     if not enemy then 
         return nil, nil 
+    end
+
+    -- Prioridade especial: Chronosphere e Techies bomb,
+    -- apenas quando o alvo está no range efetivo de chute (~1200 ± área)
+    local chronosphere_pos = find_chronosphere_target_position(enemy)
+    if chronosphere_pos then
+        return enemy, chronosphere_pos, nil
+    end
+
+    local techies_bomb_pos = find_techies_bomb_target_position(enemy)
+    if techies_bomb_pos then
+        return enemy, techies_bomb_pos, nil
+    end
+
+    if not ui.ally_selector then
+        return enemy, nil, nil
     end
     
     local alive_allies_map = {}
@@ -177,13 +287,13 @@ local function get_best_target()
             if target_ally then
                 local distance = (Entity.GetAbsOrigin(enemy) - Entity.GetAbsOrigin(target_ally)):Length2D()
                 if distance >= ui.min_distance:Get() and distance <= ui.max_distance:Get() then
-                    return enemy, target_ally
+                    return enemy, Entity.GetAbsOrigin(target_ally), target_ally
                 end
             end
         end
     end
-    
-    return enemy, nil
+
+    return enemy, nil, nil
 end
 
 local function find_linken_breaker_item()
@@ -263,7 +373,7 @@ my_script.OnUpdate = function()
     -- ============================================
     
     if script_state == "IDLE" then
-        local enemy, ally = get_best_target()
+        local enemy, target_pos, target_ally_ent = get_best_target()
         local kick = NPC.GetAbility(hero, "tusk_walrus_kick")
         local snowball = NPC.GetAbility(hero, "tusk_snowball")
         local blink = get_available_blink()
@@ -285,8 +395,8 @@ my_script.OnUpdate = function()
         local enemy_pos = Entity.GetAbsOrigin(enemy)
         local blink_range = blink and (Ability.GetCastRange(blink) + NPC.GetCastRangeBonus(hero)) or 0
         
-        -- Check if we need to move or if ally is not valid
-        if not ally or (blink and Entity.GetAbsOrigin(hero):Distance(enemy_pos) > blink_range) then
+        -- Check if we need to move or if target position is not valid
+        if not target_pos or (blink and Entity.GetAbsOrigin(hero):Distance(enemy_pos) > blink_range) then
             local current_time = GlobalVars.GetCurTime()
             if (current_time - last_move_order_time) > 0.25 then
                 NPC.MoveTo(hero, Input.GetWorldCursorPos())
@@ -297,7 +407,8 @@ my_script.OnUpdate = function()
         
         -- Lock targets
         combo_target_enemy = enemy
-        combo_target_ally = ally
+        combo_target_position = target_pos
+        combo_target_ally = target_ally_ent
         
         local kick_range = Ability.GetCastRange(kick) + NPC.GetCastRangeBonus(hero)
         local distance_to_enemy = Entity.GetAbsOrigin(hero):Distance(enemy_pos)
@@ -315,8 +426,7 @@ my_script.OnUpdate = function()
                 kick_attempt_time = GlobalVars.GetCurTime()
             end
         elseif blink and distance_to_enemy <= blink_range and Ability.IsReady(kick) and Ability.IsReady(snowball) then
-            local ally_pos = Entity.GetAbsOrigin(ally)
-            blink_target_pos = enemy_pos - (ally_pos - enemy_pos):Normalized() * (NPC.GetHullRadius(enemy) + 50)
+            blink_target_pos = enemy_pos - (combo_target_position - enemy_pos):Normalized() * (NPC.GetHullRadius(enemy) + 50)
             Ability.CastPosition(blink, blink_target_pos)
             script_state = "BLINKING"
             kick_attempt_time = GlobalVars.GetCurTime()
@@ -362,7 +472,7 @@ my_script.OnUpdate = function()
         end
         
     elseif script_state == "KICKING" then
-        if not is_target_valid(combo_target_enemy) or not is_target_valid(combo_target_ally) then
+        if not is_target_valid(combo_target_enemy) or not combo_target_position then
             reset_state()
             return
         end
@@ -372,10 +482,14 @@ my_script.OnUpdate = function()
         
         if kick and Ability.IsReady(kick) then
             if (current_time - kick_attempt_time) > 0.01 then
+                -- Refresh target position from live ally position for accuracy
+                if combo_target_ally and Entity.IsAlive(combo_target_ally) and not Entity.IsDormant(combo_target_ally) then
+                    combo_target_position = Entity.GetAbsOrigin(combo_target_ally)
+                end
                 Player.PrepareUnitOrders(local_player, 
                     Enum.UnitOrder.DOTA_UNIT_ORDER_VECTOR_TARGET_POSITION,
                     nil, 
-                    Entity.GetAbsOrigin(combo_target_ally), 
+                    combo_target_position, 
                     kick, 
                     Enum.PlayerOrderIssuer.DOTA_ORDER_ISSUER_HERO_ONLY, 
                     hero)

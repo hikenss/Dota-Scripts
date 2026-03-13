@@ -8,7 +8,7 @@ local Bind = Menu:Bind("Harass Key", Enum.ButtonCode.BUTTON_CODE_INVALID)
 local MinTreeDistance = Menu:Slider("Minimum Distance From Cursor", 500, 2000, 1200)
 
 Bind:ToolTip(
-  "Для работы необходим первый скилл,второй скилл и блинк (Обязательно все кнопки без кд)\nДаст цепь в самое безопасное дерево после блинк и скилы (сейф харасс)")
+  "Requires first skill, second skill, and blink (all abilities must be off cooldown)\nCasts chain to the safest tree after blink and skills (safe harass)")
 
 local bestTreeGlobal = nil
 local enemyTowers = {}

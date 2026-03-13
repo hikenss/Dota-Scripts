@@ -19,7 +19,7 @@ local function LogToFile(message)
     print("[RubickUlt] " .. message)
 end
 
--- Список украденных способностей для комбинации
+-- List of stolen abilities for combo
 local stolen_spells = {
     "axe_berserkers_call",
     "earthshaker_echo_slam",
@@ -50,7 +50,7 @@ local stolen_spells = {
     "dark_willow_terrorize",
 }
 
--- Сопоставление технических имен и дружественных имен спеллов
+-- Mapping technical names to friendly spell names
 local spell_friendly_names = {
     ["axe_berserkers_call"] = "Berserker's Call",
     ["earthshaker_echo_slam"] = "Echo Slam",
@@ -81,10 +81,10 @@ local spell_friendly_names = {
     ["dark_willow_terrorize"] = "Terrorize",
 }
 
--- Специальные ключи радиуса для некоторых способностей
+-- Special radius keys for some abilities
 local radius_keys = {
     magnataur_reverse_polarity = "pull_radius",
-    puck_dream_coil            = "coil_radius",    -- <<< добавлено для Dream Coil
+    puck_dream_coil            = "coil_radius",    -- <<< added for Dream Coil
 }
 
 -- UI
@@ -176,20 +176,20 @@ ui.manual_cast_key:ToolTip("Usa qualquer habilidade roubada que NÃO esteja na l
 ui.auto_cast_manual = spell_group:Switch("Auto-Cast de Skills Manuais", false, "\u{f0e7}")
 ui.auto_cast_manual:ToolTip("Usa automaticamente as habilidades roubadas (não listadas no Auto Use) quando inimigo estiver no range.")
 
--- Переменные состояния и частица
+-- State variables and particle
 local particle, need_update_particle, need_update_color = nil, false, false
 local currentAOE = 0
-local blinkDelay   = 0.03   -- задержка после блинка перед кастом
-local spellDelay   = 0.5   -- задержка между кастами заклинаний
-local castState    = 0      -- 0: начальное состояние, 1: после блинка, 2: после первых скиллов, 3: после рефрешера, 4: после повторных скиллов
+local blinkDelay   = 0.03   -- delay after blink before cast
+local spellDelay   = 0.5   -- delay between spell casts
+local castState    = 0      -- 0: initial state, 1: after blink, 2: after first skills, 3: after refresher, 4: after repeated skills
 local stateTime    = 0
-local stored       = {}     -- хранит данные между шагами
+local stored       = {}     -- stores data between steps
 local myHero       = nil
-local inBlinkRange = false  -- флаг для отслеживания, в рендже ли точка для блинка
-local ordersExecuted = false -- флаг для контроля отправки ордеров
-local castDelay = 0.5       -- задержка перед переходом к следующему состоянию (в секундах)
-local executionMode = 0     -- 0: нет активного выполнения, 1: выполняем близкую логику, 2: выполняем логику блинка
-local secondaryTimer = 0    -- таймер для каста второго заклинания
+local inBlinkRange = false  -- flag to track if point is in blink range
+local ordersExecuted = false -- flag to control order dispatch
+local castDelay = 0.5       -- delay before switching to next state (seconds)
+local executionMode = 0     -- 0: idle, 1: direct-cast flow, 2: blink flow
+local secondaryTimer = 0    -- timer for second spell cast
 local lastManualKeyState = false
 lastManualCast = ""
 lastManualCastTime = 0
@@ -379,9 +379,9 @@ local PanelColors = {
 -- UI callbacks
 ui.enable:SetCallback(function(enabled)
     if enabled then
-        print("[RubickUlt] СКРИПТ АКТИВИРОВАН")
+        print("[RubickUlt] SCRIPT ACTIVATED")
     else
-        print("[RubickUlt] СКРИПТ ДЕАКТИВИРОВАН")
+        print("[RubickUlt] SCRIPT DEACTIVATED")
     end
 end)
 -- Función para actualizar el estado visual
@@ -438,15 +438,15 @@ ui.visual_debug:SetCallback(function() need_update_particle = true end)
 ui.radius_color:SetCallback(function() need_update_color = true end)
 ui.out_of_range_color:SetCallback(function() need_update_color = true end)
 ui.mode:SetCallback(function(mode) 
-    print("[RubickUlt] РЕЖИМ ИЗМЕНЕН: " .. (mode == 0 and "Ручной" or "Автоматический"))
+    print("[RubickUlt] MODE CHANGED: " .. (mode == 0 and "Manual" or "Automatic"))
 end)
 ui.min_targets:SetCallback(function(val)
-    print("[RubickUlt] НАСТРОЙКА: Минимальное количество целей = " .. val)
+    print("[RubickUlt] SETTING: Minimum target count = " .. val)
 end)
 ui.use_refresher:SetCallback(function(enabled)
-    print("[RubickUlt] НАСТРОЙКА: Использование Refresher Orb " .. (enabled and "включено" or "выключено"))
+    print("[RubickUlt] SETTING: Refresher Orb usage " .. (enabled and "enabled" or "disabled"))
 end)
--- Проверка типов спеллов
+-- Check spell types
 local function isNoTargetSpell(name)
     return name == "axe_berserkers_call"
         or name == "earthshaker_echo_slam"
@@ -478,7 +478,7 @@ local function isGlobalSpell(name)
         or name == "zuus_thundergods_wrath"
 end
 
--- Поиск оптимальной точки AOE
+-- Find optimal AOE point
 local function FindBestAOEPoint(radius, minCount)
     local me = myHero
     local enemies = {}
@@ -527,7 +527,7 @@ local function FindBestAOEPoint(radius, minCount)
 end
 
 
--- Отрисовка радиуса (не меняется)
+-- Draw radius (unchanged)
 local function custom_radius_point(origin, radius, inRange)
     if not ui.visual_debug:Get() or radius <= 0 or not origin then
         if particle then
@@ -552,10 +552,10 @@ local function custom_radius_point(origin, radius, inRange)
     end
 end
 
--- Сброс состояния (не меняется)
+-- Reset state (unchanged)
 local function resetAll()
     if castState > 0 or executionMode > 0 then
-        print("[RubickUlt] RESET: Сброс состояния из castState=" .. castState .. ", executionMode=" .. executionMode)
+        print("[RubickUlt] RESET: Resetting from castState=" .. castState .. ", executionMode=" .. executionMode)
     end
     castState = 0
     stored = {}
@@ -566,7 +566,7 @@ local function resetAll()
     executionMode = 0
 end
 
--- Основная логика OnUpdate с улучшенным блинком и разделением логик
+-- Main OnUpdate logic with improved blink and split flows
 function script.OnUpdate()
     if not myHero then myHero = Heroes.GetLocal() end
     if not ui.enable:Get() or not Entity.IsAlive(myHero) or NPC.GetUnitName(myHero) ~= "npc_dota_hero_rubick" then
@@ -662,28 +662,28 @@ function script.OnUpdate()
         should_execute = true
     end
     
-    -- Проверка для каста второго спелла в режиме прямого каста
+    -- Check for second spell cast in direct-cast mode
     if executionMode == 1 and stored.secondary and os.clock() - secondaryTimer >= spellDelay then
         local s2, name2 = stored.secondary.ability, stored.secondary.name
         if isNoTargetSpell(name2) or isGlobalSpell(name2) then
-            print("[RubickUlt] КАСТ 2/ПРЯМОЙ: " .. spell_friendly_names[name2] .. " (NoTarget)")
+            print("[RubickUlt] CAST 2/DIRECT: " .. spell_friendly_names[name2] .. " (NoTarget)")
             Ability.CastNoTarget(s2, false)
         else
-            print("[RubickUlt] КАСТ 2/ПРЯМОЙ: " .. spell_friendly_names[name2] .. " (CastPosition)")
+            print("[RubickUlt] CAST 2/DIRECT: " .. spell_friendly_names[name2] .. " (CastPosition)")
             Ability.CastPosition(s2, stored.castPt, false)
         end
         resetAll()
         return
     end
 
-    -- Собираем доступные украденные спеллы
+    -- Collect available stolen spells
     -- Reverse mapping friendly -> technical names for priority lookup
     local friendly_to_technical = {} 
     for tech, friendly in pairs(spell_friendly_names) do 
         friendly_to_technical[friendly] = tech 
     end 
 
-    -- Сбор доступных спеллов в порядке приоритета UI
+    -- Collect available spells by UI priority order
     local castable = {}
     local selected = ui.spell_select:ListEnabled()
     for _, friendly in ipairs(selected) do
@@ -692,7 +692,7 @@ function script.OnUpdate()
             local ab = NPC.GetAbility(myHero, tech)
             if ab and Ability.IsCastable(ab, NPC.GetMana(myHero)) then
                 if tech == "storm_spirit_electric_vortex" then
-                    -- проверка Aghs/Shard para Electric Vortex
+                    -- check Aghs/Shard for Electric Vortex
                     local aghs       = NPC.GetItem(myHero, "item_ultimate_scepter", true)
                     local aghs_bless = NPC.HasModifier(myHero, "modifier_item_ultimate_scepter_consumed")
                     local shard      = NPC.GetItem(myHero, "item_aghanims_shard", true)
@@ -714,7 +714,7 @@ function script.OnUpdate()
     local primary, secondary = castable[1], castable[2]
     local spell, spellName  = primary.ability, primary.name
 
-    -- Проверяем Blink
+    -- Check Blink
     local blink = NPC.GetItem(myHero, "item_blink", true)
     local blinkAvailable = blink and Ability.IsCastable(blink, NPC.GetMana(myHero))
     local blinkRange = 0
@@ -724,7 +724,7 @@ function script.OnUpdate()
         if not blinkRange or blinkRange == 0 then blinkRange = Ability.GetCastRange(blink) end
     end
 
-    -- Вычисляем AOE радиус спелла
+    -- Calculate spell AOE radius
     local key = radius_keys[spellName] or "radius"
     local aoe = Ability.GetLevelSpecialValueFor(spell, key)
     if aoe == 0 then aoe = Ability.GetLevelSpecialValueFor(spell, "area_of_effect") end
@@ -737,7 +737,7 @@ function script.OnUpdate()
     end
     if aoe ~= currentAOE then currentAOE = aoe; need_update_particle = true end
 
-    -- Ищем оптимальную точку и считаем расстояние
+    -- Find optimal point and measure distance
     local originalMinTargets = ui.min_targets:Get()
     local targetHero, pt, count = FindBestAOEPoint(currentAOE, originalMinTargets)
     if not pt then resetAll(); return end
@@ -747,12 +747,12 @@ function script.OnUpdate()
     local dist    = math.sqrt(dx*dx + dy*dy)
     local castRange = isNoTargetSpell(spellName) and 0 or Ability.GetCastRange(spell)
     
-    -- Подсчет эффективной дистанции в зависимости от типа спелла
+    -- Compute effective range by spell type
     local effectiveRange = isNoTargetSpell(spellName) and currentAOE or castRange
     local inBlink = blinkAvailable and dist <= blinkRange + effectiveRange
     custom_radius_point(pt, currentAOE, inBlink)
 
-    -- Определение пороговой дистанции в зависимости от типа спелла
+    -- Determine threshold distance by spell type
     local directCastThreshold
     if isNoTargetSpell(spellName) then
         directCastThreshold = currentAOE - 150
@@ -761,54 +761,54 @@ function script.OnUpdate()
         directCastThreshold = (castRange or 0) + 150
     end
     
-    -- ОСНОВНАЯ ЛОГИКА ВЫПОЛНЕНИЯ КОМБО
-    -- Проверяем, начата ли уже последовательность логики блинка
+    -- MAIN COMBO EXECUTION LOGIC
+    -- Check whether blink flow sequence has already started
     if castState > 0 then
-        -- Если начали логику блинка, продолжаем её выполнять
+        -- If blink flow started, continue executing it
         
-        -- После Blink: кастуем в ORIGINAL оптимальную точку stored.castPt
+        -- After Blink: cast at ORIGINAL best point stored.castPt
         if castState == 1 and os.clock() - stateTime >= blinkDelay then
             if not ordersExecuted then
                 ordersExecuted = true
                 
-                print("[RubickUlt] БЛИНК ПОСЛЕДОВАТЕЛЬНОСТЬ: Шаг 1 - каст заклинаний после блинка")
+                print("[RubickUlt] BLINK SEQUENCE: Step 1 - cast spells after blink")
                 
                 -- primary (skip if it's a channel prep spell - already cast before blink)
                 if not isChannelPrepSpell(stored.primaryName) then
                     if isNoTargetSpell(stored.primaryName) or isGlobalSpell(stored.primaryName) then
-                        print("[RubickUlt] КАСТ 1/ПОСЛЕ БЛИНКА: " .. spell_friendly_names[stored.primaryName] .. " (NoTarget)")
+                        print("[RubickUlt] CAST 1/AFTER BLINK: " .. spell_friendly_names[stored.primaryName] .. " (NoTarget)")
                         Ability.CastNoTarget(stored.primary, false)
                     else
-                        print("[RubickUlt] КАСТ 1/ПОСЛЕ БЛИНКА: " .. spell_friendly_names[stored.primaryName] .. " (CastPosition)")
+                        print("[RubickUlt] CAST 1/AFTER BLINK: " .. spell_friendly_names[stored.primaryName] .. " (CastPosition)")
                         Ability.CastPosition(stored.primary, stored.castPt, false)
                     end
                 else
                     print("[RubickUlt] EPICENTER: Já foi castado antes do blink, pulando")
                 end
                 
-                -- Запоминаем время для каста второго спелла с задержкой
+                -- Store time for delayed second spell cast
                 secondaryTimer = os.clock()
                 stateTime = os.clock()
                 return
             end
             
-            -- Проверяем, пора ли кастовать второй спелл
+            -- Check if it is time to cast second spell
             if stored.secondary and os.clock() - secondaryTimer >= spellDelay and not stored.secondaryCasted then
                 local s2, name2 = stored.secondary.ability, stored.secondary.name
                 if isNoTargetSpell(name2) or isToggleSpell(name2) or isGlobalSpell(name2) then
-                    print("[RubickUlt] КАСТ 2/ПОСЛЕ БЛИНКА: " .. spell_friendly_names[name2] .. " (NoTarget)")
+                    print("[RubickUlt] CAST 2/AFTER BLINK: " .. spell_friendly_names[name2] .. " (NoTarget)")
                     Ability.CastNoTarget(s2, false)
                 else
-                    print("[RubickUlt] КАСТ 2/ПОСЛЕ БЛИНКА: " .. spell_friendly_names[name2] .. " (CastPosition)")
+                    print("[RubickUlt] CAST 2/AFTER BLINK: " .. spell_friendly_names[name2] .. " (CastPosition)")
                     Ability.CastPosition(s2, stored.castPt, false)
                 end
                 stored.secondaryCasted = true
             end
             
-            -- Проверяем, пора ли переходить к следующему состоянию
+            -- Check if it is time to move to next state
             if os.clock() - stateTime >= castDelay then
                 ordersExecuted = false
-                stored.secondaryCasted = false -- сбрасываем флаг для следующего состояния
+                stored.secondaryCasted = false -- reset flag for next state
                 stateTime = os.clock()
                 if stored.useRef then
                     castState = 2
@@ -819,12 +819,12 @@ function script.OnUpdate()
             return
         end
 
-        -- каст Refresher Orb
+        -- cast Refresher Orb
         if castState == 2 and os.clock() - stateTime >= blinkDelay then
-            -- Проверяем, не каналит ли герой в данный момент (например, Black Hole)
+            -- Check if hero is channeling right now (e.g., Black Hole)
             if NPC.IsChannellingAbility(myHero) then
-                -- Если уже каналим, не используем refresher - это прервет канал
-                print("[RubickUlt] ПРОПУСК REFRESHER: Герой каналит " .. spell_friendly_names[stored.primaryName] .. ". Пропускаем Refresher Orb.")
+                -- If already channeling, do not use refresher (it will interrupt channel)
+                print("[RubickUlt] REFRESHER SKIPPED: Hero is channeling " .. spell_friendly_names[stored.primaryName] .. ". Skipping Refresher Orb.")
                 resetAll()
                 return
             end
@@ -832,22 +832,22 @@ function script.OnUpdate()
             if not ordersExecuted then
                 ordersExecuted = true
                 
-                print("[RubickUlt] БЛИНК ПОСЛЕДОВАТЕЛЬНОСТЬ: Шаг 2 - использование Refresher Orb")
+                print("[RubickUlt] BLINK SEQUENCE: Step 2 - use Refresher Orb")
                 
                 local refresher = NPC.GetItem(myHero, "item_refresher", true)
                 if refresher and Ability.IsCastable(refresher, NPC.GetMana(myHero)) then
-                    print("[RubickUlt] КАСТ REFRESHER: Использую Refresher Orb")
-                    Ability.CastNoTarget(refresher, false) -- Рефрешер без очереди
+                    print("[RubickUlt] REFRESHER CAST: Using Refresher Orb")
+                    Ability.CastNoTarget(refresher, false) -- Refresher without queue
                     stateTime = os.clock()
                     return
                 else
-                    print("[RubickUlt] ОШИБКА REFRESHER: Refresher недоступен или нет маны")
+                    print("[RubickUlt] REFRESHER ERROR: Refresher unavailable or not enough mana")
                     resetAll()
                     return
                 end
             end
             
-            -- Простая задержка перед переходом к следующему состоянию
+            -- Simple delay before switching to next state
             if os.clock() - stateTime >= castDelay then
                 ordersExecuted = false
                 stateTime = os.clock()
@@ -856,50 +856,50 @@ function script.OnUpdate()
             return
         end
 
-        -- вторая волна после Refresher
+        -- second wave after Refresher
         if castState == 3 and os.clock() - stateTime >= blinkDelay then
-            -- Для Black Hole и других каналящихся заклинаний - не пытаемся повторно кастовать
-            -- пока не закончится первый канал
+            -- For Black Hole and other channeling spells, do not recast
+            -- until the first channel ends
             if isChannelSpell(stored.primaryName) and NPC.IsChannellingAbility(myHero) then
-                -- Герой всё ещё каналирует спелл после Refresher, не прерываем его
-                print("[RubickUlt] ОЖИДАНИЕ КАНАЛА: Герой продолжает каналить " .. spell_friendly_names[stored.primaryName] .. " после Refresher")
-                return -- Просто выходим без сброса состояния, чтобы продолжить каналирование
+                -- Hero is still channeling after Refresher, do not interrupt
+                print("[RubickUlt] CHANNEL WAIT: Hero continues channeling " .. spell_friendly_names[stored.primaryName] .. " after Refresher")
+                return -- Exit without reset to keep channeling
             end
             
             if not ordersExecuted then
                 ordersExecuted = true
                 
-                print("[RubickUlt] БЛИНК ПОСЛЕДОВАТЕЛЬНОСТЬ: Шаг 3 - повторный каст заклинаний после Refresher")
+                print("[RubickUlt] BLINK SEQUENCE: Step 3 - recast spells after Refresher")
                 
                 -- primary
                 if isNoTargetSpell(stored.primaryName) or isToggleSpell(stored.primaryName) or isGlobalSpell(stored.primaryName) then
-                    print("[RubickUlt] КАСТ 1/ПОСЛЕ REFRESHER: " .. spell_friendly_names[stored.primaryName] .. " (NoTarget)")
+                    print("[RubickUlt] CAST 1/AFTER REFRESHER: " .. spell_friendly_names[stored.primaryName] .. " (NoTarget)")
                     Ability.CastNoTarget(stored.primary, false)
                 else
-                    print("[RubickUlt] КАСТ 1/ПОСЛЕ REFRESHER: " .. spell_friendly_names[stored.primaryName] .. " (CastPosition)")
+                    print("[RubickUlt] CAST 1/AFTER REFRESHER: " .. spell_friendly_names[stored.primaryName] .. " (CastPosition)")
                     Ability.CastPosition(stored.primary, stored.castPt, false)
                 end
                 
-                -- Запоминаем время для каста второго спелла с задержкой
+                -- Store time for delayed second spell cast
                 secondaryTimer = os.clock()
                 stateTime = os.clock()
                 return
             end
             
-            -- Проверяем, пора ли кастовать второй спелл
+            -- Check if it is time to cast second spell
             if stored.secondary and os.clock() - secondaryTimer >= spellDelay and not stored.secondaryCasted then
                 local s2, name2 = stored.secondary.ability, stored.secondary.name
                 if isNoTargetSpell(name2) or isToggleSpell(name2) or isGlobalSpell(name2) then
-                    print("[RubickUlt] КАСТ 2/ПОСЛЕ REFRESHER: " .. spell_friendly_names[name2] .. " (NoTarget)")
+                    print("[RubickUlt] CAST 2/AFTER REFRESHER: " .. spell_friendly_names[name2] .. " (NoTarget)")
                     Ability.CastNoTarget(s2, false)
                 else
-                    print("[RubickUlt] КАСТ 2/ПОСЛЕ REFRESHER: " .. spell_friendly_names[name2] .. " (CastPosition)")
+                    print("[RubickUlt] CAST 2/AFTER REFRESHER: " .. spell_friendly_names[name2] .. " (CastPosition)")
                     Ability.CastPosition(s2, stored.castPt, false)
                 end
                 stored.secondaryCasted = true
             end
             
-            -- Проверяем, пора ли завершать комбо
+            -- Check if it is time to finish combo
             if os.clock() - stateTime >= castDelay then
                 resetAll()
             end
@@ -907,49 +907,49 @@ function script.OnUpdate()
             return
         end
     else
-        -- Если еще не начали выполнение, определяем какую логику использовать
-        -- Проверяем условия запуска (клавиша или авто режим)
+        -- If not started yet, choose which logic to use
+        -- Check start conditions (key or auto mode)
         if should_execute and not ordersExecuted then
-            -- ВЫБОР РЕЖИМА ВЫПОЛНЕНИЯ - если castState == 0, выбираем логику:
+            -- EXECUTION MODE SELECTION - when castState == 0 choose logic:
             
-            -- Приоритет 1: Прямое применение заклинания если враги близко
+            -- Priority 1: Direct spell cast if enemies are close
             if dist <= directCastThreshold then
-                -- Указываем, что используем режим прямого каста
+                -- Mark direct-cast mode in use
                 executionMode = 1
                 ordersExecuted = true
                 
-                print("[RubickUlt] БЛИЗКАЯ ДИСТАНЦИЯ: Расстояние " .. math.floor(dist) .. " <= " .. math.floor(directCastThreshold) .. " (порог). Прямой каст без блинка.")
+                print("[RubickUlt] CLOSE RANGE: Distance " .. math.floor(dist) .. " <= " .. math.floor(directCastThreshold) .. " (threshold). Direct cast without blink.")
                 
-                -- Сохраняем информацию для второго скилла
+                -- Save info for second skill
                 stored.secondary = secondary
                 stored.castPt = pt
                 secondaryTimer = os.clock()
                 
-                -- Применяем первый спелл напрямую
+                -- Cast first spell directly
                 if isNoTargetSpell(spellName) or isGlobalSpell(spellName) then
-                    print("[RubickUlt] КАСТ 1/ПРЯМОЙ: " .. spell_friendly_names[spellName] .. " (NoTarget)")
+                    print("[RubickUlt] CAST 1/DIRECT: " .. spell_friendly_names[spellName] .. " (NoTarget)")
                     Ability.CastNoTarget(spell, false)
                 else
-                    print("[RubickUlt] КАСТ 1/ПРЯМОЙ: " .. spell_friendly_names[spellName] .. " (CastPosition)")
+                    print("[RubickUlt] CAST 1/DIRECT: " .. spell_friendly_names[spellName] .. " (CastPosition)")
                     Ability.CastPosition(spell, pt, false)
                 end
                 
-                -- Второй скилл будет кастоваться в OnUpdate с задержкой
+                -- Second skill will be cast in OnUpdate with delay
                 if not secondary then
-                    -- Если второго скилла нет, сразу сбрасываем
+                    -- If there is no second skill, reset immediately
                     resetAll()
                 end
                 
                 return
             
-            -- Приоритет 2: Используем блинк если доступен и враги в пределах блинк+спелл
+            -- Priority 2: Use blink if available and enemies are within blink+spell range
             elseif blinkAvailable and inBlink then
-                -- Указываем, что используем режим блинка
+                -- Mark blink mode in use
                 executionMode = 2
                 
-                print("[RubickUlt] БЛИНК ЛОГИКА: Расстояние " .. math.floor(dist) .. " > " .. math.floor(directCastThreshold) .. " (порог). Используем блинк.")
+                print("[RubickUlt] BLINK LOGIC: Distance " .. math.floor(dist) .. " > " .. math.floor(directCastThreshold) .. " (threshold). Using blink.")
                 
-                -- Определяем точку блинка
+                -- Determine blink point
                 local blinkTarget = pt
                 if not isNoTargetSpell(spellName) and castRange and dist > castRange then
                     local dirX, dirY = dx/dist, dy/dist
@@ -959,12 +959,12 @@ function script.OnUpdate()
                                         pt.y - dirY * adjustedRange,
                                         pt.z)
                 end
-                -- Для no-target спеллов блинкуем прямо в оптимальную точку
+                -- For no-target spells, blink directly to optimal point
                 if isNoTargetSpell(spellName) then
                     blinkTarget = pt
                 end
                 
-                -- Сохраняем данные и начинаем последовательность
+                -- Store data and start sequence
                 stored.blinkPt   = blinkTarget
                 stored.castPt    = pt
                 stored.primary     = spell
@@ -982,7 +982,7 @@ function script.OnUpdate()
                     stateTime = os.clock() + 0.5
                 end
                 
-                print("[RubickUlt] БЛИНК: Прыжок на дистанцию " .. math.floor((blinkTarget - mePos):Length2D()))
+                print("[RubickUlt] BLINK: Jump distance " .. math.floor((blinkTarget - mePos):Length2D()))
                 Ability.CastPosition(blink, blinkTarget, false)
                 return
             end
@@ -990,7 +990,7 @@ function script.OnUpdate()
     end
 end
 
--- Отрисовка линий для визуализации
+-- Draw lines for visualization
 function script.OnDraw()
     DrawModePanel()
     
@@ -1009,14 +1009,14 @@ function script.OnDraw()
     local _, optimalPos = FindBestAOEPoint(currentAOE, ui.min_targets:Get())
     if not optimalPos then return end
     
-    -- Проверяем, находится ли оптимальная позиция в пределах радиуса блинка
+    -- Check whether optimal position is within blink radius
     local mePos = Entity.GetAbsOrigin(myHero)
     local dist = (Vector(optimalPos.x, optimalPos.y,0) - Vector(mePos.x, mePos.y,0)):Length2D()
     local blink = NPC.GetItem(myHero, "item_blink", true)
     local blinkRange = blink and (Ability.GetLevelSpecialValueFor(blink, "blink_range") or Ability.GetCastRange(blink)) or 0
     local inRange = dist <= blinkRange
     
-    -- Выбираем цвет линий в зависимости от доступности блинка
+    -- Choose line color based on blink availability
     local lineColor = inRange and Color(0,255,0) or Color(255,0,0)
     
     for _, h in pairs(Heroes.GetAll()) do

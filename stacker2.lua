@@ -264,7 +264,7 @@ local function ensureStrikeCenterForCamp(campId)
 	end
 	local realCamp = findClosestRealCamp(points.wait);
 	if not realCamp then
-		print("[AutoStacker] Не найден реальный лагерь для лагеря #" .. tostring(campId));
+		print("[AutoStacker] Real camp not found for camp #" .. tostring(campId));
 		return;
 	end
 	local center = getCampBoxCenter(realCamp);
@@ -274,9 +274,9 @@ local function ensureStrikeCenterForCamp(campId)
 		if (box and box.min and box.max) then
 			campBoxes[campId] = {min=box.min,max=box.max};
 		end
-		print(string.format("[AutoStacker] Для лагеря #%d вычислен strike center: (%.0f, %.0f, %.0f)", campId, center:GetX(), center:GetY(), center:GetZ()));
+		print(string.format("[AutoStacker] Computed strike center for camp #%d: (%.0f, %.0f, %.0f)", campId, center:GetX(), center:GetY(), center:GetZ()));
 	else
-		print("[AutoStacker] Невозможно вычислить strike center для лагеря #" .. tostring(campId));
+		print("[AutoStacker] Failed to compute strike center for camp #" .. tostring(campId));
 	end
 end
 local function assignUnitsToNearestCamps(units)
@@ -328,7 +328,7 @@ local function beginSession()
 	local player = Players.GetLocal();
 	local sel = Player.GetSelectedUnits(player) or {};
 	if (#sel == 0) then
-		print("[AutoStacker] Нет выбранных юнитов.");
+		print("[AutoStacker] No units selected.");
 		return false;
 	end
 	selectedUnits, selectedUnitsSet = {}, {};
@@ -339,7 +339,7 @@ local function beginSession()
 		end
 	end
 	if (#selectedUnits == 0) then
-		print("[AutoStacker] В выборе нет валидных юнитов.");
+		print("[AutoStacker] No valid units in selection.");
 		return false;
 	end
 	unitToCampId = assignUnitsToNearestCamps(selectedUnits);
@@ -416,7 +416,7 @@ function OnUpdate()
 			presets_ui.builder_switch = builderTab:Switch("Builder Mode", false, "\u{f044}");
 			presets_ui.show_all = builderTab:Switch("Show All Camps", true, "\u{f06e}");
 			presets_ui.preset_select = builderTab:Combo("Preset", GetPresetNames(), 0);
-			presets_ui.active_btn = builderTab:Button("Сделать активным", function()
+			presets_ui.active_btn = builderTab:Button("Set active", function()
 				local names = GetPresetNames();
 				local idx = (presets_ui.preset_select:Get() or 0) + 1;
 				local name = names[idx];
@@ -427,14 +427,14 @@ function OnUpdate()
 					print("[Stacker Presets] Active preset: " .. name);
 				end
 			end);
-			presets_ui.new_name = builderTab:Input("Имя нового пресета", "Мой пресет", "\u{f040}");
-			presets_ui.create_empty = builderTab:Button("Создать пустой пресет", function()
+			presets_ui.new_name = builderTab:Input("New preset name", "My Preset", "\u{f040}");
+			presets_ui.create_empty = builderTab:Button("Create empty preset", function()
 				local name = presets_ui.new_name:Get();
 				if (not name or (name == "")) then
 					name = "Preset " .. tostring(math.random(1000, 9999));
 				end
 				if stack_presets[name] then
-					print("[Stacker Presets] Ошибка: такой пресет уже существует: " .. name);
+					print("[Stacker Presets] Error: preset already exists: " .. name);
 					return;
 				end
 				stack_presets[name] = {points={}};
@@ -442,21 +442,21 @@ function OnUpdate()
 				SaveStackPresets();
 				local names = GetPresetNames();
 				presets_ui.preset_select:Update(names, math.max(0, #names - 1));
-				print("[Stacker Presets] Создан пустой пресет '" .. name .. "'");
+				print("[Stacker Presets] Empty preset created '" .. name .. "'");
 			end);
-			presets_ui.use_current = builderTab:Button("Сохранить текущие точки в выбранный", function()
+			presets_ui.use_current = builderTab:Button("Save current points to selected", function()
 				local names = GetPresetNames();
 				local idx = (presets_ui.preset_select:Get() or 0) + 1;
 				local name = names[idx];
 				if not name then
-					print("[Stacker Presets] Нет выбранного пресета");
+					print("[Stacker Presets] No preset selected");
 					return;
 				end
 				stack_presets[name] = {points=DeepCopyCampPoints(ACTIVE_POINTS)};
 				SaveStackPresets();
-				print("[Stacker Presets] Сохранены текущие точки в пресет '" .. name .. "'");
+				print("[Stacker Presets] Current points saved to preset '" .. name .. "'");
 			end);
-			presets_ui.delete_btn = builderTab:Button("Удалить выбранный пресет", function()
+			presets_ui.delete_btn = builderTab:Button("Delete selected preset", function()
 				local names = GetPresetNames();
 				local idx = (presets_ui.preset_select:Get() or 0) + 1;
 				local name = names[idx];
@@ -469,9 +469,9 @@ function OnUpdate()
 						active_preset_name = "Default";
 						RebuildActivePoints();
 					end
-					print("[Stacker Presets] Удалён пресет '" .. name .. "'");
+					print("[Stacker Presets] Preset deleted '" .. name .. "'");
 				else
-					print("[Stacker Presets] Нельзя удалить пресет или не выбран: '" .. tostring(name) .. "'");
+					print("[Stacker Presets] Cannot delete preset or no preset selected: '" .. tostring(name) .. "'");
 				end
 			end);
 			presets_ui.preset_select:SetCallback(function()

@@ -2811,6 +2811,253 @@ heroComboCalculators["npc_dota_hero_tusk"] = function(self)
 end
 --#endregion Tusk
 
+--#region Mars
+heroComboCalculators["npc_dota_hero_mars"] = function(self)
+	local hero = self.hero
+
+	local spear = NPC.GetAbility(hero, "mars_spear")
+	spear = spear and Ability.GetLevel(spear) > 0 and spear or nil
+	local spearIsReady = false
+	local spearDamage, spearCastPoint
+	if (spear) then
+		spearIsReady = utils.isAbilityReady(spear)
+		spearDamage = utils.getAbilityValue(spear, "damage", true)
+		spearCastPoint = Ability.GetCastPoint(spear)
+	end
+
+	local godsRebuke = NPC.GetAbility(hero, "mars_gods_rebuke")
+	godsRebuke = godsRebuke and Ability.GetLevel(godsRebuke) > 0 and godsRebuke or nil
+	local godsRebukeIsReady = false
+	local godsRebukeDamage, godsRebukeCastPoint
+	if (godsRebuke) then
+		godsRebukeIsReady = utils.isAbilityReady(godsRebuke)
+		godsRebukeDamage = utils.getAbilityValue(godsRebuke, "damage", true)
+		godsRebukeCastPoint = Ability.GetCastPoint(godsRebuke)
+	end
+
+	local arena = NPC.GetAbility(hero, "mars_arena_of_blood")
+	arena = arena and Ability.GetLevel(arena) > 0 and arena or nil
+	local arenaIsReady = false
+	local arenaDamage, arenaDuration
+	if (arena) then
+		arenaIsReady = utils.isAbilityReady(arena)
+		arenaDamage = utils.getAbilityValue(arena, "warrior_damage", true)
+		arenaDuration = utils.getAbilityValue(arena, "duration", true)
+	end
+
+	self:TryEtherealBlade()
+	self:TryCripplingCrossbow()
+	self:TryJidiPollenBag()
+	self:TryDagon()
+
+	if (spearIsReady) then
+		self:IncComboDuration(spearCastPoint)
+		self:DealMagicDamage(spearDamage)
+	end
+
+	if (godsRebukeIsReady) then
+		self:IncComboDuration(godsRebukeCastPoint)
+		self:DealPhysDamage(godsRebukeDamage)
+	end
+
+	if (arenaIsReady) then
+		for i = 1, arenaDuration do
+			self:DealMagicDamage(arenaDamage)
+		end
+	end
+
+	self:SaveWithoutRefresherInfo()
+	self.hasRefresher = false
+
+	return self
+end
+--#endregion Mars
+
+--#region Timbersaw
+heroComboCalculators["npc_dota_hero_shredder"] = function(self)
+	local hero = self.hero
+
+	local timberChain = NPC.GetAbility(hero, "shredder_timber_chain")
+	timberChain = timberChain and Ability.GetLevel(timberChain) > 0 and timberChain or nil
+	local timberChainIsReady = false
+	local timberChainDamage
+	if (timberChain) then
+		timberChainIsReady = utils.isAbilityReady(timberChain)
+		timberChainDamage = utils.getAbilityValue(timberChain, "damage", true)
+	end
+
+	local whirlingDeath = NPC.GetAbility(hero, "shredder_whirling_death")
+	whirlingDeath = whirlingDeath and Ability.GetLevel(whirlingDeath) > 0 and whirlingDeath or nil
+	local whirlingDeathIsReady = false
+	local whirlingDeathDamage
+	if (whirlingDeath) then
+		whirlingDeathIsReady = utils.isAbilityReady(whirlingDeath)
+		whirlingDeathDamage = utils.getAbilityValue(whirlingDeath, "whirling_damage", true)
+	end
+
+	local chakram = NPC.GetAbility(hero, "shredder_chakram")
+	chakram = chakram and Ability.GetLevel(chakram) > 0 and chakram or nil
+	local chakramIsReady = false
+	local chakramDamage, chakramDuration
+	if (chakram) then
+		chakramIsReady = utils.isAbilityReady(chakram)
+		chakramDamage = utils.getAbilityValue(chakram, "pass_damage", true) + utils.getAbilityValue(chakram, "damage_per_second", true)
+		chakramDuration = 2
+	end
+
+	local chakram2 = NPC.GetAbility(hero, "shredder_chakram_2")
+	chakram2 = chakram2 and Ability.GetLevel(chakram2) > 0 and chakram2 or nil
+	local chakram2IsReady = false
+	local chakram2Damage, chakram2Duration
+	if (chakram2) then
+		chakram2IsReady = utils.isAbilityReady(chakram2)
+		chakram2Damage = utils.getAbilityValue(chakram2, "pass_damage", true) + utils.getAbilityValue(chakram2, "damage_per_second", true)
+		chakram2Duration = 2
+	end
+
+	self:TryEtherealBlade()
+	self:TryCripplingCrossbow()
+	self:TryJidiPollenBag()
+	self:TryDagon()
+
+	if (timberChainIsReady) then
+		self:DealMagicDamage(timberChainDamage)
+	end
+
+	if (whirlingDeathIsReady) then
+		self:DealMagicDamage(whirlingDeathDamage)
+	end
+
+	if (chakramIsReady) then
+		for i = 1, chakramDuration do
+			self:DealMagicDamage(chakramDamage)
+		end
+	end
+
+	if (chakram2IsReady) then
+		for i = 1, chakram2Duration do
+			self:DealMagicDamage(chakram2Damage)
+		end
+	end
+
+	self:SaveWithoutRefresherInfo()
+	self.hasRefresher = false
+
+	return self
+end
+--#endregion Timbersaw
+
+--#region Legion Commander
+heroComboCalculators["npc_dota_hero_legion_commander"] = function(self)
+	local hero = self.hero
+
+	local overwhelmingOdds = NPC.GetAbility(hero, "legion_commander_overwhelming_odds")
+	overwhelmingOdds = overwhelmingOdds and Ability.GetLevel(overwhelmingOdds) > 0 and overwhelmingOdds or nil
+	local overwhelmingOddsIsReady = false
+	local overwhelmingOddsDamage
+	local overwhelmingOddsAttackSpeed = 0
+	if (overwhelmingOdds) then
+		overwhelmingOddsIsReady = utils.isAbilityReady(overwhelmingOdds)
+		overwhelmingOddsDamage = utils.getAbilityValue(overwhelmingOdds, "damage", true)
+		overwhelmingOddsAttackSpeed = utils.getAbilityValue(overwhelmingOdds, "bonus_attack_speed", true)
+	else
+		local heroLevel = NPC.GetCurrentLevel(hero)
+		local skillLevel = math.min(4, math.max(1, math.floor(heroLevel / 5)))
+		local damagePerLevel = {100, 175, 250, 325}
+		overwhelmingOddsDamage = damagePerLevel[skillLevel] or 100
+		overwhelmingOddsAttackSpeed = 125
+	end
+
+	local duel = NPC.GetAbility(hero, "legion_commander_duel")
+	duel = duel and Ability.GetLevel(duel) > 0 and duel or nil
+	local duelDuration
+	if (duel) then
+		duelDuration = utils.getAbilityValue(duel, "duration", true)
+	end
+
+	-- Calcula ataques do duel COM o buff de attack speed do Overwhelming Odds
+	if (duelDuration) then
+		local baseAttackSpeed = NPC.GetAttackSpeed(hero)
+		local attackSpeedWithBuff = baseAttackSpeed + (overwhelmingOddsAttackSpeed / 100)
+		local myAttacksInDuel = math.floor(duelDuration * attackSpeedWithBuff)
+		for i = 1, myAttacksInDuel do
+			self:Attack()
+		end
+	end
+
+	self:TryEtherealBlade()
+	self:TryCripplingCrossbow()
+	self:TryJidiPollenBag()
+	self:TryDagon()
+
+	if (overwhelmingOddsIsReady or overwhelmingOddsDamage) then
+		self:DealMagicDamage(overwhelmingOddsDamage)
+	end
+
+	self:SaveWithoutRefresherInfo()
+	self.hasRefresher = false
+
+	return self
+end
+--#endregion Legion Commander
+
+--#region Hoodwink
+heroComboCalculators["npc_dota_hero_hoodwink"] = function(self)
+	local hero = self.hero
+
+	local acornShot = NPC.GetAbility(hero, "hoodwink_acorn_shot")
+	acornShot = acornShot and Ability.GetLevel(acornShot) > 0 and acornShot or nil
+	local acornShotIsReady = false
+	local acornShotDamage
+	if (acornShot) then
+		acornShotIsReady = utils.isAbilityReady(acornShot)
+		acornShotDamage = utils.getAbilityValue(acornShot, "projectile_damage", true)
+	end
+
+	local bushwhack = NPC.GetAbility(hero, "hoodwink_bushwhack")
+	bushwhack = bushwhack and Ability.GetLevel(bushwhack) > 0 and bushwhack or nil
+	local bushwhackIsReady = false
+	local bushwhackDamage
+	if (bushwhack) then
+		bushwhackIsReady = utils.isAbilityReady(bushwhack)
+		bushwhackDamage = utils.getAbilityValue(bushwhack, "total_damage", true)
+	end
+
+	local sharpshooter = NPC.GetAbility(hero, "hoodwink_sharpshooter")
+	sharpshooter = sharpshooter and Ability.GetLevel(sharpshooter) > 0 and sharpshooter or nil
+	local sharpshooterIsReady = false
+	local sharpshooterDamage
+	if (sharpshooter) then
+		sharpshooterIsReady = utils.isAbilityReady(sharpshooter)
+		sharpshooterDamage = utils.getAbilityValue(sharpshooter, "max_damage", true)
+	end
+
+	self:TryEtherealBlade()
+	self:TryCripplingCrossbow()
+	self:TryJidiPollenBag()
+	self:TryDagon()
+
+	if (acornShotIsReady) then
+		self:DealMagicDamage(acornShotDamage)
+	end
+
+	if (bushwhackIsReady) then
+		self:DealMagicDamage(bushwhackDamage)
+	end
+
+	if (sharpshooterIsReady) then
+		self:DealMagicDamage(sharpshooterDamage)
+	end
+
+	self:Attack()
+
+	self:SaveWithoutRefresherInfo()
+	self.hasRefresher = false
+
+	return self
+end
+--#endregion Hoodwink
+
 --#endregion Hero Calculators
 
 --#region In-Game Handlers
@@ -3106,12 +3353,10 @@ local function onDraw()
 			local healthWithRefresherColor
 
 			if (healthWithRefresher <= 0) then
-				healthWithRefresherString = math.floor(healthWithRefresher)
-					.. " (" .. math.floor(comboInfo.totalDamage) .. ")"
+				healthWithRefresherString = "KILL (" .. math.floor(comboInfo.totalDamage) .. ")"
 				healthWithRefresherColor = greenColor
 			else
-				healthWithRefresherString = "+" .. math.floor(healthWithRefresher)
-					.. " (" .. math.floor(comboInfo.totalDamage) .. ")"
+				healthWithRefresherString = math.floor(healthWithRefresher) .. " HP (" .. math.floor(comboInfo.totalDamage) .. ")"
 				healthWithRefresherColor = redColor
 			end
 
@@ -3163,8 +3408,7 @@ local function onDraw()
 		local healthWithoutRefresherColor
 
 		if (comboInfo.healthWithoutRefresher <= 0) then
-			healthWithoutRefresherString = math.floor(healthWithoutRefresher)
-				.. " (" .. math.floor(comboInfo.totalDamageWithoutRefresher) .. ")"
+			healthWithoutRefresherString = "KILL (" .. math.floor(comboInfo.totalDamageWithoutRefresher) .. ")"
 			healthWithoutRefresherColor = greenColor
 		else
 			if (comboInfo.targetIsMedusa) then
@@ -3177,8 +3421,7 @@ local function onDraw()
 					* (medusaManaShieldCache.baseDamagePerMana + medusaManaShieldCache.damagePerManaPerLevel * comboInfo.level)
 			end
 
-			healthWithoutRefresherString = "+" .. math.floor(healthWithoutRefresher)
-				.. " (" .. math.floor(comboInfo.totalDamageWithoutRefresher) .. ")"
+			healthWithoutRefresherString = math.floor(healthWithoutRefresher) .. " HP (" .. math.floor(comboInfo.totalDamageWithoutRefresher) .. ")"
 			healthWithoutRefresherColor = redColor
 		end
 

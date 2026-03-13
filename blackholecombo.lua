@@ -3,7 +3,7 @@ local EnigmaCombo = {}
 
 local ui = {}
 
--- Создаем меню
+-- Create menu
 local firstTab = Menu.Create("Heroes", "Hero List", "Enigma")
 local comboGroup = firstTab:Create("Black Hole Combo"):Create("Settings")
 local itemsGroup = firstTab:Create("Black Hole Combo"):Create("Items")
@@ -72,7 +72,7 @@ ui.useRefresher:Image("panorama/images/items/refresher_png.vtex_c")
 ui.refresherPriority = itemsGroup:Slider("Prioridade (1-4)", 1, 4, 4)
 ui.refresherPriority:Icon("\u{2692}")
 
--- Переменные
+-- Variables
 local myHero = nil
 local lastActionTime = 0
 local lastBlinkTime = 0
@@ -88,7 +88,7 @@ local function Debug(msg)
     end
 end
 
--- Получение способности
+-- Get ability
 local function GetAbility(hero, name)
     for i = 0, 25 do
         local ability = NPC.GetAbilityByIndex(hero, i)
@@ -99,7 +99,7 @@ local function GetAbility(hero, name)
     return nil
 end
 
--- Проверка готовности способности
+-- Check ability readiness
 local function IsReady(ability)
     if not ability then return false end
     if not Ability.IsReady(ability) then return false end
@@ -107,7 +107,7 @@ local function IsReady(ability)
     return true
 end
 
--- Получение валидных врагов
+-- Get valid enemies
 local function GetValidEnemies()
     local myPos = Entity.GetAbsOrigin(myHero)
     local enemies = Heroes.InRadius(myPos, ui.blinkRange:Get(), Entity.GetTeamNum(myHero), Enum.TeamType.TEAM_TYPE_ENEMY_TEAM)
@@ -125,7 +125,7 @@ local function GetValidEnemies()
     return valid
 end
 
--- Подсчет врагов в радиусе
+-- Count enemies in radius
 local function CountAt(pos, enemies, radius)
     local count = 0
     for _, enemy in ipairs(enemies) do
@@ -137,7 +137,7 @@ local function CountAt(pos, enemies, radius)
     return count
 end
 
--- Поиск лучшей позиции
+-- Find best position
 local function FindBestPosition()
     local myPos = Entity.GetAbsOrigin(myHero)
     local enemies = GetValidEnemies()
@@ -175,7 +175,7 @@ local function FindBestPosition()
     return bestPos, maxCount
 end
 
--- Найти приоритетную цель
+-- Find priority target
 local function FindPriorityTarget()
     local myPos = Entity.GetAbsOrigin(myHero)
     local enemies = Heroes.InRadius(myPos, 800, Entity.GetTeamNum(myHero), Enum.TeamType.TEAM_TYPE_ENEMY_TEAM)
@@ -188,7 +188,7 @@ local function FindPriorityTarget()
     return nil
 end
 
--- Получить blink
+-- Get blink
 local function GetBlink()
     return NPC.GetItem(myHero, "item_blink", true) or 
            NPC.GetItem(myHero, "item_overwhelming_blink", true) or 
@@ -196,12 +196,12 @@ local function GetBlink()
            NPC.GetItem(myHero, "item_arcane_blink", true)
 end
 
--- Проверка каналирования
+-- Check channeling
 local function IsChannelingBlackHole()
     return NPC.IsChannellingAbility(myHero)
 end
 
--- Получить все доступные refresher'ы
+-- Get all available refreshers
 local function GetAllRefreshers()
     local refreshers = {}
     
@@ -223,7 +223,7 @@ local function GetAllRefreshers()
     return refreshers
 end
 
--- Выбрать лучший refresher
+-- Select best refresher
 local function SelectBestRefresher(refreshers)
     if #refreshers == 0 then return nil end
     
@@ -246,7 +246,7 @@ local function SelectBestRefresher(refreshers)
         return refreshers[1]
     end
     
-    -- Ручной приоритет
+    -- Manual priority
     for _, ref in ipairs(refreshers) do
         if ref.priority == priority then
             return ref
@@ -256,7 +256,7 @@ local function SelectBestRefresher(refreshers)
     return refreshers[1]
 end
 
--- Использовать refresher
+-- Use refresher
 local function UseRefresher()
     local refreshers = GetAllRefreshers()
     
@@ -285,7 +285,7 @@ local function UseRefresher()
     return false
 end
 
--- Использование предметов ПОСЛЕ Black Hole
+-- Use items AFTER Black Hole
 local function UsePostBlackHoleItems()
     local time = GameRules.GetGameTime()
     
@@ -321,7 +321,7 @@ local function UsePostBlackHoleItems()
     end
 end
 
--- Основное комбо
+-- Main combo
 local function DoCombo()
     local time = GameRules.GetGameTime()
     
@@ -354,7 +354,7 @@ local function DoCombo()
         return
     end
     
-    -- Позиция
+    -- Position
     local bestPos, enemyCount = FindBestPosition()
     
     Debug("Enemies: " .. enemyCount)
@@ -366,7 +366,7 @@ local function DoCombo()
     local myPos = Entity.GetAbsOrigin(myHero)
     local dist = (bestPos - myPos):Length2D()
     
-    -- Предметы
+    -- Items
     local blink = GetBlink()
     local bkb = NPC.GetItem(myHero, "item_black_king_bar", true)
     local glimmer = NPC.GetItem(myHero, "item_glimmer_cape", true)
@@ -397,7 +397,7 @@ local function DoCombo()
         return
     end
     
-    -- Дебаффы
+    -- Debuffs
     local target = FindPriorityTarget()
     if target then
         if ui.useScythe:Get() and scythe and Ability.IsReady(scythe) then
@@ -411,7 +411,7 @@ local function DoCombo()
         end
     end
     
-    -- Защита
+    -- Defense
     if ui.useBKB:Get() and bkb and Ability.IsReady(bkb) then
         Ability.CastNoTarget(bkb)
     end
@@ -422,7 +422,7 @@ local function DoCombo()
         Ability.CastNoTarget(pipe)
     end
     
-    -- Урон
+    -- Damage
     if ui.useVeil:Get() and veil and Ability.IsReady(veil) then
         Ability.CastPosition(veil, bestPos)
     end

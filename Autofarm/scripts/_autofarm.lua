@@ -327,7 +327,7 @@ function autofarm.moveToCamp(vector)
     if not hero then return end
 
     step = NPC.GetMoveSpeed(hero) / 200
-    -- отключаем хуманайзер
+    -- disable humanizer
     if autofarm.targetPosition then
        -- NPC.MoveTo(hero, autofarm.targetPosition, false, false)
     end
@@ -353,7 +353,7 @@ function autofarm.moveToCamp(vector)
 
                 
                 -- TODO 
-                -- ЧЕЛ ХУЙНЮ ДЕЛАЕТ ПОСЛЕ БЛИНКА ТЫ УЖЕ В КЕМПЕ
+                -- TODO: after blink this logic behaves incorrectly (already in camp)
             end
         else 
             -- max range cast 
@@ -699,7 +699,7 @@ function autofarm.OnUpdate()
         autofarm.camps_creeps()
     end
 
-   -- autofarm.move_out_of_camp(autofarm.getVectorCamp(autofarm_data.current_camp))  --------- dнадо дебажить
+    -- autofarm.move_out_of_camp(autofarm.getVectorCamp(autofarm_data.current_camp))  --------- needs debugging
 
     -- auto upgrade skill points 
     -- by builds in dota 
@@ -727,7 +727,7 @@ function autofarm.OnUpdate()
     end
     ]]
     autofarm_data.another_task = anothertask:Get() 
-    -- ХОДИМ по кемпам
+    -- Move between camps
     local cur_hp = Entity.GetHealth(hero)
     local max_hp = Entity.GetMaxHealth(hero)
     if cur_hp < max_hp * 0.3 and not autofarm_data.another_task then
@@ -794,7 +794,7 @@ function autofarm.OnUpdate()
                 print("last camp is empty, moving away")
                 autofarm.moveAwayFromCamp(camp_vector)
                 autofarm.farmfinish()
-                -- Не завершаем фарм сразу, ждем ровной минуты
+                -- Do not finish farming immediately, wait for exact minute
                 
             else
                 print("empty camp, moving to next")
@@ -902,14 +902,14 @@ end
 
 -- camps -- 
 
--- Инициализация кемпов
+-- Camp initialization
 function autofarm.init_camps()
     local camps = Camps.GetAll()
     for id, npc in pairs(camps) do
         camp_states[id] = {
             position = Entity.GetAbsOrigin(npc), 
             creep_count = nil,                 
-            farmed = false, -- новое поле
+            farmed = false, -- new field
         }
     end
 end
@@ -1516,8 +1516,8 @@ function autofarm.OnDraw()
     Render.FilledRect(Vec2(gui.main_x1 + 1000, gui.main_y1 + 740), Vec2(gui.main_x1 + 1250, gui.main_y1 + 790), Color(0,255,0, 150), 10)
 
 
-    Render.Text(font, 24 , "Очистить", Vec2(gui.main_x1 + 1075, gui.main_y1 + 805), Color())
-    Render.Text(font, 24 , "Начать", Vec2(gui.main_x1 + 1075, gui.main_y1 + 745), Color())
+    Render.Text(font, 24 , "Clear", Vec2(gui.main_x1 + 1075, gui.main_y1 + 805), Color())
+    Render.Text(font, 24 , "Start", Vec2(gui.main_x1 + 1075, gui.main_y1 + 745), Color())
     Render.Image(iconMenu, Vec2(gui.main_x1+30, gui.main_y1+15), Vec2(30,30), Color()) 
    -- Render.FilledRect(Vec2(gui.main_x1+30, gui.main_y1+10), Vec2(gui.main_x1 + 35, gui.main_y1 + 30), Color(255,0,0, 150), 5)
 
@@ -1649,7 +1649,7 @@ function autofarm.camps_creeps()
             if camp.creep_count == nil or camp.creep_count == 0 then
                 camp.creep_count = 1
             end
-            camp.farmed = false -- сбрасываем состояние фарма
+            camp.farmed = false -- reset farming state
         end
     end
 
@@ -1704,7 +1704,7 @@ function autofarm.OnNpcDying(npc)
     end
 end
 ]]
--- Помечаем кемп как зафармленный при атаке крипа
+-- Mark camp as farmed when attacking a creep
 function mark_camp_farmed(npc)
     local npc_pos = Entity.GetAbsOrigin(npc)
     for id, camp in pairs(camp_states) do

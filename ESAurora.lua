@@ -62,7 +62,11 @@ local function SaveConfig()
     
     -- Main settings
     pcall(function() Config.WriteInt(CONFIG_NAME, "enable", ui.enable:Get() and 1 or 0) end)
-    pcall(function() Config.WriteInt(CONFIG_NAME, "hotkey", ui.hotkey:Get()) end)
+    pcall(function()
+        local hk = ui.hotkey:Get()
+        local hkNum = tonumber(hk)
+        if hkNum then Config.WriteInt(CONFIG_NAME, "hotkey", hkNum) end
+    end)
     pcall(function() Config.WriteInt(CONFIG_NAME, "debug", ui.debug:Get() and 1 or 0) end)
     pcall(function() Config.WriteInt(CONFIG_NAME, "use_move", ui.use_move:Get() and 1 or 0) end)
     pcall(function() Config.WriteInt(CONFIG_NAME, "min_dist", ui.min_dist:Get()) end)
@@ -73,7 +77,11 @@ local function SaveConfig()
     
     -- Push simples
     pcall(function() Config.WriteInt(CONFIG_NAME, "save_enable", ui.save_enable:Get() and 1 or 0) end)
-    pcall(function() Config.WriteInt(CONFIG_NAME, "save_hotkey", ui.save_hotkey:Get()) end)
+    pcall(function()
+        local hk = ui.save_hotkey:Get()
+        local hkNum = tonumber(hk)
+        if hkNum then Config.WriteInt(CONFIG_NAME, "save_hotkey", hkNum) end
+    end)
     pcall(function() Config.WriteInt(CONFIG_NAME, "save_cursor_range", ui.save_cursor_range:Get()) end)
     pcall(function() Config.WriteInt(CONFIG_NAME, "save_target_mode", ui.save_target_mode:Get()) end)
     
@@ -112,13 +120,25 @@ local function LoadConfig()
         return
     end
     
+    -- Helper para carregar hotkey com seguranca
+    local function loadBind(widget, configKey, default)
+        local ok, err = pcall(function()
+            local val = Config.ReadInt(CONFIG_NAME, configKey, -1)
+            if val and val > 0 then
+                widget:Set(val)
+            end
+        end)
+        if not ok then
+            print("[ESEuphoriaAddons2] Erro ao carregar bind '" .. configKey .. "': " .. tostring(err))
+        end
+    end
+    
     pcall(function()
         -- Main settings
         local enable = Config.ReadInt(CONFIG_NAME, "enable", 1)
         ui.enable:Set(enable == 1)
         
-        local hotkey = Config.ReadInt(CONFIG_NAME, "hotkey", Enum.ButtonCode.KEY_G)
-        if hotkey ~= 0 then ui.hotkey:Set(hotkey) end
+        loadBind(ui.hotkey, "hotkey", Enum.ButtonCode.KEY_G)
         
         local debug_val = Config.ReadInt(CONFIG_NAME, "debug", 0)
         ui.debug:Set(debug_val == 1)
@@ -145,8 +165,7 @@ local function LoadConfig()
         local save_enable = Config.ReadInt(CONFIG_NAME, "save_enable", 1)
         ui.save_enable:Set(save_enable == 1)
         
-        local save_hotkey = Config.ReadInt(CONFIG_NAME, "save_hotkey", Enum.ButtonCode.KEY_H)
-        if save_hotkey ~= 0 then ui.save_hotkey:Set(save_hotkey) end
+        loadBind(ui.save_hotkey, "save_hotkey", Enum.ButtonCode.KEY_H)
         
         local save_cursor_range = Config.ReadInt(CONFIG_NAME, "save_cursor_range", 400)
         ui.save_cursor_range:Set(save_cursor_range)
@@ -158,8 +177,7 @@ local function LoadConfig()
         local grip_enable = Config.ReadInt(CONFIG_NAME, "grip_enable", 1)
         ui.grip_enable:Set(grip_enable == 1)
         
-        local grip_hotkey = Config.ReadInt(CONFIG_NAME, "grip_hotkey", Enum.ButtonCode.KEY_K)
-        if grip_hotkey ~= 0 then ui.grip_hotkey:Set(grip_hotkey) end
+        loadBind(ui.grip_hotkey, "grip_hotkey", Enum.ButtonCode.KEY_K)
         
         -- Ally
         local ally_mode = Config.ReadInt(CONFIG_NAME, "ally_mode", 0)
@@ -769,7 +787,7 @@ function EuphoriaAddon2.OnUpdate()
                     end
                     
                     if validTarget then
-                        local d = (Entity.GetAbsOrigin(h) - myPos):Length2D()
+                        local d = (Entity.GetAbsOrigin(h) - cursorPos):Length2D()
                         if d < minDist then
                             minDist = d
                             nearestTarget = h
@@ -785,8 +803,25 @@ function EuphoriaAddon2.OnUpdate()
                 
                 -- If close (<=100), try to smash
                 if distToTarget <= 100 and smash then
+                    -- Verify no wrong-type hero is closer to ES than intended target
+                    local pushClear = true
+                    if targetMode ~= 2 then -- Skip check for "Any" mode
+                        for _, chk in pairs(Heroes.GetAll()) do
+                            if chk ~= myHero and chk ~= nearestTarget and IsValidHero(chk) then
+                                local chkDist = (Entity.GetAbsOrigin(chk) - myPos):Length2D()
+                                if chkDist < distToTarget + 50 then
+                                    local chkIsAlly = Entity.IsSameTeam(myHero, chk)
+                                    if (targetMode == 0 and chkIsAlly) or (targetMode == 1 and not chkIsAlly) then
+                                        pushClear = false
+                                        FileLog("PUSH: blocked - wrong-type hero closer than target")
+                                        break
+                                    end
+                                end
+                            end
+                        end
+                    end
                     -- Try smash continuously while close
-                    if CanCast(myHero, smash) and (now - lastPushSmashTime) >= 0.5 then
+                    if pushClear and CanCast(myHero, smash) and (now - lastPushSmashTime) >= 0.5 then
                         -- Direction: always from target to cursor (push towards cursor)
                         local pushDir = (cursorPos - targetPos):Normalized()
                         -- Position smash ahead of target towards cursor

@@ -15,7 +15,7 @@ local enabled_state = true
 local last_cast_time = 0
 local timers = {}
 
--- Способности которые нужно блокировать
+-- Abilities that should be blocked
 local block_abilities = {
 	["item_orchid"] = true,
 	["item_bloodthorn"] = true,
@@ -24,7 +24,7 @@ local block_abilities = {
 	["lion_voodoo"] = true,
 	["rhasta_hex"] = true,
 	["item_abyssal_blade"] = true,
-	-- Дагон всех уровней
+	-- Dagon, all levels
 	["item_dagon"] = true,          -- Dagon 1
 	["item_dagon_2"] = true,        -- Dagon 2
 	["item_dagon_3"] = true,        -- Dagon 3

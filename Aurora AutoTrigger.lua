@@ -1,12 +1,12 @@
 ---@diagnostic disable: undefined-global, lowercase-global, need-check-nil
 
-local auto_defender = {}
+local aurora_autotrigger = {}
 
 local Config = {
     UI = {
         TabName = "General",
-        ScriptName = "Auto Defender",
-        ScriptID = "auto_defender",
+        ScriptName = "Aurora AutoTrigger+",
+        ScriptID = "aurora_autotrigger",
         GearPage = "Settings",
         Groups = {
             Info = "Info",
@@ -668,10 +668,9 @@ local ITEM_DEFINITIONS = {
     psychic_headband = {
         item_name = "item_psychic_headband",
         display_name = "Psychic Headband",
-        type = "no_target",
-        modifier = "modifier_item_paranormal_diadem_active",
-        requires_enemy = true,
-        search_range = 1200,
+        type = "target_enemy",
+        enemy_modifier = "modifier_item_psychic_headband_debuff",
+        range = 600,
     },
     idol_of_screeauk = {
         item_name = "item_idol_of_screeauk",
@@ -1275,8 +1274,21 @@ local CAST_COOLDOWN = 0.2
 local last_cast_times = {}
 local next_cast_available_time = 0.0
 
-local phoenix_spirits_cast_time = 0.0
-local phoenix_supernova_scheduled = false
+-- Exclusive groups: items in the same group block each other for GROUP_COOLDOWN seconds
+local GROUP_COOLDOWN = 1.5
+local EXCLUSIVE_GROUPS = {
+    ethereal  = { "ghost", "ethereal", "glimmer" },
+    cyclone   = { "eul", "wind_waker" },
+    invis     = { "shadow_blade", "silver" },
+}
+local item_to_group = {}
+for group_name, items in pairs(EXCLUSIVE_GROUPS) do
+    for _, k in ipairs(items) do
+        item_to_group[k] = group_name
+    end
+end
+local group_last_cast = {}
+local MIN_GLOBAL_DELAY = 0.3  -- minimum seconds between any auto-casts
 
 local CAST_RESULT_NONE = 0
 local CAST_RESULT_CAST = 1
@@ -1760,6 +1772,15 @@ local function cast_item(hero, item_key, game_time)
         return CAST_RESULT_NONE
     end
 
+    -- Block if an item in the same exclusive group was cast recently
+    local grp = item_to_group[item_key]
+    if grp then
+        local gt = group_last_cast[grp]
+        if gt and (game_time - gt) < GROUP_COOLDOWN then
+            return CAST_RESULT_NONE
+        end
+    end
+
     local item
     local is_ability = ABILITY_DEFINITIONS[item_key] ~= nil
     if is_ability then
@@ -1847,6 +1868,8 @@ local function cast_item(hero, item_key, game_time)
         end
 
         Ability.CastTarget(item, target)
+        local player = Players.GetLocal()
+        if player then Player.HoldPosition(player, hero) end
     elseif definition.type == "position_enemy" then
         local target = find_enemy_target(hero, item, definition, item_key)
         if not target then
@@ -1896,6 +1919,12 @@ local function cast_item(hero, item_key, game_time)
 
     mark_cast(item_key, game_time)
 
+    -- Mark exclusive group so conflicting items are blocked
+    local grp = item_to_group[item_key]
+    if grp then
+        group_last_cast[grp] = game_time
+    end
+
     if item_key == "glimmer" or item_key == "bkb" then
         schedule_meteor_combo(game_time)
     end
@@ -1903,10 +1932,11 @@ local function cast_item(hero, item_key, game_time)
     return CAST_RESULT_CAST
 end
 
-function auto_defender.OnUpdate()
+function aurora_autotrigger.OnUpdate()
     if not Engine.IsInGame() then
         last_cast_times = {}
         next_cast_available_time = 0.0
+        group_last_cast = {}
         clear_meteor_combo_schedule()
         return
     end
@@ -1918,7 +1948,7 @@ function auto_defender.OnUpdate()
         return
     end
 
-    if not ui.enable:Get() then
+    if not ui.enable or not ui.enable:Get() then
         next_cast_available_time = 0.0
         clear_meteor_combo_schedule()
         return
@@ -1953,26 +1983,25 @@ function auto_defender.OnUpdate()
             local result = cast_item(hero, key, game_time)
 
             if result == CAST_RESULT_CAST then
+                local delay_s = MIN_GLOBAL_DELAY
                 if priority_delay_slider then
                     local delay_ms = priority_delay_slider:Get()
                     if delay_ms and delay_ms > 0 then
-                        next_cast_available_time = game_time + (delay_ms / 1000.0)
-                    else
-                        next_cast_available_time = 0.0
+                        delay_s = math.max(delay_ms / 1000.0, MIN_GLOBAL_DELAY)
                     end
-                else
-                    next_cast_available_time = 0.0
                 end
+                next_cast_available_time = game_time + delay_s
                 break
             end
         end
     end
 end
 
-function auto_defender.OnGameEnd()
+function aurora_autotrigger.OnGameEnd()
     last_cast_times = {}
     next_cast_available_time = 0.0
+    group_last_cast = {}
     clear_meteor_combo_schedule()
 end
 
-return auto_defender
+return aurora_autotrigger

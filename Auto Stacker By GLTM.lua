@@ -17,7 +17,7 @@ ui.enable:Icon("\u{f00c}")
 ui.toggleKey = mainMenu:Bind("Activation Key", Enum.ButtonCode.KEY_NONE, "panorama/images/items/shivas_guard_png.vtex_c")
 
 local mainMenu = menuOptions:Create("Information")
-mainMenu:Label("Больше скриптов - discord.gg/glitch-realm")
+mainMenu:Label("More scripts - discord.gg/glitch-realm")
 
 
 local firstHitSecMelee = 53
@@ -574,9 +574,9 @@ function OnUpdate()
 						Notification({
 							duration = 3,
 							timer = 3,
-							primary_text = "Стак успешен!",
+							primary_text = "Stack successful!",
 							primary_image = "panorama/images/spellicons/rattletrap_power_cogs_png.vtex_c",
-							secondary_text = string.format("Лагерь #%d: %d стаков", campId, stacksNow),
+							secondary_text = string.format("Camp #%d: %d stacks", campId, stacksNow),
 							position = getCampPoints(campId) and getCampPoints(campId).wait or nil
 						});
 						
@@ -595,22 +595,22 @@ function OnUpdate()
 			if (sec < effFirstHit) then
 				if not st.movedToWait then
 					st.movedToWait = true;
-					print(string.format("[Stacker] Юнит %s в %d:%.2f -> WAIT (%.0f, %.0f, %.0f)", tostring(u), minute, sec, points.wait:GetX(), points.wait:GetY(), points.wait:GetZ()));
+					print(string.format("[Stacker] Unit %s at %d:%.2f -> WAIT (%.0f, %.0f, %.0f)", tostring(u), minute, sec, points.wait:GetX(), points.wait:GetY(), points.wait:GetZ()));
 					moveUnitTo(player, u, points.wait);
 				end
 			else
 				if ((sec >= effFirstHit) and (sec < (effFirstHit + 2)) and not st.attackIssued) then
 					st.attackIssued = true;
-					print(string.format("[Stacker] Юнит %s в %d:%.2f -> ATTACK (%.0f, %.0f, %.0f) [first=%.1f, stacks=%d, eff=%.1f]", tostring(u), minute, sec, strike:GetX(), strike:GetY(), strike:GetZ(), baseHit, stacks, effFirstHit));
+					print(string.format("[Stacker] Unit %s at %d:%.2f -> ATTACK (%.0f, %.0f, %.0f) [first=%.1f, stacks=%d, eff=%.1f]", tostring(u), minute, sec, strike:GetX(), strike:GetY(), strike:GetZ(), baseHit, stacks, effFirstHit));
 					attackMoveUnitTo(player, u, strike);
 				end
 				if (st.hitConfirmed and not st.pullIssued) then
 					st.pullIssued = true;
-					print(string.format("[Stacker] Юнит %s в %d:%.2f -> PULL (%.0f, %.0f, %.0f) [on hit]", tostring(u), minute, sec, points.pull:GetX(), points.pull:GetY(), points.pull:GetZ()));
+					print(string.format("[Stacker] Unit %s at %d:%.2f -> PULL (%.0f, %.0f, %.0f) [on hit]", tostring(u), minute, sec, points.pull:GetX(), points.pull:GetY(), points.pull:GetZ()));
 					moveUnitTo(player, u, points.pull);
 				elseif ((sec >= 57) and (sec < 58) and not st.pullIssued) then
 					st.pullIssued = true;
-					print(string.format("[Stacker] Юнит %s в %d:%.2f -> PULL (%.0f, %.0f, %.0f) [fallback]", tostring(u), minute, sec, points.pull:GetX(), points.pull:GetY(), points.pull:GetZ()));
+					print(string.format("[Stacker] Unit %s at %d:%.2f -> PULL (%.0f, %.0f, %.0f) [fallback]", tostring(u), minute, sec, points.pull:GetX(), points.pull:GetY(), points.pull:GetZ()));
 					moveUnitTo(player, u, points.pull);
 				end
 			end
@@ -658,7 +658,7 @@ function OnEntityHurt(data)
 		end
 		if (points and not st.pullIssued) then
 			st.pullIssued = true;
-			print(string.format("[Stacker] Юнит %s в %d:%02d -> PULL (%.0f, %.0f, %.0f) [OnEntityHurt]", tostring(src), minute, math.floor(t % 60), points.pull:GetX(), points.pull:GetY(), points.pull:GetZ()));
+			print(string.format("[Stacker] Unit %s at %d:%02d -> PULL (%.0f, %.0f, %.0f) [OnEntityHurt]", tostring(src), minute, math.floor(t % 60), points.pull:GetX(), points.pull:GetY(), points.pull:GetZ()));
 			moveUnitTo(Players.GetLocal(), src, points.pull);
 		end
 	end

@@ -1,8 +1,7 @@
 --[[
         ~ phantom lancer illusions auto-controller - uczone.gitbook.io/api-v2.0/
        ~~ jaydenannemayspecial4wind
-    ~~~ special thanks to: qww, shz and other [vetra] members d_b _codex_7
-    ~~~~ improvements by: Ephoria 
+      ~~~ special thanks to: qww, shz and other [ветра] members d_b
 ]]
 
 local PLTools = {}
@@ -15,24 +14,23 @@ end
 
 local Config = {
     UI = {
-        TabName = "General",
-        ScriptName = "PL Illusion Controller",
-        ScriptID = "pl_illusions",
+        TabName = "Heroes",
+        ScriptName = "Hero List",
+        ScriptID = "Phantom Lancer",
         Icons = {
             Main = "\u{f6b6}",
             Rush = "\u{f554}",
-            Farm = "\u{f72d}",
-            Bait = "\u{f06a}",
-            Status = "\u{f06e}",
-            Bodyblock = "\u{f132}",
-            Key = "\u{f084}",
-            Manta = "\u{f24d}",
-            Follow = "\u{f500}",
-            Chase = "\u{f05b}",
-            Split = "\u{f126}",
-            Bloodthorn = "\u{f0e7}",
-            Shard = "\u{f21b}",
-            Clock = "\u{f017}"
+            Bait = "\u{f06a}"
+        },
+        Groups = {
+            Main = "Principal",
+            Illusions = "Ilusões",
+            Settings = "Configurações",
+            AutoBait = "Isca Automática",
+            AutoFollow = "Seguir Automático",
+            AutoChase = "Perseguir Automático",
+            AutoSplit = "Dividir Automático",
+            RunAway = "Fugir"
         }
     },
     Colors = {
@@ -63,140 +61,84 @@ local Config = {
         Count = 2,
         MinRadius = 200,
         MaxRadius = 400
-    },
-    Bloodthorn = {
-        Enabled = true,
-        Range = 900,
-        HPThreshold = 70,
-        MinEnemies = 1,
-        MantaCheckDelay = 0.5,
-        CooldownBuffer = 2.0
-    },
-    Shard = {
-        Enabled = true,
-        HPThreshold = 30,
-        MinEnemies = 1,
-        Cooldown = 1.0
     }
-    
 }
 
-local function CreateUI(tab)
-    if not tab or not tab.Create then return nil end
-    local mainGroup = tab:Create("Main")
-    local illusionGroup = tab:Create("Illusions")
-    local settingsGroup = tab:Create("Settings")
-    local baitGroup = tab:Create("Auto Bait")
-    local followGroup = tab:Create("Auto Follow")
-    local chaseGroup = tab:Create("Auto Chase")
-    local splitGroup = tab:Create("Auto Split")
-    local runAwayGroup = tab:Create("Run Away")
-    local bloodthornGroup = tab:Create("Bloodthorn")
-    local shardGroup = tab:Create("Auto Shard")
+local function InitializeUI()
+    local tab = Menu.Create(Config.UI.TabName, Config.UI.ScriptName, Config.UI.ScriptID)
+    local mainSettings = tab:Create("Main Settings")
+    local mainGroup = mainSettings:Create(Config.UI.Groups.Main)
+    local illusionGroup = mainSettings:Create(Config.UI.Groups.Illusions)
+    local settingsGroup = mainSettings:Create(Config.UI.Groups.Settings)
+    local baitGroup = mainSettings:Create(Config.UI.Groups.AutoBait)
+    local followGroup = mainSettings:Create(Config.UI.Groups.AutoFollow)
+    local chaseGroup = mainSettings:Create(Config.UI.Groups.AutoChase)
+    local splitGroup = mainSettings:Create(Config.UI.Groups.AutoSplit)
+    local runAwayGroup = mainSettings:Create(Config.UI.Groups.RunAway)
     return {
         AutoRush = {
-            Enabled = mainGroup:Switch("Auto Phantom Rush for illusions", true, Config.UI.Icons.Rush),
-            DisableRushOnFarm = mainGroup:Switch("Disable Auto Phantom Rush when farming creeps", false, Config.UI.Icons.Farm)
-        },
-        PhantomRushHelper = {
-            Enabled = mainGroup:Switch("Disable input during Phantom Rush", true, Config.UI.Icons.Rush),
-            BlockDuration = mainGroup:Slider("Block duration (ms)", 0, 500, 250, "%d ms"),
-            ToggleKey = mainGroup:Bind("Toggle Rush block", Enum.ButtonCode.KEY_NONE, Config.UI.Icons.Key)
+            Enabled = mainGroup:Switch("Phantom Rush automático para ilusões", true, Config.UI.Icons.Rush),
+            DisableRushOnFarm = mainGroup:Switch("Desabilitar Phantom Rush durante farm de creeps", false)
         },
         Visuals = {
-            StatusText = illusionGroup:Switch("Show status", true, Config.UI.Icons.Status)
+            StatusText = illusionGroup:Switch("Mostrar status na tela", true)
         },
         Settings = {
-            MinTriggerDist = settingsGroup:Slider("Distance for Rush trigger", 300, 600, Config.Retreat.MinTriggerDist, "%d"),
-            MinRetreat = settingsGroup:Slider("Min. retreat", 50, 300, Config.Retreat.MinRetreat, "%d"),
-            MaxRetreat = settingsGroup:Slider("Max. retreat", 300, 900, Config.Retreat.MaxRetreat, "%d"),
-            RushSpeedThreshold = settingsGroup:Slider("Movement speed threshold for Rush", 250, 600, 300, "%d"),
-            PlayerOverrideSec = settingsGroup:Slider("Control pause after player command (sec)", 0.0, 5.0, 1.5, "%.1f"),
-            ControlMantaIllusions = settingsGroup:Switch("Control Manta illusions", false, Config.UI.Icons.Manta),
+            MinTriggerDist = settingsGroup:Slider("Distância para ativar o Rush", 300, 600, Config.Retreat.MinTriggerDist, "%d"),
+            MinRetreat = settingsGroup:Slider("Recuo mínimo", 50, 300, Config.Retreat.MinRetreat, "%d"),
+            MaxRetreat = settingsGroup:Slider("Recuo máximo", 300, 900, Config.Retreat.MaxRetreat, "%d"),
+            RushSpeedThreshold = settingsGroup:Slider("Velocidade mínima para Rush", 250, 600, 300, "%d"),
+            PlayerOverrideSec = settingsGroup:Slider("Tempo de controle manual (seg)", 0.0, 5.0, 1.5, "%.1f"),
         },
         RunAway = {
-            HoldKey = runAwayGroup:Bind("Bait key", Enum.ButtonCode.KEY_NONE, Config.UI.Icons.Key),
-            KeepCount = runAwayGroup:Slider("Number of illusions around real lancer", 0, 6, 2, "%d"),
-            Duration = runAwayGroup:Slider("Duration of illusion run (sec)", 0.5, 5.0, 2.0, "%.1f")
+            HoldKey = runAwayGroup:Bind("Tecla de fuga/isca", Enum.ButtonCode.KEY_NONE),
+            KeepCount = runAwayGroup:Slider("Ilusões próximas ao herói real", 0, 6, 2, "%d"),
+            Duration = runAwayGroup:Slider("Duração da fuga (seg)", 0.5, 5.0, 2.0, "%.1f")
         },
         AutoBait = {
-            Enabled = baitGroup:Switch("Enable auto-bait", true, Config.UI.Icons.Bait),
-            HPThreshold = baitGroup:Slider("Illusion HP threshold (%)", 10, 90, math.floor(Config.Bait.HPThreshold * 100), "%d%%"),
-            MaxBaiting = baitGroup:Slider("Max. baiting illusions", 1, 5, Config.Bait.MaxBaiting, "%d"),
-            Interval = baitGroup:Slider("Interval between baits (sec)", 1, 10, Config.Bait.Interval, "%d"),
-            MinIllusions = baitGroup:Slider("Min. illusions for bait", 2, 6, Config.Bait.MinIllusions, "%d"),
-            WRadius = baitGroup:Slider("Enemy radius for W-bait", 400, 1200, Config.Bait.WRadius, "%d"),
-            WBaitCount = baitGroup:Slider("Illusions baiting after W", 1, 5, Config.Bait.WBaitCount, "%d"),
-            WBaitInterval = baitGroup:Slider("W-bait interval (sec)", 0, 2, Config.Bait.WBaitInterval, "%.1f")
+            Enabled = baitGroup:Switch("Ativar isca automática", true, Config.UI.Icons.Bait),
+            HPThreshold = baitGroup:Slider("HP mínimo da ilusão (%)", 10, 90, math.floor(Config.Bait.HPThreshold * 100), "%d%%"),
+            MaxBaiting = baitGroup:Slider("Máximo de ilusões iscando", 1, 5, Config.Bait.MaxBaiting, "%d"),
+            Interval = baitGroup:Slider("Intervalo entre iscas (seg)", 1, 10, Config.Bait.Interval, "%d"),
+            MinIllusions = baitGroup:Slider("Mínimo de ilusões para isca", 2, 6, Config.Bait.MinIllusions, "%d"),
+            WRadius = baitGroup:Slider("Raio para isca com W", 400, 1200, Config.Bait.WRadius, "%d"),
+            WBaitCount = baitGroup:Slider("Ilusões iscando após W", 1, 5, Config.Bait.WBaitCount, "%d"),
+            WBaitInterval = baitGroup:Slider("Intervalo de isca com W (seg)", 0, 2, Config.Bait.WBaitInterval, "%.1f")
         },
         AutoFollow = {
-            Enabled = followGroup:Switch("Enable auto-follow", true, Config.UI.Icons.Follow),
-            Count = followGroup:Slider("Number of illusions for follow", 1, 3, Config.Follow.Count, "%d"),
-            MinRadius = followGroup:Slider("Min. follow radius", 100, 350, Config.Follow.MinRadius, "%d"),
-            MaxRadius = followGroup:Slider("Max. follow radius", 200, 600, Config.Follow.MaxRadius, "%d")
+            Enabled = followGroup:Switch("Ativar seguir automático", true),
+            Count = followGroup:Slider("Ilusões que seguem o herói", 1, 3, Config.Follow.Count, "%d"),
+            MinRadius = followGroup:Slider("Raio mínimo para seguir", 100, 350, Config.Follow.MinRadius, "%d"),
+            MaxRadius = followGroup:Slider("Raio máximo para seguir", 200, 600, Config.Follow.MaxRadius, "%d")
         },
         AutoChase = {
-            Enabled = chaseGroup:Switch("Enable auto-chase", true, Config.UI.Icons.Chase),
-            Radius = chaseGroup:Slider("Auto-chase radius", 1500, 6000, 1600, "%d")
+            Enabled = chaseGroup:Switch("Ativar perseguição automática", true),
+            Radius = chaseGroup:Slider("Raio de perseguição automática", 1500, 6000, 1600, "%d")
         },
         AutoBodyblock = {
-            Enabled = illusionGroup:Switch("Enable auto-bodyblock", true, Config.UI.Icons.Bodyblock),
-            PingThreshold = illusionGroup:Slider("Ping threshold for bodyblock", 50, 300, 150, "%d"),
-            ForceBodyblockKey = illusionGroup:Bind("Bodyblock key", Enum.ButtonCode.KEY_NONE, Config.UI.Icons.Key)
+            Enabled = illusionGroup:Switch("Ativar bodyblock automático", true),
+            PingThreshold = illusionGroup:Slider("Limite de ping para bodyblock", 50, 300, 150, "%d"),
+            ForceBodyblockKey = illusionGroup:Bind("Tecla de bodyblock", Enum.ButtonCode.KEY_NONE)
         },
         AutoSplit = {
-            Enabled = splitGroup:Switch("Enable auto-split attack", true, Config.UI.Icons.Split),
-            MaxIllusionsPerTarget = splitGroup:Slider("Max. illusions per target", 3, 12, 8, "%d"),
-            SplitCount = splitGroup:Slider("Number of illusions for redirect", 1, 5, 2, "%d"),
-            SearchRadius = splitGroup:Slider("Target search radius", 800, 2000, 1200, "%d"),
-            MinEnemies = splitGroup:Slider("Min. enemies for activation", 2, 5, 2, "%d")
+            Enabled = splitGroup:Switch("Ativar ataque dividido automático", true),
+            MaxIllusionsPerTarget = splitGroup:Slider("Máximo de ilusões por alvo", 3, 12, 8, "%d"),
+            SplitCount = splitGroup:Slider("Ilusões para redirecionar", 1, 5, 2, "%d"),
+            SearchRadius = splitGroup:Slider("Raio de busca de inimigos", 800, 2000, 1200, "%d"),
+            MinEnemies = splitGroup:Slider("Mínimo de inimigos para ativação", 2, 5, 2, "%d")
         },
-        Bloodthorn = {
-            Enabled = bloodthornGroup:Switch("Enable Auto Bloodthorn", true, Config.UI.Icons.Bloodthorn),
-            Range = bloodthornGroup:Slider("Cast range", 500, 1100, Config.Bloodthorn.Range, "%d"),
-            HPThreshold = bloodthornGroup:Slider("Target HP threshold (%)", 30, 100, Config.Bloodthorn.HPThreshold, "%d%%"),
-            MinEnemies = bloodthornGroup:Slider("Min enemies nearby", 1, 3, Config.Bloodthorn.MinEnemies, "%d"),
-            MantaCheck = bloodthornGroup:Switch("Wait for Manta cooldown", true, Config.UI.Icons.Clock),
-            MantaDelay = bloodthornGroup:Slider("Manta check delay (sec)", 0.1, 2.0, Config.Bloodthorn.MantaCheckDelay, "%.1f"),
-            CooldownBuffer = bloodthornGroup:Slider("Manta CD buffer (sec)", 0.5, 5.0, Config.Bloodthorn.CooldownBuffer, "%.1f")
-        },
-        Shard = {
-            Enabled = shardGroup:Switch("Enable Auto Shard", true, Config.UI.Icons.Shard),
-            HPThreshold = shardGroup:Slider("HP threshold (%)", 10, 50, Config.Shard.HPThreshold, "%d%%"),
-            MinEnemies = shardGroup:Slider("Min enemies nearby", 1, 5, Config.Shard.MinEnemies, "%d"),
-            Cooldown = shardGroup:Slider("Min cooldown between uses (sec)", 0.5, 5.0, Config.Shard.Cooldown, "%.1f")
-        },
-    }
-end
 
-local function InitializeUI()
-    -- Menu.Find("Heroes", "Hero List", "Phantom Lancer") + Helper tab with groups (API: Menu.Find -> :Create)
-    local plSection = Menu.Find("Heroes", "Hero List", "Phantom Lancer")
-    local helperTab
-    if plSection and plSection.Create then
-        helperTab = plSection:Create("Helper")
-    end
-    if helperTab and helperTab.Create then
-        return CreateUI(helperTab)
-    end
-    -- Fallback: if Phantom Lancer is not found in Heroes, create own tree (General > PL Illusion Controller)
-    local tab = Menu.Create(Config.UI.TabName, Config.UI.ScriptName, Config.UI.ScriptID)
-    if tab and tab.Icon then tab:Icon(Config.UI.Icons.Main) end
-    helperTab = tab:Create("Helper")
-    return CreateUI(helperTab)
+    }
 end
 
 local UI = InitializeUI()
 
-local bloodthornState = {
-    lastCastTime = 0,
-    lastTargetId = nil,
-    mantaCheckStart = {},
-    illusionCountBefore = {}
-}
-local shardState = {
-    lastCastTime = 0
-}
+
+if Config.Fonts.Main then
+    Log.Write("[debug] sfproloaded")
+else
+    Log.Write("[debug] fallback font")
+end
 
 followRole = {}
 followLastOrder = followLastOrder or {}
@@ -211,190 +153,12 @@ function PlayerOverrideDuration(second)
     end
 end
 
-local PhantomRushStatusConfig = {
-    X = 100,
-    Y = 100,
-    Width = 180,
-    Height = 30,
-    BorderRadius = 6
-}
-
-local PhantomRushStatusDrag = {
-    IsDragging = false,
-    StartX = 0,
-    StartY = 0,
-    OffsetX = 0,
-    OffsetY = 0
-}
-
 runawayRole = runawayRole or {}
 runawayLastOrder = runawayLastOrder or {}
 runawayActive = runawayActive or false
 runawayBaseAngle = runawayBaseAngle or 0
 runawayKeepRole = runawayKeepRole or {}
 runawayUntil = runawayUntil or {}
-
-phantomRushBlockUntil = phantomRushBlockUntil or 0
-
-local function GetPhantomRushStatusConfigPath()
-    return "pl_rush_status.ini"
-end
-
-local function LoadPhantomRushStatusPosition()
-    local configPath = GetPhantomRushStatusConfigPath()
-    local file = io.open(configPath, "r")
-    if file then
-        for line in file:lines() do
-            local x = line:match("pos_x=(%d+)")
-            local y = line:match("pos_y=(%d+)")
-            if x then PhantomRushStatusConfig.X = tonumber(x) end
-            if y then PhantomRushStatusConfig.Y = tonumber(y) end
-        end
-        file:close()
-    end
-end
-
-local function SavePhantomRushStatusPosition()
-    local configPath = GetPhantomRushStatusConfigPath()
-    local file = io.open(configPath, "w")
-    if file then
-        file:write(string.format("pos_x=%d\n", PhantomRushStatusConfig.X))
-        file:write(string.format("pos_y=%d\n", PhantomRushStatusConfig.Y))
-        file:close()
-    end
-end
-
-local function HandlePhantomRushStatusInput()
-    local cursorX, cursorY = Input.GetCursorPos()
-    local isInStatus = cursorX >= PhantomRushStatusConfig.X and 
-                      cursorX <= PhantomRushStatusConfig.X + PhantomRushStatusConfig.Width and
-                      cursorY >= PhantomRushStatusConfig.Y and 
-                      cursorY <= PhantomRushStatusConfig.Y + PhantomRushStatusConfig.Height
-
-    if isInStatus and Input.IsKeyDown(Enum.ButtonCode.KEY_MOUSE1) and not PhantomRushStatusDrag.IsDragging then
-        PhantomRushStatusDrag.IsDragging = true
-        PhantomRushStatusDrag.StartX = cursorX
-        PhantomRushStatusDrag.StartY = cursorY
-        PhantomRushStatusDrag.OffsetX = cursorX - PhantomRushStatusConfig.X
-        PhantomRushStatusDrag.OffsetY = cursorY - PhantomRushStatusConfig.Y
-    end
-
-    if PhantomRushStatusDrag.IsDragging then
-        if Input.IsKeyDown(Enum.ButtonCode.KEY_MOUSE1) then
-            PhantomRushStatusConfig.X = cursorX - PhantomRushStatusDrag.OffsetX
-            PhantomRushStatusConfig.Y = cursorY - PhantomRushStatusDrag.OffsetY
-
-            local screenSize = Render.ScreenSize()
-            PhantomRushStatusConfig.X = math.max(0, math.min(PhantomRushStatusConfig.X, screenSize.x - PhantomRushStatusConfig.Width))
-            PhantomRushStatusConfig.Y = math.max(0, math.min(PhantomRushStatusConfig.Y, screenSize.y - PhantomRushStatusConfig.Height))
-        else
-            SavePhantomRushStatusPosition()
-            PhantomRushStatusDrag.IsDragging = false
-        end
-    end
-
-    return isInStatus
-end
-
-local function DrawBlurredBackground(x, y, width, height, radius, blurStrength, alpha)
-    Render.Blur(
-        Vec2(x, y),
-        Vec2(x + width, y + height),
-        blurStrength,
-        alpha,
-        radius,
-        Enum.DrawFlags.None
-    )
-end
-
--- Now DrawPhantomRushStatus can use it
-local function DrawPhantomRushStatus()
-    local myHero = Heroes.GetLocal()
-    if not myHero then return end
-    
-    local isHovered = HandlePhantomRushStatusInput()
-    
-    local rushBlockEnabled = UI.PhantomRushHelper.Enabled:Get()
-    local statusText = rushBlockEnabled and "Rush Block: ON" or "Rush Block: OFF"
-    local statusColor = rushBlockEnabled and Color(120, 255, 120, 255) or Color(255, 120, 120, 255)
-    local bgColor = rushBlockEnabled and Color(20, 40, 20, 220) or Color(40, 20, 20, 220)
-    local bgColorHover = rushBlockEnabled and Color(25, 50, 25, 230) or Color(50, 25, 25, 230)
-    
-    local finalBgColor = isHovered and bgColorHover or bgColor
-    
-    -- Draw blur background
-    DrawBlurredBackground(
-        PhantomRushStatusConfig.X, 
-        PhantomRushStatusConfig.Y, 
-        PhantomRushStatusConfig.Width, 
-        PhantomRushStatusConfig.Height, 
-        PhantomRushStatusConfig.BorderRadius, 
-        10, 
-        0.91
-    )
-    
-    -- Draw shadow
-    Render.Shadow(
-        Vec2(PhantomRushStatusConfig.X, PhantomRushStatusConfig.Y),
-        Vec2(PhantomRushStatusConfig.X + PhantomRushStatusConfig.Width, PhantomRushStatusConfig.Y + PhantomRushStatusConfig.Height),
-        Color(0, 0, 0, 255),
-        24,
-        PhantomRushStatusConfig.BorderRadius,
-        Enum.DrawFlags.ShadowCutOutShapeBackground,
-        Vec2(1, 1)
-    )
-    
-    -- Draw background
-    Render.FilledRect(
-        Vec2(PhantomRushStatusConfig.X, PhantomRushStatusConfig.Y),
-        Vec2(PhantomRushStatusConfig.X + PhantomRushStatusConfig.Width, PhantomRushStatusConfig.Y + PhantomRushStatusConfig.Height),
-        finalBgColor,
-        PhantomRushStatusConfig.BorderRadius
-    )
-    
-    -- Draw icon
-    local icon = rushBlockEnabled and "\u{f05e}" or "\u{f204}"
-    local iconSize = Render.TextSize(Config.Fonts.Main, 14, icon)
-    local iconX = PhantomRushStatusConfig.X + 8
-    local iconY = PhantomRushStatusConfig.Y + (PhantomRushStatusConfig.Height - iconSize.y) / 2
-    
-    Render.Text(Config.Fonts.Main, 14, icon, Vec2(iconX + 1, iconY + 1), Color(0, 0, 0, 80))
-    Render.Text(Config.Fonts.Main, 14, icon, Vec2(iconX, iconY), statusColor)
-    
-    -- Draw separator
-    local separatorX = iconX + iconSize.x + 8
-    local separatorY = PhantomRushStatusConfig.Y + 4
-    local separatorHeight = PhantomRushStatusConfig.Height - 8
-    
-    Render.FilledRect(
-        Vec2(separatorX, separatorY),
-        Vec2(separatorX + 2, separatorY + separatorHeight),
-        Color(15, 15, 15, 70)
-    )
-    
-    -- Draw status text
-    local textSize = Render.TextSize(Config.Fonts.Main, 12, statusText)
-    local textX = separatorX + 8
-    local textY = PhantomRushStatusConfig.Y + (PhantomRushStatusConfig.Height - textSize.y) / 2
-    
-    Render.Text(Config.Fonts.Main, 12, statusText, Vec2(textX + 1, textY + 1), Color(0, 0, 0, 80))
-    Render.Text(Config.Fonts.Main, 12, statusText, Vec2(textX, textY), statusColor)
-    
-    -- Show block duration when enabled and active
-    if rushBlockEnabled and IsPhantomRushActive(myHero) then
-        local now = GameRules.GetGameTime()
-        local timeRemaining = math.max(0, phantomRushBlockUntil - now)
-        if timeRemaining > 0 then
-            local durationText = string.format("%.2fs", timeRemaining)
-            local durationSize = Render.TextSize(Config.Fonts.Main, 10, durationText)
-            local durationX = PhantomRushStatusConfig.X + PhantomRushStatusConfig.Width - durationSize.x - 8
-            local durationY = PhantomRushStatusConfig.Y + (PhantomRushStatusConfig.Height - durationSize.y) / 2
-            
-            Render.Text(Config.Fonts.Main, 10, durationText, Vec2(durationX + 1, durationY + 1), Color(0, 0, 0, 80))
-            Render.Text(Config.Fonts.Main, 10, durationText, Vec2(durationX, durationY), Color(255, 255, 120, 255))
-        end
-    end
-end
 
 local function IsIllusionUnderPlayerOverride(illusion)
     local id = Entity.GetIndex(illusion)
@@ -513,460 +277,18 @@ local function IsPLIllusion(npc)
     return NPC.IsIllusion(npc) and NPC.GetUnitName(npc) == "npc_dota_hero_phantom_lancer"
 end
 
--- Check if illusion is from Manta Style
-local function IsMantaIllusion(npc)
-    if not npc or not NPC.IsIllusion(npc) then return false end
-    -- Manta illusions don't have PL-specific illusion modifiers
-    return not NPC.HasModifier(npc, "modifier_phantom_lancer_juxtapose_illusion") and
-           not NPC.HasModifier(npc, "modifier_phantom_lancer_doppelwalk_illusion")
-end
-
-local function IsPhantomRushActive(hero)
-    if not hero or not Entity.IsNPC(hero) then return false end
-    return NPC.HasModifier(hero, "modifier_phantom_lancer_phantom_edge_boost")
-end
-
-local function CheckAndBlockPhantomRush()
-    -- Check if toggle key is pressed to enable/disable
-    local toggleKey = UI.PhantomRushHelper.ToggleKey
-    if toggleKey and toggleKey:IsPressed() then
-        local currentState = UI.PhantomRushHelper.Enabled:Get()
-        UI.PhantomRushHelper.Enabled:Set(not currentState)
-    end
-    
-    if not UI.PhantomRushHelper.Enabled:Get() then
-        return
-    end
-    
-    local myHero = Heroes.GetLocal()
-    if not myHero then return end
-    
-    local now = GameRules.GetGameTime()
-    
-    if IsPhantomRushActive(myHero) then
-        if now > phantomRushBlockUntil then
-            local blockDuration = UI.PhantomRushHelper.BlockDuration:Get() / 1000
-            phantomRushBlockUntil = now + blockDuration
-        end
-    end
-end
-
 function GetAllPLIllusions()
     local myHero = Heroes.GetLocal()
     if not myHero then return {} end
     local playerId = Hero.GetPlayerID(myHero)
     local allNPCs = NPCs.GetAll()
     local result = {}
-    local controlManta = UI and UI.Settings and UI.Settings.ControlMantaIllusions and UI.Settings.ControlMantaIllusions:Get() or false
-    
     for _, npc in ipairs(allNPCs) do
         if IsPLIllusion(npc) and Entity.IsControllableByPlayer(npc, playerId) and Entity.IsAlive(npc) then
-            -- If ControlMantaIllusions is disabled, exclude Manta illusions
-            if not controlManta and IsMantaIllusion(npc) then
-                -- Skip this Manta illusion
-            else
-                table.insert(result, npc)
-            end
+            table.insert(result, npc)
         end
     end
     return result
-end
-
--- Get Bloodthorn ability
-local function GetBloodthornAbility(hero)
-    if not hero then return nil end
-    for i = 0, 8 do
-        local item = NPC.GetItemByIndex(hero, i)
-        if item and Ability.GetName(item) == "item_bloodthorn" then
-            return item
-        end
-    end
-    return nil
-end
-
--- Get Orchid ability
-local function GetOrchidAbility(hero)
-    if not hero then return nil end
-    for i = 0, 8 do
-        local item = NPC.GetItemByIndex(hero, i)
-        if item and Ability.GetName(item) == "item_orchid" then
-            return item
-        end
-    end
-    return nil
-end
-
--- Get Manta Style ability from enemy
-local function GetMantaAbility(enemy)
-    if not enemy then return nil end
-    for i = 0, 8 do
-        local item = NPC.GetItemByIndex(enemy, i)
-        if item and Ability.GetName(item) == "item_manta" then
-            return item
-        end
-    end
-    return nil
-end
-
--- Check if enemy has active Manta illusions
-local function HasActiveMantaIllusions(enemy)
-    if not enemy then return false end
-    local enemyPos = Entity.GetAbsOrigin(enemy)
-    local allNPCs = NPCs.GetAll()
-    local enemyName = NPC.GetUnitName(enemy)
-    
-    for _, npc in ipairs(allNPCs) do
-        if NPC.IsIllusion(npc) and Entity.IsAlive(npc) and 
-           NPC.GetUnitName(npc) == enemyName and
-           Entity.GetTeamNum(npc) == Entity.GetTeamNum(enemy) then
-            local illuPos = Entity.GetAbsOrigin(npc)
-            local dist = (enemyPos - illuPos):Length()
-            if dist < 800 then
-                return true
-            end
-        end
-    end
-    return false
-end
-
--- Count nearby illusions of an enemy
-local function CountNearbyIllusions(enemy, radius)
-    if not enemy then return 0 end
-    local enemyPos = Entity.GetAbsOrigin(enemy)
-    local enemyName = NPC.GetUnitName(enemy)
-    local count = 0
-    local allNPCs = NPCs.GetAll()
-    
-    for _, npc in ipairs(allNPCs) do
-        if NPC.IsIllusion(npc) and Entity.IsAlive(npc) and
-           NPC.GetUnitName(npc) == enemyName and
-           Entity.GetTeamNum(npc) == Entity.GetTeamNum(enemy) then
-            local illuPos = Entity.GetAbsOrigin(npc)
-            local dist = (enemyPos - illuPos):Length()
-            if dist < (radius or 800) then
-                count = count + 1
-            end
-        end
-    end
-    return count
-end
-
--- Check if Manta is on cooldown
-local function IsMantaOnCooldown(enemy)
-    local manta = GetMantaAbility(enemy)
-    if not manta then return true end
-    
-    -- Try different possible API function names
-    local cd = 0
-    if Ability.GetCooldown then
-        cd = Ability.GetCooldown(manta)
-    elseif Ability.GetCooldownLength then
-        cd = Ability.GetCooldownLength(manta)
-    elseif Ability.IsReady then
-        -- If manta is ready, cooldown is 0
-        if Ability.IsReady(manta) then
-            return false
-        else
-            return true
-        end
-    end
-    
-    local buffer = UI.Bloodthorn.CooldownBuffer:Get()
-    return cd > buffer
-end
-
--- Detect if enemy just used Manta
-local function DetectMantaUse(enemy)
-    if not enemy then return false end
-    local enemyId = Entity.GetIndex(enemy)
-    local now = os.clock()
-    
-    local currentCount = CountNearbyIllusions(enemy, 800)
-    local previousCount = bloodthornState.illusionCountBefore[enemyId] or 0
-    
-    bloodthornState.illusionCountBefore[enemyId] = currentCount
-    
-    if currentCount > previousCount and currentCount >= 2 then
-        bloodthornState.mantaCheckStart[enemyId] = now
-        Log.Write(string.format("[Bloodthorn] Detected Manta use on enemy %d (illusions: %d -> %d)", 
-            enemyId, previousCount, currentCount))
-        return true
-    end
-    
-    return false
-end
-
--- Check if we should wait before casting Bloodthorn/Orchid
-local function ShouldWaitForManta(enemy)
-    if not UI.Bloodthorn.MantaCheck:Get() then 
-        return false 
-    end
-    
-    local manta = GetMantaAbility(enemy)
-    if not manta then 
-        return false 
-    end
-    
-    -- If Manta is on cooldown, it's safe to cast
-    if IsMantaOnCooldown(enemy) then
-        return false
-    end
-    
-    -- Manta is READY (off cooldown) - this is the danger zone!
-    -- If enemy already has illusions, they just used it, wait for them to fade
-    if HasActiveMantaIllusions(enemy) then
-        Log.Write("[Bloodthorn/Orchid] Enemy has active Manta illusions, waiting for them to fade...")
-        return true
-    end
-    
-    -- Manta is ready and no illusions = enemy could pop it any second
-    -- We should WAIT unless they're very low HP (desperate situation)
-    local enemyHP = Entity.GetHealth(enemy)
-    local enemyMaxHP = Entity.GetMaxHealth(enemy)
-    local hpPercent = (enemyHP / enemyMaxHP) * 100
-    
-    -- Only cast if enemy is critically low (below 30% HP) - too risky otherwise
-    if hpPercent < 30 then
-        Log.Write(string.format("[Bloodthorn/Orchid] Enemy HP very low (%.0f%%), taking the risk!", hpPercent))
-        return false
-    end
-    
-    -- Otherwise, wait for them to use Manta first
-    Log.Write("[Bloodthorn/Orchid] Enemy has Manta ready, waiting for them to use it first...")
-    return true
-end
-
--- Find best Bloodthorn target
-local function FindBloodthornTarget(myHero)
-    if not myHero then return nil end
-    local range = UI.Bloodthorn.Range:Get()
-    local hpThreshold = UI.Bloodthorn.HPThreshold:Get() / 100
-    local enemies = Entity.GetHeroesInRadius(myHero, range, Enum.TeamType.TEAM_ENEMY, true) or {}
-    local validTargets = {}
-    for _, enemy in ipairs(enemies) do
-        if Entity.IsAlive(enemy) and not Entity.IsDormant(enemy) then
-            DetectMantaUse(enemy)
-            local enemyHP = Entity.GetHealth(enemy)
-            local enemyMaxHP = Entity.GetMaxHealth(enemy)
-            local hpPercent = enemyHP / enemyMaxHP
-            if hpPercent <= hpThreshold then
-                if not NPC.HasModifier(enemy, "modifier_item_bloodthorn_debuff") and
-                   not NPC.HasModifier(enemy, "modifier_teleporting") and
-                   not NPC.HasState(enemy, Enum.ModifierState.MODIFIER_STATE_MAGIC_IMMUNE) and
-                   not NPC.HasState(enemy, Enum.ModifierState.MODIFIER_STATE_INVULNERABLE) then
-                    if ShouldWaitForManta(enemy) then
-                        goto continue_bloodthorn
-                    end
-                    local score = 0
-                    score = score + (1 - hpPercent) * 100
-                    local manta = GetMantaAbility(enemy)
-                    if manta and IsMantaOnCooldown(enemy) then
-                        score = score + 50
-                    end
-                    if not HasActiveMantaIllusions(enemy) then
-                        score = score + 30
-                    end
-                    table.insert(validTargets, {enemy = enemy, score = score})
-                end
-            end
-        end
-        ::continue_bloodthorn::
-    end
-    if #validTargets == 0 then return nil end
-    table.sort(validTargets, function(a, b) return a.score > b.score end)
-    return validTargets[1].enemy
-end
-
--- Auto cast Bloodthorn
-function AutoBloodthorn()
-    if not UI.Bloodthorn.Enabled:Get() then return end
-    local myHero = Heroes.GetLocal()
-    if not myHero then return end
-    
-    -- Don't interrupt Phantom Rush
-    if IsPhantomRushActive(myHero) then return end
-    
-    local bloodthorn = GetBloodthornAbility(myHero)
-    if not bloodthorn then return end
-    if not Ability.IsReady(bloodthorn) or not Ability.IsCastable(bloodthorn, NPC.GetMana(myHero)) then
-        return
-    end
-    local now = os.clock()
-    if now - bloodthornState.lastCastTime < 0.5 then return end
-    local target = FindBloodthornTarget(myHero)
-    if not target then return end
-    local myPos = Entity.GetAbsOrigin(myHero)
-    local targetPos = Entity.GetAbsOrigin(target)
-    local dist = (myPos - targetPos):Length()
-    local castRange = Ability.GetCastRange(bloodthorn)
-    if dist <= castRange then
-        local enemyId = Entity.GetIndex(target)
-        local manta = GetMantaAbility(target)
-        local mantaStatus = ""
-        if manta then
-            if IsMantaOnCooldown(target) then
-                mantaStatus = " (Manta on CD)"
-            else
-                mantaStatus = " (Manta ready!)"
-            end
-        end
-        Log.Write(string.format("[Bloodthorn] Casting on enemy %d (HP: %.0f%%)%s",
-            enemyId,
-            (Entity.GetHealth(target) / Entity.GetMaxHealth(target)) * 100,
-            mantaStatus))
-        Ability.CastTarget(bloodthorn, target)
-        bloodthornState.lastCastTime = now
-        bloodthornState.lastTargetId = enemyId
-    end
-end
-
--- Auto cast Orchid (uses same settings as Bloodthorn)
-function AutoOrchid()
-    if not UI.Bloodthorn.Enabled:Get() then return end
-    local myHero = Heroes.GetLocal()
-    if not myHero then return end
-    
-    -- Don't interrupt Phantom Rush
-    if IsPhantomRushActive(myHero) then return end
-    
-    local orchid = GetOrchidAbility(myHero)
-    if not orchid then return end
-    if not Ability.IsReady(orchid) or not Ability.IsCastable(orchid, NPC.GetMana(myHero)) then
-        return
-    end
-    local now = os.clock()
-    if now - bloodthornState.lastCastTime < 0.5 then return end
-    local range = UI.Bloodthorn.Range:Get()
-    local hpThreshold = UI.Bloodthorn.HPThreshold:Get() / 100
-    local enemies = Entity.GetHeroesInRadius(myHero, range, Enum.TeamType.TEAM_ENEMY, true) or {}
-    local validTargets = {}
-    for _, enemy in ipairs(enemies) do
-        if Entity.IsAlive(enemy) and not Entity.IsDormant(enemy) then
-            DetectMantaUse(enemy)
-            local enemyHP = Entity.GetHealth(enemy)
-            local enemyMaxHP = Entity.GetMaxHealth(enemy)
-            local hpPercent = enemyHP / enemyMaxHP
-            if hpPercent <= hpThreshold then
-                if not NPC.HasModifier(enemy, "modifier_item_orchid_malevolence_debuff") and
-                   not NPC.HasModifier(enemy, "modifier_item_bloodthorn_debuff") and
-                   not NPC.HasModifier(enemy, "modifier_teleporting") and
-                   not NPC.HasState(enemy, Enum.ModifierState.MODIFIER_STATE_MAGIC_IMMUNE) and
-                   not NPC.HasState(enemy, Enum.ModifierState.MODIFIER_STATE_INVULNERABLE) then
-                    if ShouldWaitForManta(enemy) then
-                        goto continue_orchid
-                    end
-                    local score = 0
-                    score = score + (1 - hpPercent) * 100
-                    local manta = GetMantaAbility(enemy)
-                    if manta and IsMantaOnCooldown(enemy) then
-                        score = score + 50
-                    end
-                    if not HasActiveMantaIllusions(enemy) then
-                        score = score + 30
-                    end
-                    table.insert(validTargets, {enemy = enemy, score = score})
-                end
-            end
-        end
-        ::continue_orchid::
-    end
-    if #validTargets == 0 then return end
-    table.sort(validTargets, function(a, b) return a.score > b.score end)
-    local target = validTargets[1].enemy
-    if not target then return end
-    local myPos = Entity.GetAbsOrigin(myHero)
-    local targetPos = Entity.GetAbsOrigin(target)
-    local dist = (myPos - targetPos):Length()
-    local castRange = Ability.GetCastRange(orchid)
-    if dist <= castRange then
-        local enemyId = Entity.GetIndex(target)
-        local manta = GetMantaAbility(target)
-        local mantaStatus = ""
-        if manta then
-            if IsMantaOnCooldown(target) then
-                mantaStatus = " (Manta on CD)"
-            else
-                mantaStatus = " (Manta ready!)"
-            end
-        end
-        Log.Write(string.format("[Orchid] Casting on enemy %d (HP: %.0f%%)%s",
-            enemyId,
-            (Entity.GetHealth(target) / Entity.GetMaxHealth(target)) * 100,
-            mantaStatus))
-        Ability.CastTarget(orchid, target)
-        bloodthornState.lastCastTime = now
-        bloodthornState.lastTargetId = enemyId
-    end
-end
-
--- Get Juxtapose ability (PL's ultimate - Shard adds active component)
-local function GetShardAbility(hero)
-    if not hero then return nil end
-    
-    -- Juxtapose is PL's ultimate
-    for i = 0, 23 do
-        local ability = NPC.GetAbilityByIndex(hero, i)
-        if ability and Ability.GetName(ability) == "phantom_lancer_juxtapose" then
-            return ability
-        end
-    end
-    return nil
-end
-
--- Auto use Shard (Juxtapose active) for invisibility
-function AutoShard()
-    if not UI.Shard.Enabled:Get() then return end
-    
-    local myHero = Heroes.GetLocal()
-    if not myHero then return end
-    
-    -- Check if already invisible from shard active
-    if NPC.HasModifier(myHero, "modifier_phantom_lancer_juxtapose_invis") then
-        return
-    end
-    
-    local juxtapose = GetShardAbility(myHero)
-    if not juxtapose then return end
-    
-    -- Check if hero has Aghanim's Shard (which enables the active)
-    -- The shard modifier is usually "modifier_item_aghanims_shard"
-    if not NPC.HasModifier(myHero, "modifier_item_aghanims_shard") then
-        return
-    end
-    
-    -- Check if ability is ready and castable
-    if not Ability.IsReady(juxtapose) then return end
-    
-    -- Check mana cost
-    local manaCost = Ability.GetManaCost(juxtapose)
-    if manaCost and manaCost > 0 then
-        if not Ability.IsCastable(juxtapose, NPC.GetMana(myHero)) then
-            return
-        end
-    end
-    
-    local now = os.clock()
-    local cooldown = UI.Shard.Cooldown:Get()
-    if now - shardState.lastCastTime < cooldown then return end
-    
-    -- Check HP threshold
-    local hp = Entity.GetHealth(myHero)
-    local maxHP = Entity.GetMaxHealth(myHero)
-    local hpPercent = (hp / maxHP) * 100
-    local threshold = UI.Shard.HPThreshold:Get()
-    
-    if hpPercent > threshold then return end
-    
-    -- Check if enemies are nearby
-    local minEnemies = UI.Shard.MinEnemies:Get()
-    local enemies = Entity.GetHeroesInRadius(myHero, 1200, Enum.TeamType.TEAM_ENEMY, true) or {}
-    
-    if #enemies < minEnemies then return end
-    
-    -- Cast Juxtapose (Shard active)
-    Log.Write(string.format("[Shard] Using Juxtapose active! HP: %.0f%%, Enemies nearby: %d", hpPercent, #enemies))
-    Ability.CastNoTarget(juxtapose)
-    shardState.lastCastTime = now
 end
 
 local function FindNearestEnemy(npc, radius)
@@ -988,7 +310,7 @@ local function GetAttackRange(npc)
     return (NPC.GetAttackRange and NPC.GetAttackRange(npc) or 150) + (NPC.GetAttackRangeBonus and NPC.GetAttackRangeBonus(npc) or 0)
 end
 
--- retreat distance helper
+-- retreat distance aka отход
 local function CalcRD(startDist, minTriggerDist, minRetreat, maxRetreat)
     if startDist >= minTriggerDist then
         return minRetreat
@@ -1264,7 +586,7 @@ end
 
 local lastDoppelCastTime = 0
 
--- could be checked inline in the function; extracted for readability
+-- можно просто проверять на самом деле в функции, я вынес потому что мне так удобнее
 local function IsDoppelgangerCasting()
     local myHero = Heroes.GetLocal()
     if not myHero then return false end
@@ -1572,7 +894,7 @@ function AutoFarmCreepsForIllusions()
 
     
     
-    -- extra filtering for units still waiting to spawn
+    -- ваще пиздец, те кто знают iswaiting
     local i = 1
     while i <= #availableCreeps do
         local creep = availableCreeps[i]
@@ -1623,14 +945,14 @@ function AutoFarmCreepsForIllusions()
             local now = os.clock()
             if not farmLastOrder[id] or (now - farmLastOrder[id] > math.random(7,12)/10) then
 
-                -- auto-lasthit logic may still need tuning.
+                -- насчет автоластхита, я не эксперт в таком, поэтому может быть wrong.
                 local creepHP = Entity.GetHealth(nearestCreep)
                 local creepMaxHP = Entity.GetMaxHealth(nearestCreep)
                 local hpPercent = creepHP / creepMaxHP
                 
                 local illusionDamage = NPC.GetTrueDamage(illusion)
                 local armorValue = NPC.GetPhysicalArmorValue(nearestCreep) or 0
-                local armorReduction = 1 - (armorValue / (armorValue + 20)) -- armor reduction approximation
+                local armorReduction = 1 - (armorValue / (armorValue + 20)) --  редакшн +-
                 local actualDamage = illusionDamage * armorReduction
                 
                 local otherIllusionsDamage = 0
@@ -1744,7 +1066,7 @@ end
 chaseRole = chaseRole or {}
 chaseLastOrder = chaseLastOrder or {}
 
--- FIXME: this function is still buggy and not fully correct.
+-- FIXME: на самом деле очень баганная функция, и ее реализация не совсем корректна
 function AutoChaseEnemyForIllusions()
     if not UI.AutoChase.Enabled:Get() then
         for _, illusion in ipairs(GetAllPLIllusions()) do
@@ -2140,9 +1462,9 @@ splitRole = splitRole or {}
 splitTarget = splitTarget or {}
 splitLastOrder = splitLastOrder or {}
 
--- Wrote this function after a long break; implementation works but could be cleaner.
--- FIXME: it should split only the amount set in UI,
--- but currently if there are more illusions than the set max, it sends the full remainder.
+-- Писал эту функцию после большого перерыва, и фикса других функций. Мне тут не очень нравиться ее реализация, но она корректная.
+-- FIXME: Вообще она должна отвести столько иллюзий сколько указанно в уи элементе, но работает так что если иллюзий больше чем указанно в
+-- максимальном количестве, то он будет отводить весь остаток.
 function AutoSplitAttackForIllusions()
     if not UI.AutoSplit.Enabled:Get() then
         for _, illusion in ipairs(GetAllPLIllusions()) do
@@ -2313,7 +1635,7 @@ function AutoSplitAttackForIllusions()
                 local targetId = Entity.GetIndex(potentialTarget)
                 if targetId ~= enemyId and Entity.IsAlive(potentialTarget) and not Entity.IsDormant(potentialTarget) then
                     local currentCount = targetCount[targetId] or 0
-                    -- simple heuristic scoring for target redistribution
+                    -- ахахах, ну закос под умную систему =))
                     local distance = (Entity.GetAbsOrigin(enemy) - Entity.GetAbsOrigin(potentialTarget)):Length()
 
                     local score = 1000 - currentCount * 100 - distance * 0.1
@@ -2421,13 +1743,13 @@ local function DrawIllusionStatus()
                 local remain = math.max(0, playerOverrideUntil[id] - os.clock())
                 text = string.format("Override: %.1fs", remain)
             elseif IsIllusionWbaiting(id) then
-                text = "W-Bait"
+                text = "W-Байт"
             elseif IsIllusionBaiting(id) then
-                text = "Bait"
+                text = "Байт"
             elseif runawayRole and runawayRole[id] then
                 text = "RunAway"
             elseif bodyblockRole and bodyblockRole[id] then
-                -- Check whether forced bodyblock is active
+                -- Проверяем, активен ли принудительный бодиблок
                 local forceBodyblockKey = UI.AutoBodyblock.ForceBodyblockKey:Get()
                 local isForceBodyblockPressed = forceBodyblockKey ~= Enum.ButtonCode.KEY_NONE and Input.IsKeyDown(forceBodyblockKey)
                 if isForceBodyblockPressed then
@@ -2442,10 +1764,10 @@ local function DrawIllusionStatus()
             elseif chaseRole and chaseRole[id] then
                 text = "Chase"
             elseif farmRole and farmRole[id] then
-                text = "Farming creeps"
+                text = "Фармит крипов"
             elseif state == "retreating" then
                 text = string.format(
-                    "Illusion: retreating (start: %d, retreat: %d, path: %d, attempts: %d)",
+                    "Иллюзия: отходит (старт: %d, отход: %d, путь: %d, попыток: %d)",
                     math.floor(illusionStates[id].startDist or 0),
                     math.floor(illusionStates[id].retreatDist or 0),
                     math.floor(illusionStates[id].pathLen or 0),
@@ -2454,11 +1776,11 @@ local function DrawIllusionStatus()
             elseif state == "attacking" then
                 local distToEnemy = illusionStates[id].distToEnemy or 0
                 if distToEnemy > 450 then distToEnemy = 450 end
-                text = string.format("Illusion: attacking enemy (dist: %d)", math.floor(distToEnemy))
+                text = string.format("Иллюзия: атакует врага (дист: %d)", math.floor(distToEnemy))
             elseif state == "done" then
-                text = "Illusion: ready"
+                text = "Иллюзия: готово"
             else
-                text = "Illusion: waiting for enemy"
+                text = "Иллюзия: ожидает врага"
             end
 
             if illusionStates[id] and illusionStates[id].status then
@@ -2467,7 +1789,7 @@ local function DrawIllusionStatus()
             local textSize = Render.TextSize(Config.Fonts.Main, 16, text)
             local x = screenPos.x - textSize.x / 2
             local y = screenPos.y - 60
-            -- Using manual shadow draw here by preference.
+            -- Я знаю про DROPSHADOW флаг, но мне привычнее так. шатаут никсварапи =)
             Render.Text(Config.Fonts.Main, 16, text, Vec2(x + 1, y + 1), Config.Colors.Text.Shadow)
             Render.Text(Config.Fonts.Main, 16, text, Vec2(x, y), Config.Colors.Text.Primary)
         end
@@ -2539,30 +1861,30 @@ local PanelColors = {
     HeaderText = Color(255, 255, 255, 255),
     Shadow = Color(0, 0, 0, 100),
     StatusColors = {
-        ["W-Bait"] = Color(255, 220, 0, 255),
-    ["Bait"] = Color(255, 140, 0, 255),
-    ["Bodyblock"] = Color(80, 120, 255, 255),
-    ["Force Bodyblock"] = Color(255, 80, 80, 255),
-    ["Priority"] = Color(255, 255, 120, 255),
-    ["Split"] = Color(120, 255, 255, 255),
-    ["Chase"] = Color(255, 120, 255, 255),
-    ["Farm"] = Color(120, 200, 255, 255),
-    ["Follow"] = Color(120, 255, 120, 255),
-    ["Retreating"] = Color(80, 180, 255, 255),
-    ["Attacking"] = Color(255, 80, 80, 255),
-    ["Done"] = Color(180, 180, 180, 255),
-    ["Idle"] = Color(150, 150, 150, 255),
-    ["RunAway"] = Color(255, 200, 120, 255)
+        ["W-Байт"] = Color(255, 220, 0, 255),
+        ["Байт"] = Color(255, 140, 0, 255),
+        ["Bodyblock"] = Color(80, 120, 255, 255),
+        ["Force Bodyblock"] = Color(255, 80, 80, 255),
+        ["Priority"] = Color(255, 255, 120, 255),
+        ["Split"] = Color(120, 255, 255, 255),
+        ["Chase"] = Color(255, 120, 255, 255),
+        ["Farm"] = Color(120, 200, 255, 255),
+        ["Follow"] = Color(120, 255, 120, 255),
+        ["Retreating"] = Color(80, 180, 255, 255),
+        ["Attacking"] = Color(255, 80, 80, 255),
+        ["Done"] = Color(180, 180, 180, 255),
+        ["Idle"] = Color(150, 150, 150, 255),
+        ["RunAway"] = Color(255, 200, 120, 255)
     }
 }
 
 local function GetIllusionStatus(id)
     if IsIllusionWbaiting(id) then
-        return "W", "W-Bait"
+        return "W", "W-Байт"
     elseif IsIllusionBaiting(id) then
-        return "B", "Bait"
+        return "B", "Байт"
     elseif bodyblockRole and bodyblockRole[id] then
-        -- Check whether forced bodyblock is active
+        -- Проверяем, активен ли принудительный бодиблок
         local forceBodyblockKey = UI.AutoBodyblock.ForceBodyblockKey:Get()
         local isForceBodyblockPressed = forceBodyblockKey ~= Enum.ButtonCode.KEY_NONE and Input.IsKeyDown(forceBodyblockKey)
         if isForceBodyblockPressed then
@@ -2591,7 +1913,7 @@ local function GetIllusionStatus(id)
     elseif runawayRole and runawayRole[id] then
         return "RA", "RunAway"
     end
-    -- optional; idle is not rendered anyway.
+    -- необязательно, идл все равно не рендерим.
     return "I", "Idle"
 end
 
@@ -2641,7 +1963,7 @@ local function DrawBlurredBackground(x, y, width, height, radius, blurStrength, 
     )
 end
 
--- Panel styling inspired by the Arc script, with a tweaked look.
+-- Закос под панель, как в скрипте на арка но более swag
 local function DrawModernPanel()
     local illusions = GetAllPLIllusions()
 
@@ -2928,20 +2250,16 @@ end
 local isInitialized = false
 
 PLTools.OnUpdate = function()
+
     if not IsPhantomLancer() then return end
 
     if not isInitialized then
         LoadPanelPosition()
-        LoadPhantomRushStatusPosition()  
         isInitialized = true
     end
 
     CleanupPlayerOverride()
-    CheckAndBlockPhantomRush()
     AutoRunAwayIllusionsV2()
-    AutoShard()
-    AutoBloodthorn()
-    AutoOrchid()
 
     AutoPhantomRushForIllusions()
     AutoBaitIllusions()
@@ -2954,23 +2272,16 @@ PLTools.OnUpdate = function()
 end
 
 PLTools.OnDraw = function()
+
     if not IsPhantomLancer() then return end
 
     DrawIllusionStatus()
     DrawModernPanel()
-    DrawPhantomRushStatus()  
 end
 
 PLTools.OnPrepareUnitOrders = function(data)
     if not IsPhantomLancer() then return true end
     if not data then return true end
-
-    if UI.PhantomRushHelper.Enabled:Get() then
-        local now = GameRules.GetGameTime()
-        if now < phantomRushBlockUntil then
-            return false
-        end
-    end
 
     local localPlayer = Players.GetLocal and Players.GetLocal() or nil
     local lpId = localPlayer and Player.GetPlayerID(localPlayer) or -1

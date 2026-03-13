@@ -16,7 +16,7 @@ ui.only_zeus     = menu:Switch("Only for Zeus", true)
 ui.only_zeus:Icon("\u{f1ce}")
 
 local info_group = Menu.Create("Heroes", "Hero List", "Zeus", "Heavenly Jump Helper", "Information")
-info_group:Label("Больше скриптов - discord.gg/glitch-realm")
+info_group:Label("More scripts - discord.gg/glitch-realm")
 
 -- Constants 
 local ABILITY_NAME = "zuus_heavenly_jump"

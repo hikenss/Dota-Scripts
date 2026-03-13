@@ -187,8 +187,8 @@ local State = {
     panelPos = {x = panelX, y = panelY},
     isDragging = false,
     dragOffset = {x = 0, y = 0},
-    -- иногда крашилась дота, мои шизометоды все же слишком сложные
-    -- чтука троттлинга
+    -- Dota occasionally crashed here; keep simple throttling
+    -- throttling utility
     btNextCheck = 0,
     btCheckInterval = 0.12,
     panelAnimation = {
@@ -240,7 +240,7 @@ local function GetAllSpiders()
 end
 
 
--- сортировка пауков по оставшемуся времени
+-- sort spiders by remaining lifetime
 local function GetSpiderRemainingLife(spider)
     if not spider then return 0 end
     local mods = NPC.GetModifiers(spider)
@@ -297,7 +297,7 @@ local function GetCampData()
     return CachedCampData
 end
 
--- отход относительно тимы
+-- retreat offset relative to team side
 local function GetCampPullOffset(myHero, campPos)
     local team = myHero and Entity.GetTeamNum(myHero) or nil
 
@@ -315,7 +315,7 @@ local function GetCampPullOffset(myHero, campPos)
     return Vector(campPos.x + dir.x * offset, campPos.y + dir.y * offset, campPos.z)
 end
 
--- фильтрация кемпов по вырбанным
+-- filter camps by selected side
 local function GetPreferredCampPos(myHero)
     local sides = UI.AutoStackSides:ListEnabled()
     local team = myHero and Entity.GetTeamNum(myHero) or nil
@@ -403,8 +403,8 @@ local function GetClockData()
     return realNow, clockNow, totalSec, curMin, curSec, startTime
 end
 
--- мой шизометод блокировки пауков, все равно когда выбераешь пауков всех, то они двигаются
--- поэтому ниже еще и фильитруем из выбора.
+-- custom spider lock approach; selection can still move all spiders
+-- so we additionally filter selection below.
 local lastStackMinute = -1
 -- pop/push
 local function PushBypassFor(unit, identifier)
@@ -527,7 +527,7 @@ local function AutoStack()
                     false,
                     "auto_stack_wait"
                 )
-                -- впринципе вронг, но работает
+                -- not ideal, but works
                 LockSpider(spider, GameRules.GetGameTime() + math.max(attackSec - curSec + 2, 5))
                 table.insert(State.stackAssignments, {spider = spider, camp = campCenter, wait = waitPos})
             end
@@ -614,8 +614,8 @@ local function AutoSoulRing()
     end
 end
 
--- сбор паучков в точке, хотел сделать что бы шли нормально прям в 1 точку, условно против псиблейдов
--- но чет так стало лень фиксить это, поэтому просто ориг метод.
+-- gather spiders into one point; original method kept for stability
+-- TODO: improve movement convergence later.
 local function GatherSpiders()
     if not UI.GatherKey:IsPressed() then return end
 
@@ -671,7 +671,7 @@ local function GatherSpiders()
     end
 end
 
--- джанглирование o8o8o_o8o8o
+-- spider juggling
 local function JuggleSpiders()
     local alwaysSpread = UI.AlwaysSpread:Get()
     local keyPressed = UI.JuggleKey:IsPressed()
@@ -750,7 +750,7 @@ local function JuggleSpiders()
 end
 
 
--- ахахаххааххаха бляяя ну я незнаю, по факту это правильный метод, но как он работает это прост ROFL
+-- this method is technically correct, despite odd behavior
 local GetEffectivePDMG
 local GetEffectiveMDMG
 local OneTickHitToTarget
@@ -766,7 +766,7 @@ local function SmartBloodthorn()
         return 
     end
 
-    -- тротлинг 8_8 иначе дотка иногда крашит
+    -- throttling to avoid occasional crashes
     local now = GameRules.GetGameTime()
     if now < (State.btNextCheck or 0) then return end
     State.btNextCheck = now + (State.btCheckInterval or 0.12)
@@ -880,10 +880,10 @@ local PanelColors = {
     HeaderText = Color(255, 255, 255, 255),
     Shadow = Color(0, 0, 0, 100),
     StatusColors = {
-        ["Сбор"] = Color(120, 255, 120, 255),
-        ["Развод"] = Color(255, 120, 255, 255),
-        ["Атака"] = Color(255, 80, 80, 255),
-        ["Ожидание"] = Color(180, 180, 180, 255),
+        ["Collect"] = Color(120, 255, 120, 255),
+        ["Split"] = Color(255, 120, 255, 255),
+        ["Attack"] = Color(255, 80, 80, 255),
+        ["Idle"] = Color(180, 180, 180, 255),
         ["HP"] = Color(120, 200, 255, 255)
     }
 }
@@ -1013,7 +1013,7 @@ local function DrawIconCell(x, y, alpha, imageHandle, scale, rounding)
     end
 end
 
--- расчет урона
+-- damage calculation
 GetEffectivePDMG = function(attacker, target)
     if not attacker or not target then return 0 end
     local minD = NPC.GetTrueDamage(attacker) or 0
@@ -1046,7 +1046,7 @@ OneTickHitToTarget = function(spiders, target)
     return sum, inRange
 end
 
--- FIXME: похорошему нужно написать функцию, которая будет отслеживать тычки пауков и давать в тик тычки бладторн.
+-- FIXME: ideally add a function to track spider hits and apply Bloodthorn tick-by-tick.
 
 local function GetSpiderStatus(spiders)
     spiders = spiders or GetAllSpiders()

@@ -17,7 +17,7 @@ local Dodger = {}
 
 
 -- Menu configuration
-local menudodger = Menu.Create("General", "Main", "Dodger+")
+local menudodger = Menu.Create("General", "Main", "Aurora Dodger")
 menudodger:Icon("\u{f0e7}") -- lightning bolt icon
 if not menudodger then
     print("Advanced Dodger couldn't find original dodger. Script deactivated")
@@ -446,6 +446,187 @@ ui.allies_abilities:ToolTip("Select abilities to use on allies affected by the s
 
 
 
+--[[═══════════════════════════════════════════════════════════════════════════
+
+    CONFIG PERSISTENCE - Save/Load all settings
+
+═══════════════════════════════════════════════════════════════════════════]]
+
+local CONFIG_NAME = "AuroraDodgerPlus"
+
+local SAVE_ALLIES_LIST = {
+    "modifier_legion_commander_duel", "modifier_axe_berserkers_call",
+    "modifier_enigma_black_hole_pull", "modifier_faceless_void_chronosphere_freeze",
+    "modifier_bane_fiends_grip", "modifier_pudge_dismember",
+    "modifier_necrolyte_reapers_scythe", "modifier_windrunner_shackle_shot",
+    "modifier_treant_overgrowth", "modifier_doom_bringer_doom",
+    "modifier_juggernaut_omnislash", "modifier_winter_wyvern_winters_curse"
+}
+
+local DODGE_LIST = {
+    "modifier_antimage_blink", "modifier_queenofpain_blink",
+    "modifier_item_blink_cooldown", "modifier_faceless_void_time_walk",
+    "modifier_mirana_leap", "modifier_slark_pounce",
+    "modifier_phantom_assassin_phantom_strike", "modifier_riki_blink_strike",
+    "modifier_zuus_heavenly_jump", "modifier_ember_spirit_fire_remnant",
+    "modifier_magnataur_skewer_movement", "modifier_earth_spirit_rolling_boulder_caster",
+    "modifier_storm_spirit_ball_lightning"
+}
+
+local ALLY_ITEMS_LIST = {
+    "item_wind_waker", "item_glimmer_cape", "item_lotus_orb",
+    "item_ethereal_blade", "item_shadow_amulet", "item_force_staff", "item_hurricane_pike"
+}
+
+local ALLY_ABILITIES_LIST = {
+    "phoenix_supernova", "centaur_mount", "marci_rebound", "earth_spirit_geomagnetic_grip"
+}
+
+local DEFENSIVE_LIST_A = {
+    "antimage_blink", "bounty_hunter_wind_walk", "clinkz_skeleton_walk",
+    "crystal_maiden_crystal_clone", "earth_spirit_rolling_boulder",
+    "ember_spirit_fire_remnant", "enchantress_bunny_hop",
+    "faceless_void_time_walk", "furion_sprout", "invoker_ghost_walk",
+    "juggernaut_blade_fury", "lifestealer_rage", "magnataur_skewer",
+    "marci_rebound", "mirana_leap", "monkey_king_tree_dance",
+    "morphling_waveform", "naga_siren_mirror_image", "nyx_assassin_vendetta",
+    "omniknight_martyr"
+}
+
+local DEFENSIVE_LIST_B = {
+    "pangolier_swashbuckle", "phantom_lancer_doppelwalk", "phoenix_icarus_dive",
+    "puck_phase_shift", "queenofpain_blink", "rattletrap_power_cogs",
+    "rattletrap_hookshot", "riki_tricks_of_the_trade", "sandking_sand_storm",
+    "slark_pounce", "slark_shadow_dance", "sniper_concussive_grenade",
+    "spirit_breaker_charge_of_darkness", "storm_spirit_ball_lightning",
+    "templar_assassin_refraction", "shredder_timber_chain", "tusk_ice_shards",
+    "void_spirit_dissimilate", "void_spirit_astral_step", "weaver_shukuchi",
+    "zuus_heavenly_jump"
+}
+
+local function SaveBitmask(key, widget, list)
+    local mask = 0
+    for i, name in ipairs(list) do
+        if widget:Get(name) then mask = mask + (2 ^ (i - 1)) end
+    end
+    Config.WriteInt(CONFIG_NAME, key, mask)
+end
+
+local function LoadBitmask(key, widget, list)
+    local mask = Config.ReadInt(CONFIG_NAME, key, -1)
+    if mask < 0 then return end
+    for i, name in ipairs(list) do
+        local bit = 2 ^ (i - 1)
+        widget:SetValue(name, (mask % (bit * 2)) >= bit)
+    end
+end
+
+local function DodgerSaveConfig()
+    if not Config then return end
+    pcall(function() Config.WriteInt(CONFIG_NAME, "enabled", ui.enabled:Get() and 1 or 0) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "bypass_protection", ui.bypass_protection:Get() and 1 or 0) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "deathward_dodge", ui.deathward_dodge:Get() and 1 or 0) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "blink_dodge", ui.blink_dodge:Get() and 1 or 0) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "escape_item_blink", ui.escape_item_blink:Get() and 1 or 0) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "escape_item_forcestaff", ui.escape_item_forcestaff:Get() and 1 or 0) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "start_dodge", ui.start_dodge:Get() and 1 or 0) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "no_escape_near_allies", ui.no_escape_near_allies:Get() and 1 or 0) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "no_escape_ally_range", ui.no_escape_ally_range:Get()) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "allies_support", ui.allies_support:Get() and 1 or 0) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "save_ally_on_initiation", ui.save_ally_on_initiation:Get() and 1 or 0) end)
+    pcall(function() Config.WriteInt(CONFIG_NAME, "use_euls_offensive", ui.use_euls_offensive:Get() and 1 or 0) end)
+    pcall(function() SaveBitmask("skills_save_allies", ui.enemy_skills_save_allies, SAVE_ALLIES_LIST) end)
+    pcall(function() SaveBitmask("skills_dodge", ui.enemy_skills_dodge, DODGE_LIST) end)
+    pcall(function() SaveBitmask("ally_items", ui.allies_items, ALLY_ITEMS_LIST) end)
+    pcall(function() SaveBitmask("ally_abilities", ui.allies_abilities, ALLY_ABILITIES_LIST) end)
+    pcall(function() SaveBitmask("def_abilities_a", ui.defensive_abilities, DEFENSIVE_LIST_A) end)
+    pcall(function() SaveBitmask("def_abilities_b", ui.defensive_abilities, DEFENSIVE_LIST_B) end)
+end
+
+local function DodgerLoadConfig()
+    if not Config then return end
+    pcall(function()
+        local v = Config.ReadInt(CONFIG_NAME, "enabled", -1)
+        if v >= 0 then ui.enabled:Set(v == 1) end
+    end)
+    pcall(function()
+        local v = Config.ReadInt(CONFIG_NAME, "bypass_protection", -1)
+        if v >= 0 then ui.bypass_protection:Set(v == 1) end
+    end)
+    pcall(function()
+        local v = Config.ReadInt(CONFIG_NAME, "deathward_dodge", -1)
+        if v >= 0 then ui.deathward_dodge:Set(v == 1) end
+    end)
+    pcall(function()
+        local v = Config.ReadInt(CONFIG_NAME, "blink_dodge", -1)
+        if v >= 0 then ui.blink_dodge:Set(v == 1) end
+    end)
+    pcall(function()
+        local v = Config.ReadInt(CONFIG_NAME, "escape_item_blink", -1)
+        if v >= 0 then ui.escape_item_blink:Set(v == 1) end
+    end)
+    pcall(function()
+        local v = Config.ReadInt(CONFIG_NAME, "escape_item_forcestaff", -1)
+        if v >= 0 then ui.escape_item_forcestaff:Set(v == 1) end
+    end)
+    pcall(function()
+        local v = Config.ReadInt(CONFIG_NAME, "start_dodge", -1)
+        if v >= 0 then ui.start_dodge:Set(v == 1) end
+    end)
+    pcall(function()
+        local v = Config.ReadInt(CONFIG_NAME, "no_escape_near_allies", -1)
+        if v >= 0 then ui.no_escape_near_allies:Set(v == 1) end
+    end)
+    pcall(function()
+        local v = Config.ReadInt(CONFIG_NAME, "no_escape_ally_range", -1)
+        if v >= 0 then ui.no_escape_ally_range:Set(v) end
+    end)
+    pcall(function()
+        local v = Config.ReadInt(CONFIG_NAME, "allies_support", -1)
+        if v >= 0 then ui.allies_support:Set(v == 1) end
+    end)
+    pcall(function()
+        local v = Config.ReadInt(CONFIG_NAME, "save_ally_on_initiation", -1)
+        if v >= 0 then ui.save_ally_on_initiation:Set(v == 1) end
+    end)
+    pcall(function()
+        local v = Config.ReadInt(CONFIG_NAME, "use_euls_offensive", -1)
+        if v >= 0 then ui.use_euls_offensive:Set(v == 1) end
+    end)
+    pcall(function() LoadBitmask("skills_save_allies", ui.enemy_skills_save_allies, SAVE_ALLIES_LIST) end)
+    pcall(function() LoadBitmask("skills_dodge", ui.enemy_skills_dodge, DODGE_LIST) end)
+    pcall(function() LoadBitmask("ally_items", ui.allies_items, ALLY_ITEMS_LIST) end)
+    pcall(function() LoadBitmask("ally_abilities", ui.allies_abilities, ALLY_ABILITIES_LIST) end)
+    pcall(function() LoadBitmask("def_abilities_a", ui.defensive_abilities, DEFENSIVE_LIST_A) end)
+    pcall(function() LoadBitmask("def_abilities_b", ui.defensive_abilities, DEFENSIVE_LIST_B) end)
+end
+
+local function DodgerSetupCallbacks()
+    local function cb() DodgerSaveConfig() end
+    ui.enabled:SetCallback(cb)
+    ui.bypass_protection:SetCallback(cb)
+    ui.deathward_dodge:SetCallback(cb)
+    ui.blink_dodge:SetCallback(cb)
+    ui.escape_item_blink:SetCallback(cb)
+    ui.escape_item_forcestaff:SetCallback(cb)
+    ui.start_dodge:SetCallback(cb)
+    ui.no_escape_near_allies:SetCallback(cb)
+    ui.no_escape_ally_range:SetCallback(cb)
+    ui.allies_support:SetCallback(cb)
+    ui.save_ally_on_initiation:SetCallback(cb)
+    ui.use_euls_offensive:SetCallback(cb)
+    ui.enemy_skills_save_allies:SetCallback(cb)
+    ui.enemy_skills_dodge:SetCallback(cb)
+    ui.allies_items:SetCallback(cb)
+    ui.allies_abilities:SetCallback(cb)
+    ui.defensive_abilities:SetCallback(cb)
+end
+
+DodgerLoadConfig()
+DodgerSetupCallbacks()
+
+
+
 -- Tabela para rastrear posições anteriores dos inimigos
 
 local enemyPositions = {}
@@ -828,13 +1009,40 @@ local function UpdateEnemyPositions(myHero)
                 -- 1. Estava longe (>700) e reapareceu MUITO perto (<500)
                 -- 2. OU estava razoável longe (>500) e reapareceu MUITO perto (<300)
                 -- 3. OU o salto foi grande (>400 de diferença) e acabou perto
+                -- NOVO: Verifica tempo no fog — se teve tempo de andar até aqui, não é blink
                 if not justTeleported and lastVisibleDist then
                     local distDifference = (lastVisibleDist - distanceToMe)
-                    -- Blink de fog: qualquer mudança significativa + proximidade
-                    if (lastVisibleDist > 700 and distanceToMe < 500 and distDifference > 300) or
-                       (lastVisibleDist > 500 and distanceToMe < 300 and distDifference > 250) or
-                       (distDifference > 400 and distanceToMe < 600) then
-                        jumpFromFogBlink = true
+                    local fogDuration = currentTime - (prevData and prevData.lastSeen or currentTime)
+                    -- Velocidade máx ~550 u/s (com boots+passiva). Se o tempo no fog
+                    -- é suficiente para cobrir distDifference andando, NÃO é blink.
+                    local maxWalkDist = fogDuration * 550
+                    local couldHaveWalked = (distDifference <= maxWalkDist) or (fogDuration > 3.0)
+                    if not couldHaveWalked then
+                        if (lastVisibleDist > 700 and distanceToMe < 500 and distDifference > 300) or
+                           (lastVisibleDist > 500 and distanceToMe < 300 and distDifference > 250) or
+                           (distDifference > 400 and distanceToMe < 600) then
+                            -- Confirmar: inimigo tem blink/ability de mobilidade em cooldown?
+                            local hasMobilityCD = false
+                            local mods = NPC.GetModifiers(enemy)
+                            if mods then
+                                for _, m in pairs(mods) do
+                                    local mn = Modifier.GetName(m)
+                                    if mn and (mn == "modifier_item_blink_cooldown"
+                                            or mn == "modifier_item_overwhelming_blink_cooldown"
+                                            or mn == "modifier_item_swift_blink_cooldown"
+                                            or mn == "modifier_item_arcane_blink_cooldown"
+                                            or mn == "modifier_antimage_blink_illusion_cooldown") then
+                                        hasMobilityCD = true
+                                        break
+                                    end
+                                end
+                            end
+                            -- Só marca blink de fog se: teve pouco tempo no fog (< 1.5s)
+                            -- OU o inimigo tem item/habilidade de blink em cooldown
+                            if fogDuration < 1.5 or hasMobilityCD then
+                                jumpFromFogBlink = true
+                            end
+                        end
                     end
                 end
                 enemyPositions[enemyID].dormant = false
@@ -3634,19 +3842,61 @@ local function UseEscapeAbilities(myHero)
 
         if activeSkill then
 
-            -- Encontra a unidade aliada mais próxima (heróis, creeps lane, unidades controladas)
+            -- Encontra o inimigo mais próximo para calcular direção de escape
 
-            local bestTarget = nil
+            local nearestEnemyPos = nil
 
-            local minDist = 700  -- Range do Rebound
+            local nearestEnemyDist = 9999
+
+            for _, enemy in pairs(Heroes.GetAll()) do
+
+                if enemy and Entity.IsAlive(enemy) and not Entity.IsSameTeam(myHero, enemy) then
+
+                    local d = (Entity.GetAbsOrigin(enemy) - myPos):Length()
+
+                    if d < nearestEnemyDist then
+
+                        nearestEnemyDist = d
+
+                        nearestEnemyPos = Entity.GetAbsOrigin(enemy)
+
+                    end
+
+                end
+
+            end
+
+            
+
+            -- Direção de escape: oposta ao inimigo mais próximo
+
+            local escapeDir
+
+            if nearestEnemyPos then
+
+                escapeDir = (myPos - nearestEnemyPos):Normalized()
+
+            else
+
+                local forward = Entity.GetRotation(myHero):GetForward()
+
+                escapeDir = Vector(-forward.x, -forward.y, 0)
+
+            end
+
+            
+
+            -- Encontra unidades aliadas no range e escolhe a melhor posicionada para escapar
+
+            local candidates = {}
+
+            local REBOUND_RANGE = 700
 
             
 
             -- 1. Procura heróis aliados
 
-            local allHeroes = Heroes.GetAll()
-
-            for _, ally in pairs(allHeroes) do
+            for _, ally in pairs(Heroes.GetAll()) do
 
                 if ally and Entity.IsAlive(ally) and Entity.IsSameTeam(myHero, ally) and ally ~= myHero then
 
@@ -3654,11 +3904,9 @@ local function UseEscapeAbilities(myHero)
 
                         local dist = (Entity.GetAbsOrigin(ally) - myPos):Length()
 
-                        if dist < minDist then
+                        if dist < REBOUND_RANGE then
 
-                            minDist = dist
-
-                            bestTarget = ally
+                            table.insert(candidates, ally)
 
                         end
 
@@ -3672,9 +3920,7 @@ local function UseEscapeAbilities(myHero)
 
             -- 2. Procura creeps e unidades controladas
 
-            local allNPCs = NPCs.GetAll()
-
-            for _, npc in pairs(allNPCs) do
+            for _, npc in pairs(NPCs.GetAll()) do
 
                 if npc and Entity.IsAlive(npc) and Entity.IsSameTeam(myHero, npc) and npc ~= myHero then
 
@@ -3682,29 +3928,17 @@ local function UseEscapeAbilities(myHero)
 
                     local isValidTarget = false
 
-                    
-
-                    -- Lane creeps (melee e ranged)
-
                     if string.find(npcName, "creep_goodguys") or string.find(npcName, "creep_badguys") then
 
                         isValidTarget = true
 
                     end
 
-                    
-
-                    -- Catapultas
-
                     if string.find(npcName, "siege") then
 
                         isValidTarget = true
 
                     end
-
-                    
-
-                    -- Unidades controladas (verifica se tem o mesmo controlador)
 
                     local npcOwner = Entity.GetOwner(npc)
 
@@ -3716,27 +3950,19 @@ local function UseEscapeAbilities(myHero)
 
                     end
 
-                    
-
-                    -- Unidades dominadas (Helm of Dominator)
-
                     if NPC.HasModifier(npc, "modifier_dominated") then
 
                         isValidTarget = true
 
                     end
 
-                    
-
                     if isValidTarget then
 
                         local dist = (Entity.GetAbsOrigin(npc) - myPos):Length()
 
-                        if dist < minDist then
+                        if dist < REBOUND_RANGE then
 
-                            minDist = dist
-
-                            bestTarget = npc
+                            table.insert(candidates, npc)
 
                         end
 
@@ -3748,49 +3974,57 @@ local function UseEscapeAbilities(myHero)
 
             
 
+            -- Escolhe o melhor alvo: prefere unidade que esteja entre Marci e inimigo
+
+            -- (pular sobre ela me leva para longe do inimigo)
+
+            local bestTarget = nil
+
+            local bestScore = -9999
+
+            for _, unit in ipairs(candidates) do
+
+                local unitPos = Entity.GetAbsOrigin(unit)
+
+                local toUnit = (unitPos - myPos):Normalized()
+
+                -- Dot negativo = unidade está na direção do inimigo (bom, pulo sobre ela me leva para trás)
+
+                -- Dot positivo = unidade está na direção de escape (ruim, pulo me leva pro inimigo)
+
+                -- Queremos unidades entre nós e o inimigo (dot negativo com escapeDir)
+
+                local dot = -(toUnit.x * escapeDir.x + toUnit.y * escapeDir.y)
+
+                local dist = (unitPos - myPos):Length()
+
+                local score = dot * 100 - dist * 0.1
+
+                if score > bestScore then
+
+                    bestScore = score
+
+                    bestTarget = unit
+
+                end
+
+            end
+
+            
+
             -- Se encontrou um alvo válido, usa o Rebound
 
             if bestTarget then
 
-                -- Calcula direção para a FONTE (posição fixa e segura)
-
                 local targetPos = Entity.GetAbsOrigin(bestTarget)
-
-                local myTeam = Entity.GetTeamNum(myHero)
-
-                local fountainPos
-
-                
-
-                -- Radiant (team 2) ou Dire (team 3)
-
-                if myTeam == 2 then
-
-                    fountainPos = Vector(-7000, -6500, 384)  -- Fonte Radiant
-
-                else
-
-                    fountainPos = Vector(7000, 6500, 384)    -- Fonte Dire
-
-                end
-
-                
-
-                -- Direção do alvo para a fonte
-
-                local escapeDir = (fountainPos - targetPos):Normalized()
 
                 local escapePos = targetPos + escapeDir * 800
 
                 
 
-                -- Primeiro faz o cast no alvo
-
                 Ability.CastTarget(activeSkill, bestTarget)
 
                 
-
-                -- Marca pendente para enviar a direção para a fonte
 
                 marciReboundPending = {
 
@@ -3800,7 +4034,9 @@ local function UseEscapeAbilities(myHero)
 
                     escapePos = escapePos,
 
-                    targetUnit = bestTarget
+                    targetUnit = bestTarget,
+
+                    skill = activeSkill
 
                 }
 
@@ -5490,13 +5726,26 @@ local function UseEulsOnEnemy(myHero, ally)
     
 
     -- MÉTODO 2: Verifica outras skills pelo modifier no inimigo (método antigo)
-
     -- Apenas para skills canalizadas que fazem sentido interromper
-
+    -- IMPORTANTE: Verificar se o modifier foi aplicado por um INIMIGO, não por um ALIADO
     local enabledEnemySkills = ui.enemy_skills_save_allies:ListEnabled()
-
+    
+    -- Mapear modifier → herói que aplica, para evitar usar Eul's quando aliado aplicou
+    local modifierToHero = {
+        ["modifier_axe_berserkers_call"] = "npc_dota_hero_axe",
+        ["modifier_legion_commander_duel"] = "npc_dota_hero_legion_commander",
+        ["modifier_enigma_black_hole_pull"] = "npc_dota_hero_enigma",
+        ["modifier_faceless_void_chronosphere_freeze"] = "npc_dota_hero_faceless_void",
+        ["modifier_bane_fiends_grip"] = "npc_dota_hero_bane",
+        ["modifier_pudge_dismember"] = "npc_dota_hero_pudge",
+        ["modifier_winter_wyvern_winters_curse"] = "npc_dota_hero_winter_wyvern",
+        ["modifier_treant_overgrowth"] = "npc_dota_hero_treant",
+        ["modifier_doom_bringer_doom"] = "npc_dota_hero_doom_bringer",
+        ["modifier_necrolyte_reapers_scythe"] = "npc_dota_hero_necrolyte",
+        ["modifier_windrunner_shackle_shot"] = "npc_dota_hero_windrunner",
+    }
+    
     local enemies = Heroes.GetAll()
-
     for _, enemy in pairs(enemies) do
 
         if enemy and Entity.IsAlive(enemy) and not Entity.IsSameTeam(myHero, enemy) then
@@ -5533,6 +5782,24 @@ local function UseEulsOnEnemy(myHero, ally)
 
                             end
 
+                        end
+                        
+                        -- NOVO: Verifica se o modifier foi aplicado por um ALIADO
+                        -- Se existe um herói aliado do mesmo tipo perto, é provável que ele aplicou
+                        if not skipThisSkill and modifierToHero[modName] then
+                            local casterHeroName = modifierToHero[modName]
+                            for _, h in pairs(Heroes.GetAll()) do
+                                if h and Entity.IsAlive(h) and Entity.IsSameTeam(myHero, h) then
+                                    if NPC.GetUnitName(h) == casterHeroName then
+                                        local allyDist = (Entity.GetAbsOrigin(h) - enemyPos):Length()
+                                        -- Se aliado do mesmo tipo está perto (range 900), foi ele que aplicou
+                                        if allyDist <= 900 then
+                                            skipThisSkill = true
+                                            break
+                                        end
+                                    end
+                                end
+                            end
                         end
 
                         
@@ -5725,7 +5992,67 @@ local function UseAllyDefensiveAbilities(myHero, alliesInCC)
 
                 if activeSkill then
 
+                    -- Direção de escape: oposta ao inimigo que causou o CC
+
+                    local ccCaster = data.ccModifier and Modifier.GetCaster(data.ccModifier) or nil
+
+                    local escapeDir
+
+                    if ccCaster and Entity.IsAlive(ccCaster) then
+
+                        escapeDir = (bestAllyPos - Entity.GetAbsOrigin(ccCaster)):Normalized()
+
+                    else
+
+                        -- Fallback: oposta ao inimigo mais proximo do aliado
+
+                        local nearDist = 9999
+
+                        local nearEnemyPos = nil
+
+                        for _, e in pairs(Heroes.GetAll()) do
+
+                            if e and Entity.IsAlive(e) and not Entity.IsSameTeam(myHero, e) then
+
+                                local ed = (Entity.GetAbsOrigin(e) - bestAllyPos):Length()
+
+                                if ed < nearDist then nearDist = ed; nearEnemyPos = Entity.GetAbsOrigin(e) end
+
+                            end
+
+                        end
+
+                        if nearEnemyPos then
+
+                            escapeDir = (bestAllyPos - nearEnemyPos):Normalized()
+
+                        else
+
+                            escapeDir = (bestAllyPos - myPos):Normalized()
+
+                        end
+
+                    end
+
+                    local escapePos = bestAllyPos + escapeDir * 800
+
+                    
+
                     Ability.CastTarget(activeSkill, bestAlly)
+
+                    marciReboundPending = {
+
+                        active = true,
+
+                        time = GameRules.GetGameTime(),
+
+                        escapePos = escapePos,
+
+                        targetUnit = bestAlly,
+
+                        skill = activeSkill
+
+                    }
 
                     return true
 
@@ -6106,45 +6433,45 @@ local function UseDefensiveItemsOnAllies(myHero, targetHero)
 
             if activeSkill then
 
-                -- Calcula direção para a FONTE (posição fixa e segura)
+                -- Direção: oposta ao inimigo mais próximo do aliado
 
-                local targetPos = Entity.GetAbsOrigin(targetHero)
+                local nearDist = 9999
 
-                local myTeam = Entity.GetTeamNum(myHero)
+                local nearEnemyPos = nil
 
-                local fountainPos
+                for _, e in pairs(Heroes.GetAll()) do
 
-                
+                    if e and Entity.IsAlive(e) and not Entity.IsSameTeam(myHero, e) then
 
-                -- Radiant (team 2) ou Dire (team 3)
+                        local ed = (Entity.GetAbsOrigin(e) - allyPos):Length()
 
-                if myTeam == 2 then
+                        if ed < nearDist then nearDist = ed; nearEnemyPos = Entity.GetAbsOrigin(e) end
 
-                    fountainPos = Vector(-7000, -6500, 384)  -- Fonte Radiant
-
-                else
-
-                    fountainPos = Vector(7000, 6500, 384)    -- Fonte Dire
+                    end
 
                 end
 
+                local escapeDir
+
+                if nearEnemyPos then
+
+                    escapeDir = (allyPos - nearEnemyPos):Normalized()
+
+                else
+
+                    local forward = Entity.GetRotation(targetHero):GetForward()
+
+                    escapeDir = Vector(-forward.x, -forward.y, 0)
+
+                end
+
+                local escapePos = allyPos + escapeDir * 800
+
                 
-
-                -- Direção do aliado para a fonte
-
-                local escapeDir = (fountainPos - targetPos):Normalized()
-
-                local escapePos = targetPos + escapeDir * 800
-
-                
-
-                -- Faz o cast no aliado
 
                 Ability.CastTarget(activeSkill, targetHero)
 
                 
-
-                -- Marca pendente para enviar a direção para a fonte
 
                 marciReboundPending = {
 
@@ -6154,7 +6481,9 @@ local function UseDefensiveItemsOnAllies(myHero, targetHero)
 
                     escapePos = escapePos,
 
-                    targetUnit = targetHero
+                    targetUnit = targetHero,
+
+                    skill = activeSkill
 
                 }
 
@@ -6646,31 +6975,27 @@ function Dodger.OnUpdate()
 
             local elapsed = currentTime - marciReboundPending.time
 
-            -- Timeout após 0.5 segundos
+            -- Timeout após 0.8 segundos
 
-            if elapsed >= 0.5 then
+            if elapsed >= 0.8 then
 
                 marciReboundPending.active = false
 
-            -- Envia a DIREÇÃO após delay
+            -- Envia a DIREÇÃO via VECTOR_TARGET_POSITION após delay
 
-            elseif elapsed >= 0.1 then
+            elseif elapsed >= 0.07 then
 
                 local escapePos = marciReboundPending.escapePos
 
+                local activeSkill = marciReboundPending.skill
+
                 
 
-                if escapePos then
-
-                    -- Pega a skill ativa
+                if not activeSkill then
 
                     local rebound = NPC.GetAbility(myHero, "marci_rebound")
 
                     local companionRun = NPC.GetAbility(myHero, "marci_companion_run")
-
-                    
-
-                    local activeSkill = nil
 
                     if companionRun and not Ability.IsHidden(companionRun) then
 
@@ -6682,11 +7007,29 @@ function Dodger.OnUpdate()
 
                     end
 
-                    
+                end
 
-                    if activeSkill then
+                
 
-                        Ability.CastPosition(activeSkill, escapePos)
+                if escapePos and activeSkill then
+
+                    local localPlayer = Players.GetLocal()
+
+                    if localPlayer then
+
+                        Player.PrepareUnitOrders(localPlayer,
+
+                            Enum.UnitOrder.DOTA_UNIT_ORDER_VECTOR_TARGET_POSITION,
+
+                            nil,
+
+                            escapePos,
+
+                            activeSkill,
+
+                            Enum.PlayerOrderIssuer.DOTA_ORDER_ISSUER_HERO_ONLY,
+
+                            myHero)
 
                     end
 
@@ -7122,15 +7465,15 @@ function Dodger.OnUpdate()
     -- Detectar quando inimigo está iniciando em aliado próximo (PA blink, etc)
 
     if ui.allies_support:Get() and ui.save_ally_on_initiation:Get() then
-
-        local allyInDanger = DetectEnemyInitiationOnAlly(myHero)
-
-        if allyInDanger then
-
-            UseItemsToSaveAlly(myHero, allyInDanger)
-
+        local currentTime = GameRules.GetGameTime()
+        if currentTime >= lastAllySaveTime + 2.0 then
+            local allyInDanger = DetectEnemyInitiationOnAlly(myHero)
+            if allyInDanger then
+                if UseItemsToSaveAlly(myHero, allyInDanger) then
+                    lastAllySaveTime = currentTime
+                end
+            end
         end
-
     end
 
     
@@ -7402,93 +7745,93 @@ function Dodger.OnUpdate()
                             break
 
                         elseif modName == "modifier_bane_fiends_grip" then
-
-                            hasUrgentCC = true
-
-                            ccModifier = mod
-
-                            ccName = "grip"
-
+                            -- Verifica se Bane é INIMIGO
+                            local caster = Modifier.GetCaster(mod)
+                            if caster and not Entity.IsSameTeam(caster, ally) then
+                                hasUrgentCC = true
+                                ccModifier = mod
+                                ccName = "grip"
+                            end
                             break
 
                         elseif modName == "modifier_pudge_dismember" then
-
-                            hasUrgentCC = true
-
-                            ccModifier = mod
-
-                            ccName = "dismember"
-
+                            -- Verifica se Pudge é INIMIGO
+                            local caster = Modifier.GetCaster(mod)
+                            if caster and not Entity.IsSameTeam(caster, ally) then
+                                hasUrgentCC = true
+                                ccModifier = mod
+                                ccName = "dismember"
+                            end
                             break
 
                         elseif string.find(modName, "winters_curse") then
-
-                            hasUrgentCC = true
-
-                            ccModifier = mod
-
-                            ccName = "curse"
-
+                            -- Verifica se Winter Wyvern é INIMIGO
+                            local caster = Modifier.GetCaster(mod)
+                            if caster and not Entity.IsSameTeam(caster, ally) then
+                                hasUrgentCC = true
+                                ccModifier = mod
+                                ccName = "curse"
+                            end
                             break
 
                         elseif modName == "modifier_batrider_flaming_lasso" then
-
-                            hasUrgentCC = true
-
-                            ccModifier = mod
-
-                            ccName = "lasso"
-
+                            -- Verifica se Batrider é INIMIGO
+                            local caster = Modifier.GetCaster(mod)
+                            if caster and not Entity.IsSameTeam(caster, ally) then
+                                hasUrgentCC = true
+                                ccModifier = mod
+                                ccName = "lasso"
+                            end
                             break
 
                         elseif modName == "modifier_treant_overgrowth" then
-
-                            hasUrgentCC = true
-
-                            ccModifier = mod
-
-                            ccName = "overgrowth"
-
+                            -- Verifica se Treant é INIMIGO
+                            local caster = Modifier.GetCaster(mod)
+                            if caster and not Entity.IsSameTeam(caster, ally) then
+                                hasUrgentCC = true
+                                ccModifier = mod
+                                ccName = "overgrowth"
+                            end
                             break
 
                         elseif modName == "modifier_necrolyte_reapers_scythe" then
-
-                            hasUrgentCC = true
-
-                            ccModifier = mod
-
-                            ccName = "scythe"
-
+                            -- Verifica se Necrophos é INIMIGO
+                            local caster = Modifier.GetCaster(mod)
+                            if caster and not Entity.IsSameTeam(caster, ally) then
+                                hasUrgentCC = true
+                                ccModifier = mod
+                                ccName = "scythe"
+                            end
                             break
 
                         elseif modName == "modifier_windrunner_shackle_shot" then
-
-                            hasUrgentCC = true
-
-                            ccModifier = mod
-
-                            ccName = "shackle"
-
+                            -- Verifica se Windranger é INIMIGA
+                            local caster = Modifier.GetCaster(mod)
+                            if caster and not Entity.IsSameTeam(caster, ally) then
+                                hasUrgentCC = true
+                                ccModifier = mod
+                                ccName = "shackle"
+                            end
                             break
 
                         elseif modName == "modifier_doom_bringer_doom" then
-
-                            hasUrgentCC = true
-
-                            ccModifier = mod
-
-                            ccName = "doom"
-
+                            -- Verifica se Doom é INIMIGO
+                            local caster = Modifier.GetCaster(mod)
+                            if caster and not Entity.IsSameTeam(caster, ally) then
+                                hasUrgentCC = true
+                                ccModifier = mod
+                                ccName = "doom"
+                            end
                             break
 
                         elseif string.find(modName, "omnislash") then
-
-                            hasUrgentCC = true
-
-                            ccModifier = mod
-
-                            ccName = "omnislash"
-
+                            -- Verifica se Juggernaut é INIMIGO
+                            local caster = Modifier.GetCaster(mod)
+                            if caster and not Entity.IsSameTeam(caster, ally) then
+                                hasUrgentCC = true
+                                ccModifier = mod
+                                ccName = "omnislash"
+                            end
                             break
 
                         end
@@ -7589,10 +7932,10 @@ function Dodger.OnUpdate()
 
                     -- Se o aliado está em perigo, tenta usar itens/habilidades defensivas
 
-                    if allyInDanger then
-
-                        UseDefensiveItemsOnAllies(myHero, ally)
-
+                    if allyInDanger and currentTime >= lastAllySaveTime + 2.0 then
+                        if UseDefensiveItemsOnAllies(myHero, ally) then
+                            lastAllySaveTime = currentTime
+                        end
                     end
 
                 end

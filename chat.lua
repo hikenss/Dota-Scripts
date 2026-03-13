@@ -1,20 +1,20 @@
 local script = {}
 
--- [[ 1. МЕНЮ ]]
+-- [[ 1. MENU ]]
 local tab = Menu.Create("Scripts", "Utility", "Auto Chat")
 tab:Icon("\u{f075}")
 local group = tab:Create("Main"):Create("Settings")
 
 local ui_enable = group:Switch("Ativar script", true)
 
--- Поля ввода текста. В ТВОЕМ API ЭТО НАЗЫВАЕТСЯ :Input (файл 6Menu-CMenuGroup.txt) 
+-- Text input fields. In your API this is called :Input (file 6Menu-CMenuGroup.txt)
 local ui_kill_msg = group:Input("Mensagem ao matar", "Senta aí")
 local ui_kill_all = group:Switch("Matar: no chat geral", true)
 
 local ui_death_msg = group:Input("Mensagem ao morrer", "Lag")
 local ui_death_all = group:Switch("Morte: no chat geral", true)
 
--- [[ 2. ЛОГICA ]]
+-- [[ 2. LOGIC ]]
 local lastKillTime = 0
 local lastDeathTime = 0
 local cooldown = 1.0 -- Cooldown de 1 segundo entre mensagens

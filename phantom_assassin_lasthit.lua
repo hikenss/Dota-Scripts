@@ -331,7 +331,7 @@ local function FindLowestHPEnemy(hero, dagger_range)
     
     for _, enemy in pairs(enemies) do
         local enemy_hp = Entity.GetHealth(enemy)
-        local enemy_name = NPC.GetUnitName(enemy) or "неизвестный"
+        local enemy_name = NPC.GetUnitName(enemy) or "unknown"
         local is_hero = NPC.IsHero(enemy)
         
         if debug_active then
@@ -532,7 +532,7 @@ local function CleanupIgnoredCreeps()
     end
 end
 
--- Поиск лучшей цели для ластхита
+-- Find best last-hit target
 local function FindBestLastHitTarget(hero, dagger, dagger_damage, dagger_range)
     local hero_pos = Entity.GetAbsOrigin(hero)
     local valid_creeps = GetValidCreeps(hero)
@@ -561,7 +561,7 @@ local function FindBestLastHitTarget(hero, dagger, dagger_damage, dagger_range)
         local creep_type = GetCreepType(creep)
         local creep_priority = GetCreepPriority(creep)
         
-        -- Проверяем, не игнорируется ли этот крип
+        -- Check if this creep is ignored
         if IsCreepIgnored(creep) then
             if debug_active then
                 local creep_name = NPC.GetUnitName(creep) or "desconhecido"
@@ -916,7 +916,7 @@ local function ClearAllParticles()
     end
     range_particles = {}
     
-    -- Очистка партиклей целей
+    -- Cleanup target particles
     for _, particle in pairs(target_particles) do
         if particle then
             Particle.Destroy(particle)
@@ -948,11 +948,11 @@ local function CreateRangeParticle(position, radius, color, key)
         Particle.SetControlPoint(particle, 3, Vector(1, 0, 0))
         
         if debug_active then
-            print("Партикль радиуса успешно создан: " .. key)
+            print("Range particle created successfully: " .. key)
         end
     else
         if debug_active then
-            print("ОШИБКА создания партикля радиуса: " .. key)
+            print("ERROR creating range particle: " .. key)
         end
     end
     
@@ -978,11 +978,11 @@ local function CreateTargetParticle(position, radius, color, key)
         Particle.SetControlPoint(particle, 3, Vector(1, 0, 0))
         
         if debug_active then
-            print("Партикль цели успешно создан: " .. key)
+            print("Target particle created successfully: " .. key)
         end
     else
         if debug_active then
-            print("ОШИБКА создания партикля цели: " .. key)
+            print("ERROR creating target particle: " .. key)
         end
     end
     
@@ -996,14 +996,14 @@ local function DrawDebugInfo()
         return 
     end
     
-    -- Получаем героя в начале функции
+    -- Get hero at function start
     local hero = GetMyHero()
     if not IsPhantomAssassin(hero) or not Entity.IsAlive(hero) then
         ClearAllParticles()
         return
     end
     
-    -- Визуализация работает только при зажатом бинде
+    -- Visualization works only while hotkey is held
     local show_visuals = ui.hotkey:IsDown()
     if show_visuals then
         local dagger = GetStiflingDagger(hero)
@@ -1013,12 +1013,12 @@ local function DrawDebugInfo()
             local min_range = ui.min_range:Get()
             local current_time = GameRules.GetGameTime()
             
-            -- Обновляем партикли радиусов только при изменении настроек или значений
+            -- Update radius particles only when settings/values change
             local range_settings_changed = (dagger_range ~= last_dagger_range) or (min_range ~= last_min_range)
             
             if ui.draw_range:Get() then
                 if range_settings_changed or not range_particles["max_range"] then
-                    -- Очищаем старые партикли радиусов
+                    -- Clear old radius particles
                     for key, particle in pairs(range_particles) do
                         if particle then
                             Particle.Destroy(particle)
@@ -1028,13 +1028,13 @@ local function DrawDebugInfo()
                     
                     local range_color = ui.range_color:Get()
                     
-                    -- Создаем новые партикли радиусов
+                    -- Create new radius particles
                     local max_range_particle = CreateRangeParticle(hero_pos, dagger_range, range_color, "max_range")
                     if max_range_particle then
                         range_particles["max_range"] = max_range_particle
                     end
                     
-                    -- Создаем партикль минимальной дальности только если она > 0
+                    -- Create min-range particle only if > 0
                     if min_range > 0 then
                         local min_range_color = Color(255, 100, 100, range_color.a)
                         local min_range_particle = CreateRangeParticle(hero_pos, min_range, min_range_color, "min_range")
@@ -1046,7 +1046,7 @@ local function DrawDebugInfo()
                     last_dagger_range = dagger_range
                     last_min_range = min_range
                 else
-                    -- Обновляем позицию существующих партиклей радиусов
+                    -- Update positions of existing radius particles
                     for key, particle in pairs(range_particles) do
                         if particle then
                             Particle.SetControlPoint(particle, 0, hero_pos)
@@ -1054,7 +1054,7 @@ local function DrawDebugInfo()
                     end
                 end
             else
-                -- Очищаем партикли радиусов если отключена настройка
+                -- Clear radius particles if setting is disabled
                 for key, particle in pairs(range_particles) do
                     if particle then
                         Particle.Destroy(particle)
@@ -1063,9 +1063,9 @@ local function DrawDebugInfo()
                 range_particles = {}
             end
             
-            -- Обновляем партикли целей каждые 0.1 секунды
+            -- Update target particles every 0.1 seconds
             if ui.draw_targets:Get() and (current_time - last_particle_update) > 0.1 then
-                -- Очищаем старые партикли целей
+                -- Clear old target particles
                 for key, particle in pairs(target_particles) do
                     if particle then
                         Particle.Destroy(particle)
@@ -1087,28 +1087,28 @@ local function DrawDebugInfo()
                         local can_kill = CanLastHitCreep(creep, hero, dagger)
                         
                         if can_kill then
-                            -- Цвет зависит от типа крипа
+                            -- Color depends on creep type
                             local circle_color
                             if creep_type == "flagbearer" then
-                                circle_color = Color(255, 0, 0, 255) -- Красный для знаменосцев
+                                circle_color = Color(255, 0, 0, 255) -- Red for flagbearers
                             elseif creep_type == "siege" then
-                                circle_color = Color(255, 215, 0, 255) -- Золотой для осадных
+                                circle_color = Color(255, 215, 0, 255) -- Gold for siege
                             elseif creep_type == "ranged" then
-                                circle_color = Color(0, 255, 0, 255) -- Зеленый для рейнж
+                                circle_color = Color(0, 255, 0, 255) -- Green for ranged
                             elseif creep_type == "melee" then
-                                circle_color = Color(0, 200, 255, 255) -- Синий для мили
+                                circle_color = Color(0, 200, 255, 255) -- Blue for melee
                             else -- neutral
-                                circle_color = Color(255, 165, 0, 255) -- Оранжевый для нейтралов
+                                circle_color = Color(255, 165, 0, 255) -- Orange for neutrals
                             end
                             
-                            -- Основной круг для цели
+                            -- Main circle for target
                             local target_key = "target_" .. tostring(i)
                             local target_particle = CreateTargetParticle(creep_pos, 50, circle_color, target_key)
                             if target_particle then
                                 target_particles[target_key] = target_particle
                             end
                             
-                            -- Дополнительный круг для высокого приоритета
+                            -- Extra circle for high priority
                             if creep_priority >= 8 then
                                 local priority_key = "priority_" .. tostring(i)
                                 local priority_particle = CreateTargetParticle(creep_pos, 70, Color(255, 255, 255, 150), priority_key)
@@ -1117,7 +1117,7 @@ local function DrawDebugInfo()
                                 end
                             end
                         else
-                            -- Желтый круг для целей в радиусе но которых нельзя добить
+                            -- Yellow circle for targets in range that are not killable
                             local invalid_key = "invalid_" .. tostring(i)
                             local invalid_particle = CreateTargetParticle(creep_pos, 50, Color(255, 255, 0, 100), invalid_key)
                             if invalid_particle then
@@ -1136,7 +1136,7 @@ local function DrawDebugInfo()
         ClearAllParticles()
     end
     
-    -- АНИМИРОВАННАЯ ПАНЕЛЬКА ДЛЯ MARK OF DEATH (всегда работает)
+    -- ANIMATED PANEL FOR MARK OF DEATH (always active)
     local selectedUnits = Player.GetSelectedUnits(Players.GetLocal())
     if not selectedUnits then return end
 
@@ -1181,11 +1181,11 @@ local function DrawDebugInfo()
     local isTextVisible = Input.IsCursorInRect(blackRectX, blackRectY, blackRectW, blackRectH)
     local targetRectAlpha = 135
 
-    -- Проверяем, полностью ли растянута панель
+    -- Check whether panel is fully expanded
     local eps = 0.1
     local isFullyExpanded = (math.abs(currentRectX - x_btn) < eps) and (math.abs(currentRectW - w_btn) < eps)
     
-    -- Текст появляется только если панель полностью растянута
+    -- Text appears only when panel is fully expanded
     local targetLetterAlpha = (isTextVisible and isFullyExpanded) and 255 or 0
 
     rectCurrColor.a = Approach(rectCurrColor.a, targetRectAlpha, colorAnimSpeed)
@@ -1205,7 +1205,7 @@ local function DrawDebugInfo()
     local colorRectW = currentRectW
     local colorRectH = halfRectH
 
-    -- Логика раскрытия всегда работает при enabled
+    -- Expand/collapse logic always works when enabled
     local isHoverAnyRect = false
     if (Input.IsCursorInRect(blackRectX, blackRectY, blackRectW, blackRectH) or 
         Input.IsCursorInRect(colorRectX, colorRectY, colorRectW, colorRectH)) then
@@ -1254,7 +1254,7 @@ local function DrawDebugInfo()
     Render.FilledRect(Vec2(fullX, fullY), Vec2(fullX + fullW, fullY + fullH), rectCurrColor, 3, Enum.DrawFlags.RoundCornersTop)
     Render.Shadow(Vec2(fullX + 1, fullY + 1), Vec2(fullX + fullW - 3, fullY + fullH), rectCurrColor, 20)
     
-    -- Показываем текст всегда, но с анимированной альфой
+    -- Show text always, but with animated alpha
     if letterCurrColor.a > 0 then
         local topY = actualYTop + currentYOffset
         local bottomY = actualYBot
@@ -1268,7 +1268,7 @@ local function DrawDebugInfo()
         Render.Text(1, 20, statusText, Vec2(textX, textY), letterCurrColor)
     end
 
-    -- Обработка клика на черный прямоугольник для переключения Mark of Death
+    -- Handle click on black rectangle to toggle Mark of Death
     if Input.IsCursorInRect(blackRectX, blackRectY, blackRectW, blackRectH) and Input.IsKeyDownOnce(Enum.ButtonCode.KEY_MOUSE1) then
         ui.mark_enabled:Set(not isEnabled)
     end
@@ -1392,7 +1392,7 @@ ui.particle_type:SetCallback(function()
         end
     end
     range_particles = {}
-    last_dagger_range = -1 -- Принудительно обновляем
+    last_dagger_range = -1 -- Force update
 end)
 
 -- Callback para mudança de cor
@@ -1404,7 +1404,7 @@ ui.range_color:SetCallback(function()
         end
     end
     range_particles = {}
-    last_dagger_range = -1 -- Принудительно обновляем
+    last_dagger_range = -1 -- Force update
 end)
 
 -- Callbacks para configurações Mark of Death
