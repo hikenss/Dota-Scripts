@@ -385,16 +385,37 @@ do
         UI.showPredictions = settings:Switch("Show Enemy Predictions", false, "\u{f1e0}")
         UI.debugLogs       = settings:Switch("Debug Logs", false, "\u{f188}")
 
-        UI.enabled:ToolTip("Master toggle for Smart Build item recommendations")
-        UI.visibilityMode:ToolTip("Always: always visible | Only Shop: show only when shop is open")
-        UI.showAxes:ToolTip("Display 5-axis threat breakdown bars")
-        UI.showPredictions:ToolTip("Show predicted enemy item purchases")
-        UI.debugLogs:ToolTip("Print scoring details to console log")
+        if UI.enabled and type(UI.enabled.ToolTip) == "function" then UI.enabled:ToolTip("Master toggle for Smart Build item recommendations") end
+        if UI.visibilityMode and type(UI.visibilityMode.ToolTip) == "function" then UI.visibilityMode:ToolTip("Always: always visible | Only Shop: show only when shop is open") end
+        if UI.showAxes and type(UI.showAxes.ToolTip) == "function" then UI.showAxes:ToolTip("Display 5-axis threat breakdown bars") end
+        if UI.showPredictions and type(UI.showPredictions.ToolTip) == "function" then UI.showPredictions:ToolTip("Show predicted enemy item purchases") end
+        if UI.debugLogs and type(UI.debugLogs.ToolTip) == "function" then UI.debugLogs:ToolTip("Print scoring details to console log") end
 
         -- STRATZ is now always enabled with the built-in token.
         -- No token input needed in the menu.
         if api and type(api.configureStratz) == "function" then
             api.configureStratz(api.getStratzToken and api.getStratzToken() or "", true)
+        end
+
+        -- Seção de configuração das chaves LLM (Gemini e Groq)
+        local llmSection = main:Create("AI Keys")
+        if llmSection then
+            UI.geminiKey = llmSection:InputText("Gemini API Key", "")
+            UI.groqKey   = llmSection:InputText("Groq API Key", "")
+            
+            -- Carrega chaves salvas anteriormente
+            if api and type(api.getGeminiKey) == "function" then
+                local savedGemini = api.getGeminiKey()
+                if savedGemini and savedGemini ~= "" and UI.geminiKey and type(UI.geminiKey.Set) == "function" then
+                    UI.geminiKey:Set(savedGemini)
+                end
+            end
+            if api and type(api.getGroqKey) == "function" then
+                local savedGroq = api.getGroqKey()
+                if savedGroq and savedGroq ~= "" and UI.groqKey and type(UI.groqKey.Set) == "function" then
+                    UI.groqKey:Set(savedGroq)
+                end
+            end
         end
     end
 end
@@ -411,7 +432,12 @@ FLog("[BuildEngine] Loaded. Modules: api_client, match_collector, threat_detecto
 )
 
 local function dbg(msg)
-    if UI.debugLogs and UI.debugLogs:Get() then
+    local debug = false
+    if UI.debugLogs then
+        if type(UI.debugLogs.Get) == "function" then debug = UI.debugLogs:Get()
+        elseif type(UI.debugLogs.GetValue) == "function" then debug = UI.debugLogs:GetValue() end
+    end
+    if debug then
         Log.Write("[BuildEngine] " .. tostring(msg))
     end
 end
@@ -723,7 +749,11 @@ local function fullRefresh()
 
     -- 3. Adapt build using merged data + all analysis
     if S.threatProfile then
-        local maxItems = UI.maxItems and UI.maxItems:Get() or 3
+        local maxItems = 3
+        if UI.maxItems then
+            if type(UI.maxItems.Get) == "function" then maxItems = UI.maxItems:Get()
+            elseif type(UI.maxItems.GetValue) == "function" then maxItems = UI.maxItems:GetValue() end
+        end
         local buildData = S.mergedBuild or S.metaBuild
         S.recommendations = adaptBuild(snap, buildData, S.threatProfile, maxItems,
                                        S.enemyItemInfo, S.teamAxes)
@@ -749,8 +779,37 @@ end
 --------------------------------------------------------------------------------
 -- CALLBACKS
 --------------------------------------------------------------------------------
+-- Leitura segura de InputText do menu
+local function getMenuText(uiField)
+    if not uiField then return "" end
+    if type(uiField.Get) == "function" then return uiField:Get() or "" end
+    if type(uiField.GetValue) == "function" then return uiField:GetValue() or "" end
+    if type(uiField.GetText) == "function" then return uiField:GetText() or "" end
+    return ""
+end
+
+local _llmKeysSynced = false
+local function syncLLMKeys()
+    if _llmKeysSynced then return end
+    if not api or type(api.setLLMKeys) ~= "function" then return end
+    local gKey = getMenuText(UI.geminiKey)
+    local rKey = getMenuText(UI.groqKey)
+    if gKey ~= "" or rKey ~= "" then
+        api.setLLMKeys(gKey, rKey)
+        _llmKeysSynced = true
+        FLog(string.format("[BuildEngine] LLM keys synced from menu: gemini=%s groq=%s",
+            gKey ~= "" and "set" or "empty", rKey ~= "" and "set" or "empty"))
+    end
+end
+
 function script.OnUpdate()
-    if not (UI.enabled and UI.enabled:Get()) then return end
+    if not UI.enabled then return end
+    local enabled = false
+    if type(UI.enabled.Get) == "function" then enabled = UI.enabled:Get()
+    elseif type(UI.enabled.GetValue) == "function" then enabled = UI.enabled:GetValue() end
+    if not enabled then return end
+
+    syncLLMKeys()
 
     local now = collector.getRawGameTime()
     if (now - S.lastUpdateAt) >= UPDATE_INTERVAL then
@@ -760,9 +819,18 @@ function script.OnUpdate()
 end
 
 local function ShouldDrawPanel()
-    if not (UI.enabled and UI.enabled:Get()) then return false end
+    if not UI.enabled then return false end
+    local enabled = false
+    if type(UI.enabled.Get) == "function" then enabled = UI.enabled:Get()
+    elseif type(UI.enabled.GetValue) == "function" then enabled = UI.enabled:GetValue() end
+    
+    if not enabled then return false end
+    
     if UI.visibilityMode then
-        local mode = UI.visibilityMode:Get() or 0
+        local mode = 0
+        if type(UI.visibilityMode.Get) == "function" then mode = UI.visibilityMode:Get()
+        elseif type(UI.visibilityMode.GetValue) == "function" then mode = UI.visibilityMode:GetValue() end
+        
         if mode >= 1 then  -- Only Shop
             return IsShopOpen()
         end
@@ -867,7 +935,12 @@ function script.OnDraw()
         rows[#rows+1] = {text="OpenDota: "..src..stratzTxt..loadTxt, color=cDim, small=true}
 
         -- 5-Axis threat bars
-        if UI.showAxes and UI.showAxes:Get() and S.teamAxes then
+        local showAxes = false
+        if UI.showAxes then
+            if type(UI.showAxes.Get) == "function" then showAxes = UI.showAxes:Get()
+            elseif type(UI.showAxes.GetValue) == "function" then showAxes = UI.showAxes:GetValue() end
+        end
+        if showAxes and S.teamAxes then
             rows[#rows+1] = {text="THREAT AXES", color=cCyan, header=true}
             local axes = {
                 {key="magic",    label="Magic",    c=Color(150,100,255,255)},
@@ -894,7 +967,12 @@ function script.OnDraw()
         end
 
         -- Threat warnings
-        if UI.showThreats and UI.showThreats:Get() and #S.warnings > 0 then
+        local showThreats = false
+        if UI.showThreats then
+            if type(UI.showThreats.Get) == "function" then showThreats = UI.showThreats:Get()
+            elseif type(UI.showThreats.GetValue) == "function" then showThreats = UI.showThreats:GetValue() end
+        end
+        if showThreats and #S.warnings > 0 then
             for i = 1, math.min(#S.warnings, 4) do
                 rows[#rows+1] = {text="!! " .. S.warnings[i], color=cRed, small=true}
             end
@@ -925,7 +1003,12 @@ function script.OnDraw()
         end
 
         -- Enemy predictions
-        if UI.showPredictions and UI.showPredictions:Get() and S.predictions and S.predictions.predictions then
+        local showPredictions = false
+        if UI.showPredictions then
+            if type(UI.showPredictions.Get) == "function" then showPredictions = UI.showPredictions:Get()
+            elseif type(UI.showPredictions.GetValue) == "function" then showPredictions = UI.showPredictions:GetValue() end
+        end
+        if showPredictions and S.predictions and S.predictions.predictions then
             local hasPreds = false
             for _ in pairs(S.predictions.predictions) do hasPreds = true; break end
             if hasPreds then

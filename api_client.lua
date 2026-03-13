@@ -472,6 +472,16 @@ local STRATZ_URL = "https://api.stratz.com/graphql"
 local STRATZ_MIN_INTERVAL = 120
 local STRATZ_CACHE_FILE   = "item_build_stratz_v1"
 
+-- As chaves de API são carregadas do arquivo de configuração do Umbrella.
+-- Para configurar, edite o arquivo de config do Umbrella e adicione:
+--   [llm_keys] gemini = SUA_CHAVE_GEMINI
+--   [llm_keys] groq = SUA_CHAVE_GROQ
+-- Ou use a função M.setLLMKeys(geminiKey, groqKey) para definir em runtime.
+local llm_keys = {
+    gemini = "",  -- Defina via M.setLLMKeys() ou pelo menu
+    groq   = ""   -- Defina via M.setLLMKeys() ou pelo menu
+}
+
 local stratz = {
     token      = "",
     enabled    = false,
@@ -766,6 +776,76 @@ local function initFromConfig()
 end
 
 M.initFromConfig = initFromConfig
+
+--- Define as chaves LLM em runtime (chamado pelo build_engine após o menu ser criado)
+function M.setLLMKeys(geminiKey, groqKey)
+    if geminiKey and geminiKey ~= "" then
+        llm_keys.gemini = geminiKey
+        cfgWrite("llm_keys", "gemini", geminiKey)
+        Log.Write("[API|LLM] Gemini key configured (len=" .. #geminiKey .. ")")
+    end
+    if groqKey and groqKey ~= "" then
+        llm_keys.groq = groqKey
+        cfgWrite("llm_keys", "groq", groqKey)
+        Log.Write("[API|LLM] Groq key configured (len=" .. #groqKey .. ")")
+    end
+end
+
+--- Carrega as chaves LLM do config persistido
+local function initLLMKeys()
+    local g = cfgRead("llm_keys", "gemini", "")
+    local r = cfgRead("llm_keys", "groq", "")
+    if g and g ~= "" then llm_keys.gemini = g end
+    if r and r ~= "" then llm_keys.groq = r end
+    Log.Write(string.format("[API|LLM] Keys loaded: gemini=%s groq=%s",
+        llm_keys.gemini ~= "" and "yes" or "not set",
+        llm_keys.groq ~= "" and "yes" or "not set"))
+end
+
+function M.getGeminiKey() return llm_keys.gemini end
+function M.getGroqKey() return llm_keys.groq end
+
+-- Funções para uso futuro em chamadas LLM
+function M.callGeminiAPI(prompt, callback)
+    local url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" .. llm_keys.gemini
+    local body = M.encodeJSON({
+        contents = {{ parts = {{ text = prompt }} }}
+    })
+    
+    httpPost(url, body, nil, function(respBody)
+        local data = decodeJSON(respBody)
+        if data and data.candidates and data.candidates[1] and data.candidates[1].content then
+            local text = data.candidates[1].content.parts[1].text
+            if callback then callback(text) end
+        else
+            if callback then callback(nil, "Invalid response from Gemini") end
+        end
+    end, function(status)
+        if callback then callback(nil, "HTTP error: " .. tostring(status)) end
+    end)
+end
+
+function M.callGroqAPI(prompt, callback)
+    local url = "https://api.groq.com/openai/v1/chat/completions"
+    local body = M.encodeJSON({
+        model = "llama3-8b-8192",
+        messages = {{ role = "user", content = prompt }}
+    })
+    
+    httpPost(url, body, llm_keys.groq, function(respBody)
+        local data = decodeJSON(respBody)
+        if data and data.choices and data.choices[1] and data.choices[1].message then
+            local text = data.choices[1].message.content
+            if callback then callback(text) end
+        else
+            if callback then callback(nil, "Invalid response from Groq") end
+        end
+    end, function(status)
+        if callback then callback(nil, "HTTP error: " .. tostring(status)) end
+    end)
+end
+
 initFromConfig()  -- run immediately at require() time
+initLLMKeys()     -- load persisted LLM API keys
 
 return M
