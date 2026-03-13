@@ -236,25 +236,25 @@ function M.collectSnapshot()
     -- Path 1: Heroes.GetLocal() (standard)
     me = safeStatic(Heroes, "GetLocal")
     if me then
-        FLog("Hero found via Heroes.GetLocal()")
+        logDiag("Hero found via Heroes.GetLocal()")
     end
 
     -- Path 2: iterate Heroes.GetAll(), check Entity.IsLocal(hero)
     if not me then
         local allH = safeStatic(Heroes, "GetAll") or {}
-        FLog("Path 2: Heroes.GetAll() returned " .. tostring(#allH) .. " heroes")
+        logDiag("Path 2: Heroes.GetAll() returned " .. tostring(#allH) .. " heroes")
         for _, hero in ipairs(allH) do
             if hero then
                 local isLocal = safeStatic(Entity, "IsLocal", hero)
                 if isLocal == true then
                     me = hero
-                    FLog("Hero found via Entity.IsLocal() in GetAll loop")
+                    logDiag("Hero found via Entity.IsLocal() in GetAll loop")
                     break
                 end
                 local isLP = safeStatic(Entity, "IsLocalPlayer", hero)
                 if isLP == true then
                     me = hero
-                    FLog("Hero found via Entity.IsLocalPlayer() in GetAll loop")
+                    logDiag("Hero found via Entity.IsLocalPlayer() in GetAll loop")
                     break
                 end
             end
@@ -265,13 +265,13 @@ function M.collectSnapshot()
     if not me then
         local player = safeStatic(Players, "GetLocal")
         if player then
-            FLog("Path 3: Players.GetLocal() OK, trying GetAssignedHero")
+            logDiag("Path 3: Players.GetLocal() OK, trying GetAssignedHero")
             me = safeStatic(Player, "GetAssignedHero", player)
             if me then
-                FLog("Hero found via Player.GetAssignedHero()")
+                logDiag("Hero found via Player.GetAssignedHero()")
             else
                 local pid = safeStatic(Player, "GetPlayerID", player)
-                FLog("Path 3b: PlayerID=" .. tostring(pid))
+                logDiag("Path 3b: PlayerID=" .. tostring(pid))
                 if pid then
                     local allH = safeStatic(Heroes, "GetAll") or {}
                     for _, hero in ipairs(allH) do
@@ -279,7 +279,7 @@ function M.collectSnapshot()
                             local hpid = safeStatic(Player, "GetPlayerID", hero)
                             if hpid == pid then
                                 me = hero
-                                FLog("Hero found via PlayerID match in GetAll")
+                                logDiag("Hero found via PlayerID match in GetAll")
                                 break
                             end
                         end
@@ -287,7 +287,7 @@ function M.collectSnapshot()
                 end
             end
         else
-            FLog("Path 3: Players.GetLocal() returned nil")
+            logDiag("Path 3: Players.GetLocal() returned nil")
         end
     end
 
